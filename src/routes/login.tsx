@@ -19,7 +19,7 @@ function Login() {
         <img
           src={loginBg.url}
           alt="Students learning with StudyMate AI"
-          className="absolute inset-0 h-full w-full object-cover"
+          className="absolute inset-0 h-full w-full object-cover [object-position:center_25%]"
         />
         {/* Heavy overlays so the image becomes a textured backdrop */}
         <div className="absolute inset-0 bg-slate-950/55" />
