@@ -3,6 +3,7 @@ import { GraduationCap, Mail, Lock, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import loginBg from "@/assets/loginBg.png.asset.json";
 
 export const Route = createFileRoute("/register")({
   head: () => ({ meta: [{ title: "Sign up — StudyMate AI" }] }),
@@ -14,13 +15,12 @@ function Register() {
     <div
       className="relative min-h-screen flex items-center justify-center p-4 sm:p-6"
       style={{
-        backgroundImage:
-          "url('https://images.unsplash.com/photo-1532012197267-da84d127e765?auto=format&fit=crop&w=1920&q=80')",
+        backgroundImage: `url('${loginBg.url}')`,
         backgroundSize: "cover",
         backgroundPosition: "center",
       }}
     >
-      <div className="absolute inset-0 backdrop-blur-md bg-background/40" />
+      <div className="absolute inset-0 bg-white/60 backdrop-blur-[2px]" />
 
       <div className="relative w-full max-w-md rounded-2xl border border-white/20 bg-background/80 backdrop-blur-xl shadow-glow p-8 sm:p-10 animate-fade-in">
         <div className="mb-6 flex flex-col items-center text-center">
