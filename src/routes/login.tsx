@@ -31,25 +31,26 @@ function Login() {
 
       <div className="flex-1 w-full grid md:grid-cols-2">
         {/* Left themed panel */}
-        <div className="relative bg-gradient-primary p-10 flex flex-col text-primary-foreground overflow-hidden">
+        <div className="relative bg-gradient-primary p-10 flex flex-col text-white overflow-hidden">
           <h2 className="font-display text-3xl font-light tracking-wide">Welcome to</h2>
 
           <div className="flex-1 flex flex-col items-center justify-center text-center">
-            <div className="grid h-24 w-24 place-items-center rounded-full bg-white/95 shadow-lg mb-5">
+            <div className="grid h-24 w-24 place-items-center rounded-full bg-white shadow-lg mb-5">
               <Rocket className="h-12 w-12 text-primary" strokeWidth={1.5} />
             </div>
-            <h1 className="font-display text-4xl font-semibold tracking-wide">StudyMate</h1>
-            <p className="mt-6 text-sm text-primary-foreground/80 leading-relaxed max-w-xs">
+            <h1 className="font-display text-4xl font-semibold tracking-wide text-white">StudyMate</h1>
+            <p className="mt-6 text-sm text-white/80 leading-relaxed max-w-xs">
               Turn your notes into summaries, quizzes, and flashcards.
               AI-powered learning that adapts to you.
             </p>
           </div>
 
-          <div className="flex items-center gap-3 text-[10px] tracking-[0.2em] text-primary-foreground/70">
-            <span>LEARN <span className="text-primary-foreground font-semibold ml-1">SMARTER</span></span>
-            <span className="h-3 w-px bg-primary-foreground/40" />
-            <span>STUDY <span className="text-primary-foreground font-semibold ml-1">FASTER</span></span>
+          <div className="flex items-center gap-3 text-[10px] tracking-[0.2em] text-white/70">
+            <span>LEARN <span className="text-white font-semibold ml-1">SMARTER</span></span>
+            <span className="h-3 w-px bg-white/40" />
+            <span>STUDY <span className="text-white font-semibold ml-1">FASTER</span></span>
           </div>
+
 
           <svg
             className="absolute top-0 right-0 h-full w-16 text-background"
