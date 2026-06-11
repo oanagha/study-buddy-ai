@@ -18,13 +18,6 @@ function Register() {
           </span>
           StudyMate
         </Link>
-        <button
-          onClick={toggle}
-          aria-label="Toggle theme"
-          className="h-9 w-9 grid place-items-center rounded-full border border-border text-foreground hover:bg-muted transition-colors"
-        >
-          {theme === "dark" ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
-        </button>
       </header>
 
       <div className="flex-1 w-full grid md:grid-cols-2">
