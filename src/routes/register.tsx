@@ -9,8 +9,8 @@ export const Route = createFileRoute("/register")({
 
 function Register() {
   return (
-    <div className="min-h-screen w-full flex items-center justify-center bg-slate-100 p-4 sm:p-8">
-      <div className="w-full max-w-5xl bg-white rounded-3xl shadow-2xl overflow-hidden grid md:grid-cols-2 min-h-[640px]">
+    <div className="h-screen w-full flex bg-white">
+      <div className="w-full h-full grid md:grid-cols-2">
         {/* Left blue panel */}
         <div className="relative bg-gradient-to-br from-[#2563eb] via-[#1d4ed8] to-[#1e40af] p-10 flex flex-col text-white overflow-hidden">
           <h2 className="font-display text-3xl font-light tracking-wide">Welcome to</h2>
