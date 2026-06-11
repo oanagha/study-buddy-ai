@@ -13,7 +13,7 @@ export const Route = createFileRoute("/login")({
 
 function Login() {
   return (
-    <div className="min-h-screen grid lg:grid-cols-[1.05fr_1fr] bg-background">
+    <div className="lg:h-screen lg:overflow-hidden min-h-screen grid lg:grid-cols-2 bg-background">
       {/* Left hero */}
       <div className="relative hidden lg:block overflow-hidden">
         <img
@@ -21,9 +21,10 @@ function Login() {
           alt="Students learning with StudyMate AI"
           className="absolute inset-0 h-full w-full object-cover"
         />
-        {/* Gradient overlay for legibility & premium feel */}
-        <div className="absolute inset-0 bg-gradient-to-br from-primary/85 via-primary/55 to-secondary/80 mix-blend-multiply" />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-black/20" />
+        {/* Heavy overlays so the image becomes a textured backdrop */}
+        <div className="absolute inset-0 bg-slate-950/55" />
+        <div className="absolute inset-0 bg-gradient-to-br from-primary/80 via-primary/40 to-secondary/70 mix-blend-multiply" />
+        <div className="absolute inset-0 bg-gradient-to-t from-slate-950/85 via-slate-950/20 to-transparent" />
 
         {/* Brand */}
         <Link to="/" className="absolute top-8 left-8 inline-flex items-center gap-2.5 z-10">
@@ -38,18 +39,18 @@ function Login() {
         {/* Content */}
         <div className="absolute inset-x-0 bottom-0 p-10 xl:p-14 z-10 text-white">
           <div className="max-w-lg">
-            <span className="inline-flex items-center gap-2 rounded-full bg-white/10 backdrop-blur-md ring-1 ring-white/25 px-3 py-1 text-xs font-medium tracking-wide uppercase">
+            <span className="inline-flex items-center gap-2 rounded-full bg-white/10 backdrop-blur-md ring-1 ring-white/25 px-3 py-1 text-[11px] font-medium tracking-wider uppercase">
               <Sparkles className="h-3.5 w-3.5" /> AI-powered learning
             </span>
-            <h2 className="mt-5 font-display text-4xl xl:text-5xl font-semibold leading-[1.05] tracking-tight">
+            <h2 className="mt-5 font-display text-3xl xl:text-4xl font-semibold leading-[1.1] tracking-tight">
               Turn your notes into mastery.
             </h2>
-            <p className="mt-4 text-white/85 text-base xl:text-lg leading-relaxed">
+            <p className="mt-3 text-white/80 text-sm xl:text-base leading-relaxed max-w-md">
               Summaries, quizzes, flashcards, and personalized plans — all generated
               from the material you already have.
             </p>
 
-            <div className="mt-8 grid grid-cols-3 gap-4 max-w-md">
+            <div className="mt-6 grid grid-cols-3 gap-4 max-w-md border-t border-white/15 pt-5">
               <Stat value="120k+" label="Learners" />
               <Stat value="4.9★" label="Avg. rating" />
               <Stat value="98%" label="Pass rate" />
@@ -59,7 +60,7 @@ function Login() {
       </div>
 
       {/* Right form */}
-      <div className="flex items-center justify-center p-6 sm:p-10 bg-background">
+      <div className="flex items-center justify-center p-6 sm:p-10 bg-background lg:overflow-y-auto">
         <div className="w-full max-w-md animate-fade-in">
           {/* Mobile brand */}
           <Link to="/" className="lg:hidden inline-flex items-center gap-2 mb-8">
