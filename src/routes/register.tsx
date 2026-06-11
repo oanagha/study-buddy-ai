@@ -3,7 +3,7 @@ import { GraduationCap, Mail, Lock, User } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import loginBg from "@/assets/loginBg.png.asset.json";
+import loginBg from "@/assets/loginHero.png.asset.json";
 
 export const Route = createFileRoute("/register")({
   head: () => ({ meta: [{ title: "Sign up — StudyMate AI" }] }),
