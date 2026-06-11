@@ -92,10 +92,11 @@ function Register() {
             <div className="flex items-center gap-4 pt-2">
               <Button
                 type="submit"
-                className="rounded-full px-8 h-11 bg-gradient-primary text-primary-foreground shadow-glow hover:opacity-90"
+                className="rounded-full px-8 h-11 bg-gradient-primary text-white shadow-glow hover:opacity-90"
               >
                 Sign Up
               </Button>
+
               <Link
                 to="/login"
                 className="rounded-full px-8 h-11 inline-flex items-center justify-center border border-border text-foreground hover:bg-muted text-sm font-medium"
