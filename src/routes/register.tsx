@@ -17,7 +17,7 @@ function Register() {
         <img
           src={loginBg.url}
           alt="Students learning with StudyMate AI"
-          className="absolute inset-0 h-full w-full object-cover"
+          className="absolute inset-0 h-full w-full object-cover [object-position:center_25%]"
         />
         <div className="absolute inset-0 bg-slate-950/55" />
         <div className="absolute inset-0 bg-gradient-to-br from-primary/80 via-primary/40 to-secondary/70 mix-blend-multiply" />
