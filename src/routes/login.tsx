@@ -13,35 +13,36 @@ export const Route = createFileRoute("/login")({
 function Login() {
   return (
     <div className="min-h-screen grid lg:grid-cols-2 bg-[#f5f3ff]">
-      {/* Left hero with full bg image */}
-      <div
-        className="relative hidden lg:flex flex-col justify-between p-12 overflow-hidden bg-cover bg-center"
-        style={{ backgroundImage: `url('${loginBg.url}')` }}
-      >
-        <div className="absolute inset-0 bg-white/40 backdrop-blur-[1px]" />
-
-        <Link to="/" className="relative z-10 inline-flex items-center gap-2">
+      {/* Left hero */}
+      <div className="relative hidden lg:flex flex-col justify-between p-12 overflow-hidden">
+        <Link to="/" className="inline-flex items-center gap-2 z-10">
           <div className="grid h-10 w-10 place-items-center rounded-xl bg-gradient-primary">
             <GraduationCap className="h-5 w-5 text-primary-foreground" />
           </div>
-          <span className="font-display font-bold text-xl text-foreground">StudyMate AI</span>
+          <span className="font-display font-bold text-xl">StudyMate AI</span>
         </Link>
 
-        <div className="relative z-10 space-y-6 max-w-lg">
-          <h1 className="font-display font-bold text-5xl xl:text-6xl leading-tight tracking-tight drop-shadow-sm">
+        <div className="z-10 space-y-6 max-w-lg">
+          <h1 className="font-display font-bold text-5xl xl:text-6xl leading-tight tracking-tight">
             <span className="text-foreground">Study Smarter,</span>
             <br />
             <span className="text-primary">Not Harder.</span>
           </h1>
-          <p className="text-foreground/80 text-lg max-w-md">
+          <p className="text-muted-foreground text-lg">
             Upload your notes and let AI turn them into summaries, quizzes,
             flashcards, and personalized study plans.
           </p>
         </div>
 
-        <div className="relative z-10 text-sm text-foreground/70">
-          © {new Date().getFullYear()} StudyMate AI
-        </div>
+        <img
+          src={loginBg.url}
+          alt="StudyMate AI preview"
+          className="z-10 w-full max-w-2xl rounded-2xl shadow-2xl object-cover"
+        />
+
+        {/* soft decorative blobs */}
+        <div className="absolute -top-32 -right-32 h-96 w-96 rounded-full bg-primary/20 blur-3xl" />
+        <div className="absolute bottom-0 left-0 h-72 w-72 rounded-full bg-primary/10 blur-3xl" />
       </div>
 
       {/* Right form */}
