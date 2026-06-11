@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { GraduationCap, Sparkles, Mail, Lock } from "lucide-react";
+import { GraduationCap, Mail, Lock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -11,74 +11,78 @@ export const Route = createFileRoute("/login")({
 
 function Login() {
   return (
-    <div className="min-h-screen grid lg:grid-cols-2">
-      {/* Left: hero */}
-      <div className="hidden lg:flex relative bg-gradient-primary p-12 flex-col justify-between text-primary-foreground overflow-hidden">
-        <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(255,255,255,0.15),transparent)]" />
-        <Link to="/" className="relative flex items-center gap-2">
-          <div className="grid h-10 w-10 place-items-center rounded-xl bg-white/15 backdrop-blur">
-            <GraduationCap className="h-5 w-5" />
-          </div>
-          <span className="font-display font-bold text-lg">StudyMate AI</span>
-        </Link>
-        <div className="relative">
-          <Sparkles className="h-8 w-8 mb-4" />
-          <h2 className="text-4xl font-bold font-display leading-tight">Welcome back.<br />Let's keep your streak alive.</h2>
-          <p className="mt-4 text-primary-foreground/80">Your AI study companion is ready when you are.</p>
+    <div
+      className="relative min-h-screen flex items-center justify-center p-4 sm:p-6"
+      style={{
+        backgroundImage:
+          "url('https://images.unsplash.com/photo-1532012197267-da84d127e765?auto=format&fit=crop&w=1920&q=80')",
+        backgroundSize: "cover",
+        backgroundPosition: "center",
+      }}
+    >
+      {/* Blurred overlay */}
+      <div className="absolute inset-0 backdrop-blur-md bg-background/40" />
+
+      <div className="relative w-full max-w-md rounded-2xl border border-white/20 bg-background/80 backdrop-blur-xl shadow-glow p-8 sm:p-10 animate-fade-in">
+        <div className="mb-6 flex flex-col items-center text-center">
+          <Link to="/" className="inline-flex items-center gap-2 mb-6">
+            <div className="grid h-10 w-10 place-items-center rounded-xl bg-gradient-primary">
+              <GraduationCap className="h-5 w-5 text-primary-foreground" />
+            </div>
+            <span className="font-display font-bold text-lg">StudyMate AI</span>
+          </Link>
+          <h1 className="text-3xl font-bold font-display">Welcome back</h1>
+          <p className="text-muted-foreground mt-2">Log in to continue your learning journey.</p>
         </div>
-        <p className="relative text-sm text-primary-foreground/70">© 2026 StudyMate AI</p>
-      </div>
 
-      {/* Right: form */}
-      <div className="flex items-center justify-center p-6 sm:p-12">
-        <div className="w-full max-w-md">
-          <div className="lg:hidden mb-8">
-            <Link to="/" className="inline-flex items-center gap-2">
-              <div className="grid h-9 w-9 place-items-center rounded-xl bg-gradient-primary">
-                <GraduationCap className="h-5 w-5 text-primary-foreground" />
-              </div>
-              <span className="font-display font-bold">StudyMate AI</span>
-            </Link>
-          </div>
-          <h1 className="text-3xl font-bold font-display">Log in</h1>
-          <p className="text-muted-foreground mt-2">Continue where you left off.</p>
-
-          <form className="mt-8 space-y-4" onSubmit={(e) => { e.preventDefault(); window.location.href = "/app/dashboard"; }}>
-            <div className="space-y-1.5">
-              <Label htmlFor="email">Email</Label>
-              <div className="relative">
-                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                <Input id="email" type="email" placeholder="you@university.edu" className="pl-9 h-11" required />
-              </div>
-            </div>
-            <div className="space-y-1.5">
-              <div className="flex items-center justify-between">
-                <Label htmlFor="password">Password</Label>
-                <a href="#" className="text-xs text-primary hover:underline">Forgot password?</a>
-              </div>
-              <div className="relative">
-                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                <Input id="password" type="password" placeholder="••••••••" className="pl-9 h-11" required />
-              </div>
-            </div>
-            <Button type="submit" className="w-full h-11 bg-gradient-primary hover:opacity-90 shadow-glow">Log in</Button>
-          </form>
-
-          <div className="relative my-6">
-            <div className="absolute inset-0 flex items-center"><span className="w-full border-t" /></div>
-            <div className="relative flex justify-center text-xs uppercase">
-              <span className="bg-background px-2 text-muted-foreground">Or continue with</span>
+        <form
+          className="space-y-4"
+          onSubmit={(e) => {
+            e.preventDefault();
+            window.location.href = "/app/dashboard";
+          }}
+        >
+          <div className="space-y-1.5">
+            <Label htmlFor="email">Email</Label>
+            <div className="relative">
+              <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Input id="email" type="email" placeholder="you@university.edu" className="pl-9 h-11" required />
             </div>
           </div>
-
-          <Button variant="outline" className="w-full h-11 gap-2">
-            <GoogleIcon /> Continue with Google
+          <div className="space-y-1.5">
+            <div className="flex items-center justify-between">
+              <Label htmlFor="password">Password</Label>
+              <a href="#" className="text-xs text-primary hover:underline">Forgot password?</a>
+            </div>
+            <div className="relative">
+              <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+              <Input id="password" type="password" placeholder="••••••••" className="pl-9 h-11" required />
+            </div>
+          </div>
+          <Button type="submit" className="w-full h-11 bg-gradient-primary hover:opacity-90 shadow-glow">
+            Log in
           </Button>
+        </form>
 
-          <p className="mt-8 text-center text-sm text-muted-foreground">
-            Don't have an account? <Link to="/register" className="text-primary font-medium hover:underline">Create one</Link>
-          </p>
+        <div className="relative my-6">
+          <div className="absolute inset-0 flex items-center">
+            <span className="w-full border-t" />
+          </div>
+          <div className="relative flex justify-center text-xs uppercase">
+            <span className="bg-background/80 px-2 text-muted-foreground">Or continue with</span>
+          </div>
         </div>
+
+        <Button variant="outline" className="w-full h-11 gap-2 bg-background/60">
+          <GoogleIcon /> Continue with Google
+        </Button>
+
+        <p className="mt-8 text-center text-sm text-muted-foreground">
+          Don't have an account?{" "}
+          <Link to="/register" className="text-primary font-medium hover:underline">
+            Create one
+          </Link>
+        </p>
       </div>
     </div>
   );
