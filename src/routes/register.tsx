@@ -23,13 +23,12 @@ function Register() {
 
         <div className="z-10 space-y-6 max-w-lg">
           <h1 className="font-display font-bold text-5xl xl:text-6xl leading-tight tracking-tight">
-            <span className="text-foreground">Study Smarter,</span>
+            <span className="text-foreground"></span>
             <br />
-            <span className="text-primary">Not Harder.</span>
+            <span className="text-primary"></span>
           </h1>
-          <p className="text-muted-foreground text-lg">
-            Upload your notes and let AI turn them into summaries, quizzes,
-            flashcards, and personalized study plans.
+          <p className="text-muted-foreground text-lg whitespace-pre-line">
+            {"\n"}
           </p>
         </div>
 
