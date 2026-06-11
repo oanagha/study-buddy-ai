@@ -12,15 +12,16 @@ export const Route = createFileRoute("/register")({
 
 function Register() {
   return (
-    <div className="min-h-screen grid lg:grid-cols-[1.05fr_1fr] bg-background">
+    <div className="lg:h-screen lg:overflow-hidden min-h-screen grid lg:grid-cols-2 bg-background">
       <div className="relative hidden lg:block overflow-hidden">
         <img
           src={loginBg.url}
           alt="Students learning with StudyMate AI"
           className="absolute inset-0 h-full w-full object-cover"
         />
-        <div className="absolute inset-0 bg-gradient-to-br from-primary/85 via-primary/55 to-secondary/80 mix-blend-multiply" />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-black/20" />
+        <div className="absolute inset-0 bg-slate-950/55" />
+        <div className="absolute inset-0 bg-gradient-to-br from-primary/80 via-primary/40 to-secondary/70 mix-blend-multiply" />
+        <div className="absolute inset-0 bg-gradient-to-t from-slate-950/85 via-slate-950/20 to-transparent" />
 
         <Link to="/" className="absolute top-8 left-8 inline-flex items-center gap-2.5 z-10">
           <div className="grid h-10 w-10 place-items-center rounded-xl bg-white/15 backdrop-blur-md ring-1 ring-white/30">
@@ -33,13 +34,13 @@ function Register() {
 
         <div className="absolute inset-x-0 bottom-0 p-10 xl:p-14 z-10 text-white">
           <div className="max-w-lg">
-            <span className="inline-flex items-center gap-2 rounded-full bg-white/10 backdrop-blur-md ring-1 ring-white/25 px-3 py-1 text-xs font-medium tracking-wide uppercase">
+            <span className="inline-flex items-center gap-2 rounded-full bg-white/10 backdrop-blur-md ring-1 ring-white/25 px-3 py-1 text-[11px] font-medium tracking-wider uppercase">
               <Sparkles className="h-3.5 w-3.5" /> Join 120,000+ learners
             </span>
-            <h2 className="mt-5 font-display text-4xl xl:text-5xl font-semibold leading-[1.05] tracking-tight">
+            <h2 className="mt-5 font-display text-3xl xl:text-4xl font-semibold leading-[1.1] tracking-tight">
               Start studying smarter today.
             </h2>
-            <ul className="mt-6 space-y-3 text-white/90">
+            <ul className="mt-5 space-y-2.5 text-white/90">
               {[
                 "Instant AI summaries from any document",
                 "Auto-generated quizzes & flashcards",
@@ -49,7 +50,7 @@ function Register() {
                   <span className="mt-0.5 grid h-5 w-5 place-items-center rounded-full bg-white/20 ring-1 ring-white/30">
                     <Check className="h-3 w-3" />
                   </span>
-                  <span className="text-sm xl:text-base">{f}</span>
+                  <span className="text-sm">{f}</span>
                 </li>
               ))}
             </ul>
@@ -57,7 +58,7 @@ function Register() {
         </div>
       </div>
 
-      <div className="flex items-center justify-center p-6 sm:p-10 bg-background">
+      <div className="flex items-center justify-center p-6 sm:p-10 bg-background lg:overflow-y-auto">
         <div className="w-full max-w-md animate-fade-in">
           <Link to="/" className="lg:hidden inline-flex items-center gap-2 mb-8">
             <div className="grid h-10 w-10 place-items-center rounded-xl bg-gradient-primary">
