@@ -1,7 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { Rocket, Moon, Sun } from "lucide-react";
+import { Rocket } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { useTheme } from "@/lib/theme";
 
 export const Route = createFileRoute("/register")({
   head: () => ({ meta: [{ title: "Sign up — StudyMate AI" }] }),
@@ -9,7 +8,6 @@ export const Route = createFileRoute("/register")({
 });
 
 function Register() {
-  const { theme, toggle } = useTheme();
   return (
     <div className="h-screen w-full flex flex-col bg-background">
       {/* Header */}
