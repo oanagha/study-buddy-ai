@@ -1,7 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { Rocket, Moon, Sun } from "lucide-react";
+import { Rocket } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { useTheme } from "@/lib/theme";
 
 export const Route = createFileRoute("/login")({
   head: () => ({ meta: [{ title: "Log in — StudyMate AI" }] }),
@@ -9,7 +8,6 @@ export const Route = createFileRoute("/login")({
 });
 
 function Login() {
-  const { theme, toggle } = useTheme();
   return (
     <div className="h-screen w-full flex flex-col bg-background">
       {/* Header */}
@@ -20,13 +18,6 @@ function Login() {
           </span>
           StudyMate
         </Link>
-        <button
-          onClick={toggle}
-          aria-label="Toggle theme"
-          className="h-9 w-9 grid place-items-center rounded-full border border-border text-foreground hover:bg-muted transition-colors"
-        >
-          {theme === "dark" ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
-        </button>
       </header>
 
       <div className="flex-1 w-full grid md:grid-cols-2">
