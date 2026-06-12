@@ -25,8 +25,33 @@ function Login() {
             </p>
           </div>
 
+          <div className="flex items-center gap-3 text-[10px] tracking-[0.2em] text-white/70">
+            <span>LEARN <span className="text-white font-semibold ml-1">SMARTER</span></span>
+            <span className="h-3 w-px bg-white/40" />
+            <span>STUDY <span className="text-white font-semibold ml-1">FASTER</span></span>
+          </div>
+
+
+          <svg
+            className="absolute top-0 right-0 h-full w-16 text-background"
+            viewBox="0 0 60 600"
+            preserveAspectRatio="none"
+            fill="currentColor"
+          >
+            <path d="M60,0 Q20,75 40,150 Q60,225 20,300 Q-10,375 40,450 Q60,525 30,600 L60,600 Z" opacity="0.15" />
+            <path d="M60,0 Q30,75 50,150 Q70,225 30,300 Q0,375 50,450 Q70,525 40,600 L60,600 Z" opacity="0.25" />
+            <path d="M60,0 Q40,75 55,150 Q75,225 40,300 Q15,375 55,450 Q75,525 50,600 L60,600 Z" />
+          </svg>
+        </div>
+
+        {/* Right form panel */}
+        <div className="p-10 sm:p-12 flex flex-col justify-center bg-background">
+          <h2 className="font-display text-3xl text-center text-foreground font-normal mb-8">
+            Welcome back
+          </h2>
+
           <form
-            className="space-y-5"
+            className="space-y-6"
             onSubmit={(e) => {
               e.preventDefault();
               window.location.href = "/app/dashboard";
