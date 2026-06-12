@@ -1,10 +1,10 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { GraduationCap, Mail, Lock, ArrowRight, ShieldCheck, Sparkles, BookOpen } from "lucide-react";
+import { Mail, Lock, ArrowRight, ShieldCheck } from "lucide-react";
+import { AuthHeader } from "@/components/auth-header";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Checkbox } from "@/components/ui/checkbox";
-import loginBg from "@/assets/loginHero.png.asset.json";
 
 export const Route = createFileRoute("/login")({
   head: () => ({ meta: [{ title: "Log in — StudyMate AI" }] }),
@@ -13,67 +13,13 @@ export const Route = createFileRoute("/login")({
 
 function Login() {
   return (
-    <div className="lg:h-screen lg:overflow-hidden min-h-screen grid lg:grid-cols-2 bg-background">
-      {/* Left hero */}
-      <div className="relative hidden lg:block overflow-hidden">
-        <img
-          src={loginBg.url}
-          alt="Students learning with StudyMate AI"
-          className="absolute inset-0 h-full w-full object-cover [object-position:center_25%]"
-        />
-        {/* Heavy overlays so the image becomes a textured backdrop */}
-        <div className="absolute inset-0 bg-slate-950/55" />
-        <div className="absolute inset-0 bg-gradient-to-br from-primary/80 via-primary/40 to-secondary/70 mix-blend-multiply" />
-        <div className="absolute inset-0 bg-gradient-to-t from-slate-950/85 via-slate-950/20 to-transparent" />
+    <div className="min-h-screen lg:h-screen lg:overflow-hidden bg-background flex flex-col">
+      <AuthHeader />
 
-        {/* Brand */}
-        <Link to="/" className="absolute top-8 left-8 inline-flex items-center gap-2.5 z-10">
-          <div className="grid h-10 w-10 place-items-center rounded-xl bg-white/15 backdrop-blur-md ring-1 ring-white/30">
-            <GraduationCap className="h-5 w-5 text-white" />
-          </div>
-          <span className="font-display font-semibold text-lg text-white tracking-tight">
-            StudyMate AI
-          </span>
-        </Link>
-
-        {/* Content */}
-        <div className="absolute inset-x-0 bottom-0 p-10 xl:p-14 z-10 text-white">
-          <div className="max-w-lg">
-            <span className="inline-flex items-center gap-2 rounded-full bg-white/10 backdrop-blur-md ring-1 ring-white/25 px-3 py-1 text-[11px] font-medium tracking-wider uppercase">
-              <Sparkles className="h-3.5 w-3.5" /> AI-powered learning
-            </span>
-            <h2 className="mt-5 font-display text-3xl xl:text-4xl font-semibold leading-[1.1] tracking-tight">
-              Turn your notes into mastery.
-            </h2>
-            <p className="mt-3 text-white/80 text-sm xl:text-base leading-relaxed max-w-md">
-              Summaries, quizzes, flashcards, and personalized plans — all generated
-              from the material you already have.
-            </p>
-
-            <div className="mt-6 grid grid-cols-3 gap-4 max-w-md border-t border-white/15 pt-5">
-              <Stat value="120k+" label="Learners" />
-              <Stat value="4.9★" label="Avg. rating" />
-              <Stat value="98%" label="Pass rate" />
-            </div>
-          </div>
-        </div>
-      </div>
-
-      {/* Right form */}
-      <div className="flex items-center justify-center p-6 sm:p-10 bg-background lg:overflow-y-auto">
-        <div className="w-full max-w-md animate-fade-in">
-          {/* Mobile brand */}
-          <Link to="/" className="lg:hidden inline-flex items-center gap-2 mb-8">
-            <div className="grid h-10 w-10 place-items-center rounded-xl bg-gradient-primary">
-              <GraduationCap className="h-5 w-5 text-primary-foreground" />
-            </div>
-            <span className="font-display font-semibold text-lg">StudyMate AI</span>
-          </Link>
-
+      <div className="flex flex-1 items-center justify-center p-6 sm:p-10">
+        <div className="w-full max-w-md rounded-2xl border border-border/60 bg-card shadow-xl p-6 sm:p-8 animate-fade-in">
           <div className="mb-8">
-            <h1 className="text-3xl font-semibold font-display tracking-tight">
-              Welcome back
-            </h1>
+            <h1 className="text-3xl font-semibold font-display tracking-tight">Welcome back</h1>
             <p className="text-muted-foreground mt-2 text-sm">
               Sign in to your account to continue learning.
             </p>
@@ -107,9 +53,7 @@ function Login() {
                 <Label htmlFor="password" className="text-xs font-medium text-foreground/80">
                   Password
                 </Label>
-                <a href="#" className="text-xs text-primary font-medium hover:underline">
-                  Forgot password?
-                </a>
+               
               </div>
               <div className="relative">
                 <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
@@ -123,12 +67,7 @@ function Login() {
               </div>
             </div>
 
-            <div className="flex items-center gap-2">
-              <Checkbox id="remember" />
-              <Label htmlFor="remember" className="text-sm text-muted-foreground font-normal cursor-pointer">
-                Keep me signed in for 30 days
-              </Label>
-            </div>
+          
 
             <Button
               type="submit"
@@ -144,7 +83,7 @@ function Login() {
               <span className="w-full border-t" />
             </div>
             <div className="relative flex justify-center text-xs">
-              <span className="bg-background px-3 text-muted-foreground uppercase tracking-wider">
+              <span className="bg-card px-3 text-muted-foreground uppercase tracking-wider">
                 or
               </span>
             </div>
@@ -161,21 +100,9 @@ function Login() {
             </Link>
           </p>
 
-          <div className="mt-10 flex items-center justify-center gap-2 text-xs text-muted-foreground">
-            <ShieldCheck className="h-3.5 w-3.5" />
-            Protected by industry-standard encryption
-          </div>
+          
         </div>
       </div>
-    </div>
-  );
-}
-
-function Stat({ value, label }: { value: string; label: string }) {
-  return (
-    <div>
-      <div className="font-display text-2xl font-semibold tracking-tight">{value}</div>
-      <div className="text-xs text-white/70 mt-0.5">{label}</div>
     </div>
   );
 }

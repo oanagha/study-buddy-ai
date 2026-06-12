@@ -2,9 +2,9 @@ import { Link, useRouterState } from "@tanstack/react-router";
 import {
   LayoutDashboard, Upload, FileText, ClipboardList, Layers,
   MessageSquare, CalendarDays, User, Settings, GraduationCap,
-  Moon, Sun, LogOut, Search, Bell,
+  LogOut, Search, Bell,
 } from "lucide-react";
-import { useTheme } from "@/lib/theme";
+import { ThemeToggle } from "@/components/theme-toggle";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Input } from "@/components/ui/input";
@@ -25,25 +25,24 @@ const nav = [
 
 export function AppShell({ children }: { children: ReactNode }) {
   const pathname = useRouterState({ select: (s) => s.location.pathname });
-  const { theme, toggle } = useTheme();
   const [mobileOpen, setMobileOpen] = useState(false);
 
   return (
-    <div className="min-h-screen flex bg-background">
+    <div className="flex h-screen overflow-hidden bg-background">
       {/* Sidebar */}
       <aside
         className={cn(
-          "fixed inset-y-0 left-0 z-40 w-64 border-r bg-sidebar transition-transform lg:translate-x-0 lg:static lg:flex flex-col",
+          "fixed inset-y-0 left-0 z-40 flex h-screen w-64 shrink-0 flex-col overflow-hidden border-r bg-sidebar transition-transform lg:static lg:translate-x-0",
           mobileOpen ? "translate-x-0" : "-translate-x-full",
         )}
       >
-        <div className="flex h-16 items-center gap-2 px-6 border-b">
+        <div className="flex h-16 shrink-0 items-center gap-2 border-b px-6">
           <div className="grid h-9 w-9 place-items-center rounded-xl bg-gradient-primary shadow-glow">
             <GraduationCap className="h-5 w-5 text-primary-foreground" />
           </div>
           <span className="font-display text-lg font-bold">StudyMate <span className="text-gradient">AI</span></span>
         </div>
-        <nav className="flex-1 p-3 space-y-1 overflow-y-auto">
+        <nav className="min-h-0 flex-1 space-y-1 overflow-x-hidden overflow-y-auto p-3">
           {nav.map((item) => {
             const active = pathname === item.to;
             return (
@@ -64,7 +63,7 @@ export function AppShell({ children }: { children: ReactNode }) {
             );
           })}
         </nav>
-        <div className="p-3 border-t">
+        <div className="shrink-0 border-t p-3">
           <Link to="/login" className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-muted-foreground hover:bg-sidebar-accent">
             <LogOut className="h-4 w-4" /> Log out
           </Link>
@@ -76,8 +75,8 @@ export function AppShell({ children }: { children: ReactNode }) {
       )}
 
       {/* Main */}
-      <div className="flex-1 flex flex-col min-w-0">
-        <header className="sticky top-0 z-20 h-16 border-b bg-background/80 backdrop-blur flex items-center gap-3 px-4 lg:px-6">
+      <div className="flex min-h-0 min-w-0 flex-1 flex-col overflow-hidden">
+        <header className="z-20 flex h-16 shrink-0 items-center gap-3 border-b bg-background/80 px-4 backdrop-blur lg:px-6">
           <button
             onClick={() => setMobileOpen(true)}
             className="lg:hidden p-2 rounded-md hover:bg-muted"
@@ -91,18 +90,22 @@ export function AppShell({ children }: { children: ReactNode }) {
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
             <Input placeholder="Search notes, quizzes, flashcards..." className="pl-9 bg-muted/50 border-0" />
           </div>
-          <div className="flex-1 sm:hidden" />
-          <Button variant="ghost" size="icon" onClick={toggle} aria-label="Toggle theme">
-            {theme === "dark" ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
-          </Button>
-          <Button variant="ghost" size="icon" aria-label="Notifications">
-            <Bell className="h-4 w-4" />
-          </Button>
-          <Avatar className="h-9 w-9 ring-2 ring-primary/20">
-            <AvatarFallback className="bg-gradient-primary text-primary-foreground font-semibold">A</AvatarFallback>
-          </Avatar>
+          <div className="ml-auto flex items-center gap-1">
+            <ThemeToggle className="h-11 w-11 [&_svg]:!size-6" />
+            <Button
+              variant="ghost"
+              size="icon"
+              className="h-11 w-11 [&_svg]:!size-6"
+              aria-label="Notifications"
+            >
+              <Bell />
+            </Button>
+            <Avatar className="h-10 w-10 ring-2 ring-primary/20">
+              <AvatarFallback className="bg-gradient-primary text-primary-foreground font-semibold">A</AvatarFallback>
+            </Avatar>
+          </div>
         </header>
-        <main className="flex-1 p-4 lg:p-8 animate-fade-in">{children}</main>
+        <main className="min-h-0 flex-1 overflow-y-auto p-4 animate-fade-in lg:p-8">{children}</main>
       </div>
     </div>
   );

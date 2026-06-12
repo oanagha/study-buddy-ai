@@ -1,9 +1,10 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { GraduationCap, Mail, Lock, User, ArrowRight, ShieldCheck, Sparkles, Check } from "lucide-react";
+import { Mail, Lock, ArrowRight } from "lucide-react";
+import { AuthHeader } from "@/components/auth-header";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import loginBg from "@/assets/loginHero.png.asset.json";
+import { toast } from "sonner";
 
 export const Route = createFileRoute("/register")({
   head: () => ({ meta: [{ title: "Sign up — StudyMate AI" }] }),
@@ -12,61 +13,11 @@ export const Route = createFileRoute("/register")({
 
 function Register() {
   return (
-    <div className="lg:h-screen lg:overflow-hidden min-h-screen grid lg:grid-cols-2 bg-background">
-      <div className="relative hidden lg:block overflow-hidden">
-        <img
-          src={loginBg.url}
-          alt="Students learning with StudyMate AI"
-          className="absolute inset-0 h-full w-full object-cover [object-position:center_25%]"
-        />
-        <div className="absolute inset-0 bg-slate-950/55" />
-        <div className="absolute inset-0 bg-gradient-to-br from-primary/80 via-primary/40 to-secondary/70 mix-blend-multiply" />
-        <div className="absolute inset-0 bg-gradient-to-t from-slate-950/85 via-slate-950/20 to-transparent" />
+    <div className="min-h-screen lg:h-screen lg:overflow-hidden bg-background flex flex-col">
+      <AuthHeader />
 
-        <Link to="/" className="absolute top-8 left-8 inline-flex items-center gap-2.5 z-10">
-          <div className="grid h-10 w-10 place-items-center rounded-xl bg-white/15 backdrop-blur-md ring-1 ring-white/30">
-            <GraduationCap className="h-5 w-5 text-white" />
-          </div>
-          <span className="font-display font-semibold text-lg text-white tracking-tight">
-            StudyMate AI
-          </span>
-        </Link>
-
-        <div className="absolute inset-x-0 bottom-0 p-10 xl:p-14 z-10 text-white">
-          <div className="max-w-lg">
-            <span className="inline-flex items-center gap-2 rounded-full bg-white/10 backdrop-blur-md ring-1 ring-white/25 px-3 py-1 text-[11px] font-medium tracking-wider uppercase">
-              <Sparkles className="h-3.5 w-3.5" /> Join 120,000+ learners
-            </span>
-            <h2 className="mt-5 font-display text-3xl xl:text-4xl font-semibold leading-[1.1] tracking-tight">
-              Start studying smarter today.
-            </h2>
-            <ul className="mt-5 space-y-2.5 text-white/90">
-              {[
-                "Instant AI summaries from any document",
-                "Auto-generated quizzes & flashcards",
-                "Personalized study plans that adapt to you",
-              ].map((f) => (
-                <li key={f} className="flex items-start gap-3">
-                  <span className="mt-0.5 grid h-5 w-5 place-items-center rounded-full bg-white/20 ring-1 ring-white/30">
-                    <Check className="h-3 w-3" />
-                  </span>
-                  <span className="text-sm">{f}</span>
-                </li>
-              ))}
-            </ul>
-          </div>
-        </div>
-      </div>
-
-      <div className="flex items-center justify-center p-6 sm:p-10 bg-background lg:overflow-y-auto">
-        <div className="w-full max-w-md animate-fade-in">
-          <Link to="/" className="lg:hidden inline-flex items-center gap-2 mb-8">
-            <div className="grid h-10 w-10 place-items-center rounded-xl bg-gradient-primary">
-              <GraduationCap className="h-5 w-5 text-primary-foreground" />
-            </div>
-            <span className="font-display font-semibold text-lg">StudyMate AI</span>
-          </Link>
-
+      <div className="flex flex-1 items-center justify-center p-6 sm:p-10">
+        <div className="w-full max-w-md rounded-2xl border border-border/60 bg-card shadow-xl p-6 sm:p-8 animate-fade-in">
           <div className="mb-8">
             <h1 className="text-3xl font-semibold font-display tracking-tight">
               Create your account
@@ -80,47 +31,109 @@ function Register() {
             className="space-y-5"
             onSubmit={(e) => {
               e.preventDefault();
+              const form = e.currentTarget;
+              const password = (form.elements.namedItem("password") as HTMLInputElement).value;
+              const confirmPassword = (form.elements.namedItem("confirmPassword") as HTMLInputElement).value;
+              if (password !== confirmPassword) {
+                toast.error("Passwords do not match.");
+                return;
+              }
               window.location.href = "/app/dashboard";
             }}
           >
-            <div className="space-y-1.5">
-              <Label htmlFor="name" className="text-xs font-medium text-foreground/80">Full name</Label>
-              <div className="relative">
-                <User className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                <Input id="name" placeholder="Jane Doe" className="pl-10 h-11 bg-card" required />
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="space-y-1.5">
+                <Label htmlFor="firstName" className="text-xs font-medium text-foreground/80">
+                  First name
+                </Label>
+                <Input id="firstName" placeholder="Jane" className="h-11 bg-card" required />
+              </div>
+              <div className="space-y-1.5">
+                <Label htmlFor="lastName" className="text-xs font-medium text-foreground/80">
+                  Last name
+                </Label>
+                <Input id="lastName" placeholder="Doe" className="h-11 bg-card" required />
               </div>
             </div>
             <div className="space-y-1.5">
-              <Label htmlFor="email" className="text-xs font-medium text-foreground/80">Email address</Label>
+              <Label htmlFor="email" className="text-xs font-medium text-foreground/80">
+                Email
+              </Label>
               <div className="relative">
                 <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                <Input id="email" type="email" placeholder="name@university.edu" className="pl-10 h-11 bg-card" required />
+                <Input
+                  id="email"
+                  type="email"
+                  placeholder="name@university.edu"
+                  className="pl-10 h-11 bg-card"
+                  required
+                />
               </div>
             </div>
             <div className="space-y-1.5">
-              <Label htmlFor="password" className="text-xs font-medium text-foreground/80">Password</Label>
+              <Label htmlFor="password" className="text-xs font-medium text-foreground/80">
+                Password
+              </Label>
               <div className="relative">
                 <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                <Input id="password" type="password" placeholder="At least 8 characters" className="pl-10 h-11 bg-card" required />
+                <Input
+                  id="password"
+                  name="password"
+                  type="password"
+                  placeholder="At least 8 characters"
+                  className="pl-10 h-11 bg-card"
+                  minLength={8}
+                  required
+                />
+              </div>
+            </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="confirmPassword" className="text-xs font-medium text-foreground/80">
+                Confirm password
+              </Label>
+              <div className="relative">
+                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Input
+                  id="confirmPassword"
+                  name="confirmPassword"
+                  type="password"
+                  placeholder="Re-enter your password"
+                  className="pl-10 h-11 bg-card"
+                  minLength={8}
+                  required
+                />
               </div>
             </div>
 
-            <Button type="submit" className="w-full h-11 bg-gradient-primary hover:opacity-95 shadow-glow group">
+            <Button
+              type="submit"
+              className="w-full h-11 bg-gradient-primary hover:opacity-95 shadow-glow group"
+            >
               Create account
               <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
             </Button>
 
             <p className="text-xs text-muted-foreground text-center leading-relaxed">
               By signing up, you agree to our{" "}
-              <a href="#" className="text-foreground hover:underline">Terms</a> and{" "}
-              <a href="#" className="text-foreground hover:underline">Privacy Policy</a>.
+              <a href="#" className="text-foreground hover:underline">
+                Terms
+              </a>{" "}
+              and{" "}
+              <a href="#" className="text-foreground hover:underline">
+                Privacy Policy
+              </a>
+              .
             </p>
           </form>
 
           <div className="relative my-6">
-            <div className="absolute inset-0 flex items-center"><span className="w-full border-t" /></div>
+            <div className="absolute inset-0 flex items-center">
+              <span className="w-full border-t" />
+            </div>
             <div className="relative flex justify-center text-xs">
-              <span className="bg-background px-3 text-muted-foreground uppercase tracking-wider">or</span>
+              <span className="bg-card px-3 text-muted-foreground uppercase tracking-wider">
+                or
+              </span>
             </div>
           </div>
 
@@ -135,10 +148,7 @@ function Register() {
             </Link>
           </p>
 
-          <div className="mt-10 flex items-center justify-center gap-2 text-xs text-muted-foreground">
-            <ShieldCheck className="h-3.5 w-3.5" />
-            Your data is encrypted and never shared
-          </div>
+          
         </div>
       </div>
     </div>

@@ -68,14 +68,9 @@ function Landing() {
                   Get Started <ArrowRight className="ml-1" />
                 </Button>
               </Link>
-              <Button size="lg" variant="outline" className="h-12 px-6 text-base">
-                Watch Demo
-              </Button>
+             
             </div>
-            <div className="mt-8 flex items-center gap-6 text-sm text-muted-foreground">
-              <div className="flex items-center gap-1.5"><Check className="h-4 w-4 text-accent" /> Free forever plan</div>
-              <div className="flex items-center gap-1.5"><Check className="h-4 w-4 text-accent" /> No credit card</div>
-            </div>
+          
           </motion.div>
 
           <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} transition={{ duration: 0.7, delay: 0.1 }} className="relative">

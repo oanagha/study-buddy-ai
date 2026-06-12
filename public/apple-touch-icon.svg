@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 180 180" fill="none" role="img" aria-label="StudyMate AI">
+  <defs>
+    <linearGradient id="bg" x1="24" y1="12" x2="156" y2="168" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#4F46E5"/>
+      <stop offset="1" stop-color="#7C3AED"/>
+    </linearGradient>
+  </defs>
+  <rect width="180" height="180" rx="40" fill="url(#bg)"/>
+  <g transform="translate(34 46)" stroke="#fff" stroke-width="9" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M56 10 8 34a7 7 0 0 0 0 12.6L56 70.6l48-24.3a7 7 0 0 0 0-12.6L56 10Z" fill="#fff" fill-opacity=".15"/>
+    <path d="M19.5 46.5V67c0 9.3 16.3 16.8 36.5 16.8S92.5 76.3 92.5 67V46.5"/>
+    <path d="M95 37V62"/>
+    <circle cx="95" cy="66" r="6" fill="#fff" stroke="none"/>
+  </g>
+</svg>

@@ -1,11 +1,10 @@
 import { Link } from "@tanstack/react-router";
-import { GraduationCap, Moon, Sun, Menu, X } from "lucide-react";
+import { GraduationCap, Menu, X } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { useTheme } from "@/lib/theme";
+import { ThemeToggle } from "@/components/theme-toggle";
 
 export function MarketingNav() {
-  const { theme, toggle } = useTheme();
   const [open, setOpen] = useState(false);
 
   return (
@@ -25,9 +24,7 @@ export function MarketingNav() {
         </nav>
 
         <div className="flex items-center gap-2">
-          <Button variant="ghost" size="icon" onClick={toggle} aria-label="Toggle theme">
-            {theme === "dark" ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
-          </Button>
+          <ThemeToggle />
           <Link to="/login" className="hidden sm:inline-flex">
             <Button variant="ghost">Log in</Button>
           </Link>
