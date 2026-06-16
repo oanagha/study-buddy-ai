@@ -10,6 +10,7 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Input } from "@/components/ui/input";
 import { useState, type ReactNode } from "react";
 import { cn } from "@/lib/utils";
+import { clearAuthUser } from "@/lib/auth";
 
 const nav = [
   { to: "/app/dashboard", label: "Dashboard", icon: LayoutDashboard },
@@ -64,7 +65,11 @@ export function AppShell({ children }: { children: ReactNode }) {
           })}
         </nav>
         <div className="shrink-0 border-t p-3">
-          <Link to="/login" className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-muted-foreground hover:bg-sidebar-accent">
+          <Link
+            to="/login"
+            onClick={() => clearAuthUser()}
+            className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium text-muted-foreground hover:bg-sidebar-accent"
+          >
             <LogOut className="h-4 w-4" /> Log out
           </Link>
         </div>
