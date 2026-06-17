@@ -79,3 +79,18 @@ export async function googleLogin(idToken: string): Promise<LoginResponse> {
   const data = await postAuth<{ token: string; user: AuthUser }>("google", { idToken }, "Google sign-in failed");
   return { token: data.token, user: data.user };
 }
+
+export type ChangePasswordPayload = {
+  current_password: string;
+  new_password: string;
+  confirm_password: string;
+};
+
+export async function changePassword(payload: ChangePasswordPayload): Promise<{ message: string }> {
+  const { authFetch } = await import("./client");
+  return authFetch("/api/auth/change-password", {
+    method: "PUT",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload),
+  }) as Promise<{ message: string }>;
+}

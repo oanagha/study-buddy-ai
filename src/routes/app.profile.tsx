@@ -1,13 +1,29 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useState } from "react";
-import { Camera, Mail, GraduationCap, BookOpen, Award } from "lucide-react";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { Camera, Mail, GraduationCap, BookOpen, Award, Loader2 } from "lucide-react";
 import { PageHeader } from "@/components/widgets";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+import {
+  fetchProfile,
+  getProfileInitials,
+  updateProfile,
+  validateProfileImage,
+  type UserProfile,
+} from "@/lib/api/profile";
+import { ApiError, changePassword } from "@/lib/api/auth";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/app/profile")({
@@ -15,12 +31,302 @@ export const Route = createFileRoute("/app/profile")({
   component: Profile,
 });
 
+type ProfileForm = {
+  full_name: string;
+  education: string;
+  course: string;
+  bio: string;
+};
+
 function Profile() {
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const [editing, setEditing] = useState(false);
+  const [profile, setProfile] = useState<UserProfile | null>(null);
+  const [form, setForm] = useState<ProfileForm>({
+    full_name: "",
+    education: "",
+    course: "",
+    bio: "",
+  });
+  const [imageFile, setImageFile] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [passwordDialogOpen, setPasswordDialogOpen] = useState(false);
+  const [changingPassword, setChangingPassword] = useState(false);
+  const [passwordForm, setPasswordForm] = useState({
+    current_password: "",
+    new_password: "",
+    confirm_password: "",
+  });
+
+  const loadProfile = useCallback(async () => {
+    setLoading(true);
+    try {
+      const data = await fetchProfile();
+      setProfile(data);
+      setForm({
+        full_name: data.full_name,
+        education: data.education ?? "",
+        course: data.course ?? "",
+        bio: data.bio ?? "",
+      });
+    } catch (err) {
+      if (err instanceof ApiError) {
+        toast.error(err.message);
+      } else {
+        toast.error("Failed to load profile.");
+      }
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    void loadProfile();
+  }, [loadProfile]);
+
+  const resetEditState = useCallback(() => {
+    if (!profile) return;
+    setForm({
+      full_name: profile.full_name,
+      education: profile.education ?? "",
+      course: profile.course ?? "",
+      bio: profile.bio ?? "",
+    });
+    setImageFile(null);
+    setImagePreview(null);
+  }, [profile]);
+
+  const startEditing = () => {
+    resetEditState();
+    setEditing(true);
+  };
+
+  const cancelEditing = () => {
+    resetEditState();
+    setEditing(false);
+  };
+
+  const handleImageSelect = (file: File | null) => {
+    if (!file) return;
+
+    const validationError = validateProfileImage(file);
+    if (validationError) {
+      toast.error(validationError);
+      return;
+    }
+
+    setImageFile(file);
+    setImagePreview(URL.createObjectURL(file));
+  };
+
+  const handleSave = async () => {
+    if (!form.full_name.trim()) {
+      toast.error("Full name is required.");
+      return;
+    }
+
+    if (form.full_name.trim().length > 100) {
+      toast.error("Full name must be at most 100 characters.");
+      return;
+    }
+
+    if (form.bio.length > 500) {
+      toast.error("Bio must be at most 500 characters.");
+      return;
+    }
+
+    setSaving(true);
+
+    try {
+      const result = await updateProfile({
+        full_name: form.full_name,
+        education: form.education,
+        course: form.course,
+        bio: form.bio,
+        profile_image: imageFile,
+      });
+
+      setProfile((current) =>
+        current
+          ? {
+              ...current,
+              ...result.profile,
+            }
+          : current
+      );
+      setEditing(false);
+      setImageFile(null);
+      setImagePreview(null);
+      toast.success(result.message);
+      await loadProfile();
+    } catch (err) {
+      if (err instanceof ApiError) {
+        toast.error(err.message);
+      } else {
+        toast.error("Failed to update profile.");
+      }
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const resetPasswordForm = () => {
+    setPasswordForm({
+      current_password: "",
+      new_password: "",
+      confirm_password: "",
+    });
+  };
+
+  const handleChangePassword = async () => {
+    if (!passwordForm.current_password || !passwordForm.new_password || !passwordForm.confirm_password) {
+      toast.error("All password fields are required.");
+      return;
+    }
+
+    if (passwordForm.new_password !== passwordForm.confirm_password) {
+      toast.error("New password and confirm password do not match.");
+      return;
+    }
+
+    if (passwordForm.current_password === passwordForm.new_password) {
+      toast.error("New password cannot be same as current password.");
+      return;
+    }
+
+    setChangingPassword(true);
+
+    try {
+      const result = await changePassword(passwordForm);
+      toast.success(result.message);
+      setPasswordDialogOpen(false);
+      resetPasswordForm();
+    } catch (err) {
+      if (err instanceof ApiError) {
+        toast.error(err.message);
+      } else {
+        toast.error("Failed to change password.");
+      }
+    } finally {
+      setChangingPassword(false);
+    }
+  };
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center py-16 text-muted-foreground gap-2">
+        <Loader2 className="h-5 w-5 animate-spin" />
+        Loading profile...
+      </div>
+    );
+  }
+
+  if (!profile) {
+    return (
+      <div className="text-center py-16 text-muted-foreground">
+        <p>Unable to load profile.</p>
+        <Button className="mt-4" variant="outline" onClick={() => void loadProfile()}>
+          Retry
+        </Button>
+      </div>
+    );
+  }
+
+  const displayName = editing ? form.full_name : profile.full_name;
+  const displayCourse = editing ? form.course : profile.course;
+  const displayEducation = editing ? form.education : profile.education;
+  const subtitle =
+    [displayCourse, displayEducation].filter(Boolean).join(" • ") || "StudyMate learner";
+  const avatarSrc = imagePreview ?? profile.profile_image ?? undefined;
+  const initials = getProfileInitials(displayName);
 
   return (
     <div className="max-w-4xl mx-auto space-y-6">
       <PageHeader title="Profile" subtitle="Your StudyMate identity and learning info." />
+
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept="image/jpeg,image/png,image/webp"
+        className="hidden"
+        onChange={(e) => handleImageSelect(e.target.files?.[0] ?? null)}
+      />
+
+      <Dialog
+        open={passwordDialogOpen}
+        onOpenChange={(open) => {
+          setPasswordDialogOpen(open);
+          if (!open) resetPasswordForm();
+        }}
+      >
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Change Password</DialogTitle>
+            <DialogDescription>
+              Enter your current password and choose a new secure password.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-2">
+            <div className="space-y-1.5">
+              <Label htmlFor="current_password">Current Password</Label>
+              <Input
+                id="current_password"
+                type="password"
+                value={passwordForm.current_password}
+                onChange={(e) =>
+                  setPasswordForm((current) => ({ ...current, current_password: e.target.value }))
+                }
+              />
+            </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="new_password">New Password</Label>
+              <Input
+                id="new_password"
+                type="password"
+                value={passwordForm.new_password}
+                onChange={(e) =>
+                  setPasswordForm((current) => ({ ...current, new_password: e.target.value }))
+                }
+              />
+            </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="confirm_password">Confirm New Password</Label>
+              <Input
+                id="confirm_password"
+                type="password"
+                value={passwordForm.confirm_password}
+                onChange={(e) =>
+                  setPasswordForm((current) => ({ ...current, confirm_password: e.target.value }))
+                }
+              />
+            </div>
+            <p className="text-xs text-muted-foreground">
+              Password must be at least 8 characters and include uppercase, lowercase, and a number.
+            </p>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setPasswordDialogOpen(false)} disabled={changingPassword}>
+              Cancel
+            </Button>
+            <Button
+              className="bg-gradient-primary"
+              disabled={changingPassword}
+              onClick={() => void handleChangePassword()}
+            >
+              {changingPassword ? (
+                <>
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  Updating...
+                </>
+              ) : (
+                "Update Password"
+              )}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
 
       <Card className="overflow-hidden shadow-card border-border/50">
         <div className="h-32 bg-gradient-primary relative">
@@ -31,27 +337,55 @@ function Profile() {
             <div className="flex items-end gap-4">
               <div className="relative">
                 <Avatar className="h-24 w-24 ring-4 ring-background">
-                  <AvatarFallback className="bg-gradient-primary text-primary-foreground text-2xl font-bold">AV</AvatarFallback>
+                  {avatarSrc ? <AvatarImage src={avatarSrc} alt={displayName} /> : null}
+                  <AvatarFallback className="bg-gradient-primary text-primary-foreground text-2xl font-bold">
+                    {initials || "U"}
+                  </AvatarFallback>
                 </Avatar>
-                <button className="absolute bottom-0 right-0 grid h-8 w-8 place-items-center rounded-full bg-card shadow-card border">
-                  <Camera className="h-4 w-4" />
-                </button>
+                {editing && (
+                  <button
+                    type="button"
+                    className="absolute bottom-0 right-0 grid h-8 w-8 place-items-center rounded-full bg-card shadow-card border"
+                    onClick={() => fileInputRef.current?.click()}
+                  >
+                    <Camera className="h-4 w-4" />
+                  </button>
+                )}
               </div>
               <div className="pb-1">
-                <h2 className="font-display text-2xl font-bold">Anagha Verma</h2>
-                <p className="text-sm text-muted-foreground">Computer Science • IIT Delhi</p>
+                <h2 className="font-display text-2xl font-bold">{displayName}</h2>
+                <p className="text-sm text-muted-foreground">{subtitle}</p>
               </div>
             </div>
             <div className="flex gap-2">
               {!editing ? (
                 <>
-                  <Button variant="outline" onClick={() => toast.info("Password reset link sent.")}>Change Password</Button>
-                  <Button onClick={() => setEditing(true)} className="bg-gradient-primary">Edit Profile</Button>
+                  <Button variant="outline" onClick={() => setPasswordDialogOpen(true)}>
+                    Change Password
+                  </Button>
+                  <Button onClick={startEditing} className="bg-gradient-primary">
+                    Edit Profile
+                  </Button>
                 </>
               ) : (
                 <>
-                  <Button variant="outline" onClick={() => setEditing(false)}>Cancel</Button>
-                  <Button onClick={() => { setEditing(false); toast.success("Profile updated!"); }} className="bg-gradient-primary shadow-glow">Save Changes</Button>
+                  <Button variant="outline" onClick={cancelEditing} disabled={saving}>
+                    Cancel
+                  </Button>
+                  <Button
+                    onClick={() => void handleSave()}
+                    disabled={saving}
+                    className="bg-gradient-primary shadow-glow"
+                  >
+                    {saving ? (
+                      <>
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                        Saving...
+                      </>
+                    ) : (
+                      "Save Changes"
+                    )}
+                  </Button>
                 </>
               )}
             </div>
@@ -60,26 +394,62 @@ function Profile() {
       </Card>
 
       <div className="grid gap-6 md:grid-cols-3">
-        <StatBlock icon={<BookOpen className="h-4 w-4" />} label="Notes" value="24" />
-        <StatBlock icon={<Award className="h-4 w-4" />} label="Avg Quiz Score" value="86%" />
-        <StatBlock icon={<GraduationCap className="h-4 w-4" />} label="Streak" value="12 days" />
+        <StatBlock icon={<BookOpen className="h-4 w-4" />} label="Notes" value={String(profile.stats.notes_uploaded)} />
+        <StatBlock
+          icon={<Award className="h-4 w-4" />}
+          label="Avg Quiz Score"
+          value={`${profile.stats.avg_quiz_score}%`}
+        />
+        <StatBlock
+          icon={<GraduationCap className="h-4 w-4" />}
+          label="Streak"
+          value={profile.stats.study_streak === 1 ? "1 day" : `${profile.stats.study_streak} days`}
+        />
       </div>
 
       <Card className="p-6 shadow-card border-border/50">
         <h3 className="font-display font-semibold text-lg mb-6">Personal Info</h3>
         <div className="grid gap-5 sm:grid-cols-2">
-          <Field label="Full Name" icon={<GraduationCap className="h-4 w-4" />} value="Anagha Verma" editing={editing} />
-          <Field label="Email" icon={<Mail className="h-4 w-4" />} value="anagha.verma@iitd.ac.in" editing={editing} />
-          <Field label="Education" icon={<GraduationCap className="h-4 w-4" />} value="B.Tech, 3rd Year" editing={editing} />
-          <Field label="Course" icon={<BookOpen className="h-4 w-4" />} value="Computer Science" editing={editing} />
+          <Field
+            label="Full Name"
+            icon={<GraduationCap className="h-4 w-4" />}
+            value={editing ? form.full_name : profile.full_name}
+            editing={editing}
+            onChange={(value) => setForm((current) => ({ ...current, full_name: value }))}
+          />
+          <Field
+            label="Email"
+            icon={<Mail className="h-4 w-4" />}
+            value={profile.email}
+            editing={false}
+          />
+          <Field
+            label="Education"
+            icon={<GraduationCap className="h-4 w-4" />}
+            value={editing ? form.education : profile.education ?? ""}
+            editing={editing}
+            onChange={(value) => setForm((current) => ({ ...current, education: value }))}
+          />
+          <Field
+            label="Course"
+            icon={<BookOpen className="h-4 w-4" />}
+            value={editing ? form.course : profile.course ?? ""}
+            editing={editing}
+            onChange={(value) => setForm((current) => ({ ...current, course: value }))}
+          />
         </div>
         <div className="mt-5 space-y-1.5">
           <Label>Bio</Label>
           {editing ? (
-            <Textarea defaultValue="Aspiring software engineer passionate about AI, algorithms, and building products students love." rows={3} />
+            <Textarea
+              value={form.bio}
+              onChange={(e) => setForm((current) => ({ ...current, bio: e.target.value }))}
+              rows={3}
+              maxLength={500}
+            />
           ) : (
             <p className="text-sm text-muted-foreground p-3 rounded-lg bg-muted/40">
-              Aspiring software engineer passionate about AI, algorithms, and building products students love.
+              {profile.bio || "No bio added yet."}
             </p>
           )}
         </div>
@@ -102,19 +472,31 @@ function StatBlock({ icon, label, value }: { icon: React.ReactNode; label: strin
   );
 }
 
-function Field({ label, icon, value, editing }: { label: string; icon: React.ReactNode; value: string; editing: boolean }) {
+function Field({
+  label,
+  icon,
+  value,
+  editing,
+  onChange,
+}: {
+  label: string;
+  icon: React.ReactNode;
+  value: string;
+  editing: boolean;
+  onChange?: (value: string) => void;
+}) {
   return (
     <div className="space-y-1.5">
       <Label>{label}</Label>
-      {editing ? (
+      {editing && onChange ? (
         <div className="relative">
           <div className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">{icon}</div>
-          <Input defaultValue={value} className="pl-9" />
+          <Input value={value} onChange={(e) => onChange(e.target.value)} className="pl-9" />
         </div>
       ) : (
         <div className="flex items-center gap-2 p-3 rounded-lg bg-muted/40 text-sm">
           <span className="text-muted-foreground">{icon}</span>
-          <span className="font-medium">{value}</span>
+          <span className="font-medium">{value || "—"}</span>
         </div>
       )}
     </div>

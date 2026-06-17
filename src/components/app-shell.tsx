@@ -136,9 +136,15 @@ export function AppShell({ children }: { children: ReactNode }) {
             >
               <Bell />
             </Button>
-            <Avatar className="h-10 w-10 ring-2 ring-primary/20">
-              <AvatarFallback className="bg-gradient-primary text-primary-foreground font-semibold">A</AvatarFallback>
-            </Avatar>
+            <Link
+              to="/app/profile"
+              className="rounded-full transition-opacity hover:opacity-90"
+              aria-label="Go to profile"
+            >
+              <Avatar className="h-10 w-10 ring-2 ring-primary/20 cursor-pointer">
+                <AvatarFallback className="bg-gradient-primary text-primary-foreground font-semibold">A</AvatarFallback>
+              </Avatar>
+            </Link>
           </div>
         </header>
         <main className="min-h-0 flex-1 overflow-y-auto p-4 animate-fade-in lg:p-8">{children}</main>
