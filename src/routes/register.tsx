@@ -5,7 +5,7 @@ import { AuthHeader } from "@/components/auth-header";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { ApiError, googleLogin, registerUser } from "@/lib/api/auth";
+import { ApiError, registerUser } from "@/lib/api/auth";
 import { setAuthSession } from "@/lib/auth";
 import { GoogleSignInButton } from "@/components/google-sign-in-button";
 import { toast } from "sonner";
@@ -18,27 +18,6 @@ export const Route = createFileRoute("/register")({
 function Register() {
   const navigate = useNavigate();
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isGoogleSubmitting, setIsGoogleSubmitting] = useState(false);
-
-  async function handleGoogleCredential(idToken: string) {
-    setIsGoogleSubmitting(true);
-
-    try {
-      const { token, user } = await googleLogin(idToken);
-
-      setAuthSession({ user, token });
-      toast.success("Account created successfully!");
-      await navigate({ to: "/app/dashboard" });
-    } catch (err) {
-      if (err instanceof ApiError) {
-        toast.error(err.message);
-      } else {
-        toast.error("Unable to sign up with Google. Please try again.");
-      }
-    } finally {
-      setIsGoogleSubmitting(false);
-    }
-  }
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -224,12 +203,7 @@ function Register() {
             </div>
           </div>
 
-          <GoogleSignInButton
-            disabled={isSubmitting}
-            isLoading={isGoogleSubmitting}
-            onCredential={handleGoogleCredential}
-            onError={() => toast.error("Google sign-in was cancelled or failed.")}
-          />
+          <GoogleSignInButton disabled={isSubmitting} />
 
           <p className="mt-8 text-center text-sm text-muted-foreground">
             Already have an account?{" "}

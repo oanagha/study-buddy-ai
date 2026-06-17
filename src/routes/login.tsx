@@ -1,44 +1,33 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { Mail, Lock, ArrowRight, Loader2 } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { AuthHeader } from "@/components/auth-header";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { ApiError, googleLogin, loginUser } from "@/lib/api/auth";
+import { ApiError, loginUser } from "@/lib/api/auth";
 import { setAuthSession } from "@/lib/auth";
 import { GoogleSignInButton } from "@/components/google-sign-in-button";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/login")({
   head: () => ({ meta: [{ title: "Log in — StudyMate AI" }] }),
+  validateSearch: (search: Record<string, unknown>) => ({
+    google_error: search.google_error === "1" || search.google_error === 1 ? true : undefined,
+  }),
   component: Login,
 });
 
 function Login() {
   const navigate = useNavigate();
+  const { google_error: googleError } = Route.useSearch();
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isGoogleSubmitting, setIsGoogleSubmitting] = useState(false);
 
-  async function handleGoogleCredential(idToken: string) {
-    setIsGoogleSubmitting(true);
-
-    try {
-      const { token, user } = await googleLogin(idToken);
-
-      setAuthSession({ user, token });
-      toast.success("Welcome back!");
-      await navigate({ to: "/app/dashboard" });
-    } catch (err) {
-      if (err instanceof ApiError) {
-        toast.error(err.message);
-      } else {
-        toast.error("Unable to sign in with Google. Please try again.");
-      }
-    } finally {
-      setIsGoogleSubmitting(false);
+  useEffect(() => {
+    if (googleError) {
+      toast.error("Google sign-in was cancelled or failed. Please try again.");
     }
-  }
+  }, [googleError]);
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -155,12 +144,7 @@ function Login() {
             </div>
           </div>
 
-          <GoogleSignInButton
-            disabled={isSubmitting}
-            isLoading={isGoogleSubmitting}
-            onCredential={handleGoogleCredential}
-            onError={() => toast.error("Google sign-in was cancelled or failed.")}
-          />
+          <GoogleSignInButton disabled={isSubmitting} />
 
           <p className="mt-8 text-center text-sm text-muted-foreground">
             New to StudyMate AI?{" "}

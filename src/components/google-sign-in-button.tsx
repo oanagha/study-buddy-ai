@@ -1,13 +1,10 @@
-import { GoogleLogin, type CredentialResponse } from "@react-oauth/google";
 import { Loader2 } from "lucide-react";
-import { useEffect, useRef, useState } from "react";
 import { Button } from "@/components/ui/button";
+import { API_URL } from "@/lib/api/config";
 
 type GoogleSignInButtonProps = {
   disabled?: boolean;
   isLoading?: boolean;
-  onCredential: (idToken: string) => void;
-  onError?: () => void;
 };
 
 function GoogleIcon() {
@@ -33,84 +30,30 @@ function GoogleIcon() {
   );
 }
 
-export function GoogleSignInButton({
-  disabled = false,
-  isLoading = false,
-  onCredential,
-  onError,
-}: GoogleSignInButtonProps) {
-  const containerRef = useRef<HTMLDivElement>(null);
-  const [buttonWidth, setButtonWidth] = useState(0);
-  const googleClientId = import.meta.env.VITE_GOOGLE_CLIENT_ID;
-  const isDisabled = disabled || isLoading || !googleClientId;
-
-  useEffect(() => {
-    const element = containerRef.current;
-    if (!element) return;
-
-    const updateWidth = () => {
-      setButtonWidth(element.offsetWidth);
-    };
-
-    updateWidth();
-
-    const observer = new ResizeObserver(updateWidth);
-    observer.observe(element);
-
-    return () => observer.disconnect();
-  }, []);
-
-  function handleSuccess(response: CredentialResponse) {
-    if (response.credential) {
-      onCredential(response.credential);
-    }
-  }
-
-  if (!googleClientId) {
-    return (
-      <Button variant="outline" className="w-full h-11 gap-2 font-medium" disabled>
-        <GoogleIcon />
-        Google sign-in unavailable
-      </Button>
-    );
+export function GoogleSignInButton({ disabled = false, isLoading = false }: GoogleSignInButtonProps) {
+  function handleClick() {
+    window.location.href = `${API_URL}/api/auth/google`;
   }
 
   return (
-    <div ref={containerRef} className="relative w-full">
-      <Button
-        type="button"
-        variant="outline"
-        className="w-full h-11 gap-2 font-medium pointer-events-none"
-        disabled={isDisabled}
-        tabIndex={-1}
-        aria-hidden
-      >
-        {isLoading ? (
-          <>
-            <Loader2 className="h-4 w-4 animate-spin" />
-            Signing in with Google...
-          </>
-        ) : (
-          <>
-            <GoogleIcon />
-            Continue with Google
-          </>
-        )}
-      </Button>
-
-      {!isDisabled && buttonWidth > 0 && (
-        <div className="absolute inset-0 opacity-[0.01] overflow-hidden">
-          <GoogleLogin
-            onSuccess={handleSuccess}
-            onError={onError}
-            theme="outline"
-            size="large"
-            text="continue_with"
-            shape="rectangular"
-            width={buttonWidth}
-          />
-        </div>
+    <Button
+      type="button"
+      variant="outline"
+      className="w-full h-11 gap-2 font-medium"
+      disabled={disabled || isLoading}
+      onClick={handleClick}
+    >
+      {isLoading ? (
+        <>
+          <Loader2 className="h-4 w-4 animate-spin" />
+          Signing in with Google...
+        </>
+      ) : (
+        <>
+          <GoogleIcon />
+          Continue with Google
+        </>
       )}
-    </div>
+    </Button>
   );
 }
