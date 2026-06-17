@@ -13,6 +13,8 @@ export type Note = {
   summaryGeneratedAt: string | null;
   hasStudyMaterial: boolean;
   studyMaterialGeneratedAt: string | null;
+  hasFlashcards: boolean;
+  flashcardsGeneratedAt: string | null;
 };
 
 const MAX_FILE_SIZE = 10 * 1024 * 1024;
