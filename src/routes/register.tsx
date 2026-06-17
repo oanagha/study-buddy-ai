@@ -1,4 +1,4 @@
-import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Link, redirect, useNavigate } from "@tanstack/react-router";
 import { Mail, Lock, ArrowRight, Loader2 } from "lucide-react";
 import { useState } from "react";
 import { AuthHeader } from "@/components/auth-header";
@@ -6,12 +6,19 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { ApiError, registerUser } from "@/lib/api/auth";
-import { setAuthSession } from "@/lib/auth";
+import { isAuthenticated, setAuthSession } from "@/lib/auth";
 import { GoogleSignInButton } from "@/components/google-sign-in-button";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/register")({
   head: () => ({ meta: [{ title: "Sign up — StudyMate AI" }] }),
+  beforeLoad: () => {
+    if (typeof window === "undefined") return;
+
+    if (isAuthenticated()) {
+      throw redirect({ to: "/app/dashboard" });
+    }
+  },
   component: Register,
 });
 

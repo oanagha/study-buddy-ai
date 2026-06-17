@@ -1,4 +1,4 @@
-import { Link, useRouterState } from "@tanstack/react-router";
+import { Link, useRouter, useRouterState } from "@tanstack/react-router";
 import {
   LayoutDashboard, Upload, FileText, ClipboardList, Layers,
   MessageSquare, CalendarDays, User, Settings, GraduationCap,
@@ -8,9 +8,10 @@ import { ThemeToggle } from "@/components/theme-toggle";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Input } from "@/components/ui/input";
-import { useState, type ReactNode } from "react";
+import { useState, useEffect, type ReactNode } from "react";
 import { cn } from "@/lib/utils";
-import { clearAuthUser } from "@/lib/auth";
+import { clearAuthUser, getAuthToken, hasValidClientSession, isTokenExpired } from "@/lib/auth";
+import { toast } from "sonner";
 
 const nav = [
   { to: "/app/dashboard", label: "Dashboard", icon: LayoutDashboard },
@@ -25,8 +26,37 @@ const nav = [
 ];
 
 export function AppShell({ children }: { children: ReactNode }) {
+  const router = useRouter();
   const pathname = useRouterState({ select: (s) => s.location.pathname });
   const [mobileOpen, setMobileOpen] = useState(false);
+
+  useEffect(() => {
+    function ensureAuthenticated() {
+      const token = getAuthToken();
+
+      if (token && isTokenExpired(token)) {
+        clearAuthUser();
+        toast.error("Your session has expired. Please sign in again.");
+        void router.navigate({ to: "/login", replace: true });
+        return;
+      }
+
+      if (!hasValidClientSession()) {
+        void router.navigate({ to: "/login", replace: true });
+      }
+    }
+
+    ensureAuthenticated();
+
+    function handlePageShow(event: PageTransitionEvent) {
+      if (event.persisted) {
+        ensureAuthenticated();
+      }
+    }
+
+    window.addEventListener("pageshow", handlePageShow);
+    return () => window.removeEventListener("pageshow", handlePageShow);
+  }, [router]);
 
   return (
     <div className="flex h-screen overflow-hidden bg-background">

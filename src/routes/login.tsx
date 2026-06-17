@@ -1,4 +1,4 @@
-import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, Link, redirect, useNavigate } from "@tanstack/react-router";
 import { Mail, Lock, ArrowRight, Loader2 } from "lucide-react";
 import { useEffect, useState } from "react";
 import { AuthHeader } from "@/components/auth-header";
@@ -6,28 +6,37 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { ApiError, loginUser } from "@/lib/api/auth";
-import { setAuthSession } from "@/lib/auth";
+import { isAuthenticated, setAuthSession } from "@/lib/auth";
 import { GoogleSignInButton } from "@/components/google-sign-in-button";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/login")({
   head: () => ({ meta: [{ title: "Log in — StudyMate AI" }] }),
-  validateSearch: (search: Record<string, unknown>) => ({
-    google_error: search.google_error === "1" || search.google_error === 1 ? true : undefined,
-  }),
+  beforeLoad: () => {
+    if (typeof window === "undefined") return;
+
+    if (isAuthenticated()) {
+      throw redirect({ to: "/app/dashboard" });
+    }
+  },
   component: Login,
 });
 
+function hasGoogleSignInError(): boolean {
+  if (typeof window === "undefined") return false;
+  return new URLSearchParams(window.location.search).get("google_error") === "1";
+}
+
 function Login() {
   const navigate = useNavigate();
-  const { google_error: googleError } = Route.useSearch();
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   useEffect(() => {
-    if (googleError) {
-      toast.error("Google sign-in was cancelled or failed. Please try again.");
-    }
-  }, [googleError]);
+    if (!hasGoogleSignInError()) return;
+
+    toast.error("Google sign-in was cancelled or failed. Please try again.");
+    window.history.replaceState({}, "", "/login");
+  }, []);
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -92,14 +101,9 @@ function Login() {
             </div>
 
             <div className="space-y-1.5">
-              <div className="flex items-center justify-between">
-                <Label htmlFor="password" className="text-xs font-medium text-foreground/80">
-                  Password
-                </Label>
-                <a href="#" className="text-xs text-primary font-medium hover:underline">
-                  Forgot password?
-                </a>
-              </div>
+              <Label htmlFor="password" className="text-xs font-medium text-foreground/80">
+                Password
+              </Label>
               <div className="relative">
                 <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 <Input

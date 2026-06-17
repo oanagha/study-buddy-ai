@@ -3,6 +3,28 @@ import type { AuthUser } from "@/lib/api/auth";
 const USER_KEY = "studymate_user";
 const TOKEN_KEY = "studymate_token";
 
+type JwtPayload = {
+  exp?: number;
+};
+
+function decodeJwtPayload(token: string): JwtPayload | null {
+  try {
+    const segment = token.split(".")[1];
+    if (!segment) return null;
+
+    const base64 = segment.replace(/-/g, "+").replace(/_/g, "/");
+    return JSON.parse(atob(base64)) as JwtPayload;
+  } catch {
+    return null;
+  }
+}
+
+export function isTokenExpired(token: string): boolean {
+  const payload = decodeJwtPayload(token);
+  if (!payload?.exp) return false;
+  return Date.now() >= payload.exp * 1000;
+}
+
 export function setAuthSession({ user, token }: { user: AuthUser; token?: string }) {
   localStorage.setItem(USER_KEY, JSON.stringify(user));
   if (token) {
@@ -35,4 +57,24 @@ export function getAuthToken(): string | null {
 export function clearAuthUser() {
   localStorage.removeItem(USER_KEY);
   localStorage.removeItem(TOKEN_KEY);
+}
+
+export function isAuthenticated(): boolean {
+  if (typeof window === "undefined") return false;
+
+  const token = getAuthToken();
+  const user = getAuthUser();
+
+  if (!token || !user) return false;
+
+  if (isTokenExpired(token)) {
+    clearAuthUser();
+    return false;
+  }
+
+  return true;
+}
+
+export function hasValidClientSession(): boolean {
+  return isAuthenticated();
 }
