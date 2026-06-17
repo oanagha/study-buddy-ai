@@ -16,6 +16,7 @@ import { Route as IndexRouteImport } from './routes/index'
 import { Route as AppIndexRouteImport } from './routes/app.index'
 import { Route as AppUploadRouteImport } from './routes/app.upload'
 import { Route as AppSummariesRouteImport } from './routes/app.summaries'
+import { Route as AppStudyGuideRouteImport } from './routes/app.study-guide'
 import { Route as AppSettingsRouteImport } from './routes/app.settings'
 import { Route as AppQuizzesRouteImport } from './routes/app.quizzes'
 import { Route as AppProfileRouteImport } from './routes/app.profile'
@@ -58,6 +59,11 @@ const AppUploadRoute = AppUploadRouteImport.update({
 const AppSummariesRoute = AppSummariesRouteImport.update({
   id: '/summaries',
   path: '/summaries',
+  getParentRoute: () => AppRoute,
+} as any)
+const AppStudyGuideRoute = AppStudyGuideRouteImport.update({
+  id: '/study-guide',
+  path: '/study-guide',
   getParentRoute: () => AppRoute,
 } as any)
 const AppSettingsRoute = AppSettingsRouteImport.update({
@@ -113,6 +119,7 @@ export interface FileRoutesByFullPath {
   '/app/profile': typeof AppProfileRoute
   '/app/quizzes': typeof AppQuizzesRoute
   '/app/settings': typeof AppSettingsRoute
+  '/app/study-guide': typeof AppStudyGuideRoute
   '/app/summaries': typeof AppSummariesRoute
   '/app/upload': typeof AppUploadRoute
   '/app/': typeof AppIndexRoute
@@ -129,6 +136,7 @@ export interface FileRoutesByTo {
   '/app/profile': typeof AppProfileRoute
   '/app/quizzes': typeof AppQuizzesRoute
   '/app/settings': typeof AppSettingsRoute
+  '/app/study-guide': typeof AppStudyGuideRoute
   '/app/summaries': typeof AppSummariesRoute
   '/app/upload': typeof AppUploadRoute
   '/app': typeof AppIndexRoute
@@ -147,6 +155,7 @@ export interface FileRoutesById {
   '/app/profile': typeof AppProfileRoute
   '/app/quizzes': typeof AppQuizzesRoute
   '/app/settings': typeof AppSettingsRoute
+  '/app/study-guide': typeof AppStudyGuideRoute
   '/app/summaries': typeof AppSummariesRoute
   '/app/upload': typeof AppUploadRoute
   '/app/': typeof AppIndexRoute
@@ -166,6 +175,7 @@ export interface FileRouteTypes {
     | '/app/profile'
     | '/app/quizzes'
     | '/app/settings'
+    | '/app/study-guide'
     | '/app/summaries'
     | '/app/upload'
     | '/app/'
@@ -182,6 +192,7 @@ export interface FileRouteTypes {
     | '/app/profile'
     | '/app/quizzes'
     | '/app/settings'
+    | '/app/study-guide'
     | '/app/summaries'
     | '/app/upload'
     | '/app'
@@ -199,6 +210,7 @@ export interface FileRouteTypes {
     | '/app/profile'
     | '/app/quizzes'
     | '/app/settings'
+    | '/app/study-guide'
     | '/app/summaries'
     | '/app/upload'
     | '/app/'
@@ -262,6 +274,13 @@ declare module '@tanstack/react-router' {
       path: '/summaries'
       fullPath: '/app/summaries'
       preLoaderRoute: typeof AppSummariesRouteImport
+      parentRoute: typeof AppRoute
+    }
+    '/app/study-guide': {
+      id: '/app/study-guide'
+      path: '/study-guide'
+      fullPath: '/app/study-guide'
+      preLoaderRoute: typeof AppStudyGuideRouteImport
       parentRoute: typeof AppRoute
     }
     '/app/settings': {
@@ -331,6 +350,7 @@ interface AppRouteChildren {
   AppProfileRoute: typeof AppProfileRoute
   AppQuizzesRoute: typeof AppQuizzesRoute
   AppSettingsRoute: typeof AppSettingsRoute
+  AppStudyGuideRoute: typeof AppStudyGuideRoute
   AppSummariesRoute: typeof AppSummariesRoute
   AppUploadRoute: typeof AppUploadRoute
   AppIndexRoute: typeof AppIndexRoute
@@ -344,6 +364,7 @@ const AppRouteChildren: AppRouteChildren = {
   AppProfileRoute: AppProfileRoute,
   AppQuizzesRoute: AppQuizzesRoute,
   AppSettingsRoute: AppSettingsRoute,
+  AppStudyGuideRoute: AppStudyGuideRoute,
   AppSummariesRoute: AppSummariesRoute,
   AppUploadRoute: AppUploadRoute,
   AppIndexRoute: AppIndexRoute,

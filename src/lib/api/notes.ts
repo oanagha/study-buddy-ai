@@ -9,6 +9,10 @@ export type Note = {
   fileType: string;
   uploadStatus: string;
   uploadedAt: string;
+  hasSummary: boolean;
+  summaryGeneratedAt: string | null;
+  hasStudyMaterial: boolean;
+  studyMaterialGeneratedAt: string | null;
 };
 
 const MAX_FILE_SIZE = 10 * 1024 * 1024;

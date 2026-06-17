@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Upload, Search, Filter, FileText, Trash2, Eye, Sparkles, FileType, File as FileIcon, FileCode, Loader2 } from "lucide-react";
 import { PageHeader } from "@/components/widgets";
@@ -344,8 +344,10 @@ function UploadPage() {
                   >
                     <Eye className="h-3.5 w-3.5" /> View
                   </Button>
-                  <Button size="sm" className="flex-1 bg-gradient-primary" onClick={() => toast.info("AI features coming soon")}>
-                    <Sparkles className="h-3.5 w-3.5" /> AI
+                  <Button size="sm" className="flex-1 bg-gradient-primary" asChild>
+                    <Link to="/app/study-guide" search={{ noteId: f.noteId }}>
+                      <Sparkles className="h-3.5 w-3.5" /> Guide
+                    </Link>
                   </Button>
                   <Button
                     size="sm"

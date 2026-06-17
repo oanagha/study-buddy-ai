@@ -1,116 +1,407 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useState } from "react";
-import { Sparkles, FileText, ArrowLeft, Copy, Bookmark } from "lucide-react";
+import { useCallback, useEffect, useState } from "react";
+import { Sparkles, FileText, ArrowLeft, Copy, FileType, File as FileIcon, FileCode, Loader2, Eye, History } from "lucide-react";
 import { PageHeader } from "@/components/widgets";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { recentUploads } from "@/lib/mock-data";
+import { ApiError } from "@/lib/api/auth";
+import { fetchSummary, summarizeNote, type SummaryResult } from "@/lib/api/ai";
+import { fetchNotes, type Note } from "@/lib/api/notes";
 import { toast } from "sonner";
 
+type SummariesSearch = {
+  noteId?: number;
+};
+
 export const Route = createFileRoute("/app/summaries")({
+  validateSearch: (search: Record<string, unknown>): SummariesSearch => {
+    const raw = search.noteId;
+    if (raw === undefined || raw === null || raw === "") return {};
+    const noteId = Number(raw);
+    return Number.isInteger(noteId) && noteId > 0 ? { noteId } : {};
+  },
   head: () => ({ meta: [{ title: "AI Summaries — StudyMate AI" }] }),
   component: Summaries,
 });
 
-const summaryData = {
-  short: "Trees are hierarchical data structures consisting of nodes connected by edges. A binary tree restricts each node to at most two children. Binary Search Trees (BSTs) maintain ordering, allowing O(log n) search, insert, and delete operations in the average case.",
-  detailed: `A tree is a non-linear hierarchical data structure that consists of nodes connected by edges. Each tree has a root node, and every other node is connected by exactly one edge from a parent node.
+const fileIcons: Record<string, typeof FileText> = { pdf: FileType, docx: FileIcon, txt: FileCode };
 
-**Binary Trees**
-A binary tree is a tree where each node has at most two children, referred to as the left child and the right child. Binary trees are widely used in expression parsing, decision trees, and search algorithms.
+function formatGeneratedAt(dateString?: string | null) {
+  if (!dateString) return "Generated just now";
+  const date = new Date(dateString);
+  const diffMs = Date.now() - date.getTime();
+  const diffMins = Math.floor(diffMs / (1000 * 60));
+  if (diffMins < 1) return "Generated just now";
+  if (diffMins < 60) return `Generated ${diffMins} min ago`;
+  return date.toLocaleString();
+}
 
-**Binary Search Trees (BST)**
-A BST is a binary tree with an ordering property: for every node, all values in the left subtree are less than the node's value, and all values in the right subtree are greater. This property enables efficient search operations.
+function formatHistoryDate(dateString?: string | null) {
+  if (!dateString) return null;
+  return new Date(dateString).toLocaleDateString(undefined, {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+  });
+}
 
-**Traversals**
-Trees can be traversed in multiple ways: inorder (left-root-right), preorder (root-left-right), and postorder (left-right-root). Each serves different use cases such as expression evaluation or copying trees.
+function SummaryView({
+  note,
+  summary,
+  onBack,
+  onRegenerate,
+  isGenerating,
+}: {
+  note: Note;
+  summary: SummaryResult;
+  onBack: () => void;
+  onRegenerate: () => void;
+  isGenerating: boolean;
+}) {
+  const copySummary = async (text: string) => {
+    await navigator.clipboard.writeText(text);
+    toast.success("Copied to clipboard!");
+  };
 
-**Balanced Trees**
-AVL trees and Red-Black trees are self-balancing BSTs that guarantee O(log n) operations by maintaining height balance through rotations.`,
-  keyPoints: [
-    "Trees are hierarchical, non-linear data structures.",
-    "Binary trees have at most 2 children per node.",
-    "BST property: left < root < right.",
-    "Average-case complexity for BST operations is O(log n).",
-    "Self-balancing variants (AVL, Red-Black) guarantee O(log n).",
-    "Tree traversals: inorder, preorder, postorder, level-order.",
-  ],
-};
+  return (
+    <div className="max-w-4xl mx-auto space-y-6">
+      <Button variant="ghost" onClick={onBack} className="-ml-3">
+        <ArrowLeft className="h-4 w-4" /> Back to notes
+      </Button>
+      <div className="flex items-start justify-between gap-4 flex-wrap">
+        <div>
+          <h1 className="text-2xl font-bold font-display">{note.fileName}</h1>
+          <p className="text-sm text-muted-foreground mt-1">
+            AI summary • {formatGeneratedAt(summary.generated_at)}
+            {summary.cached ? " • cached" : ""}
+          </p>
+        </div>
+        <div className="flex gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            disabled={isGenerating}
+            onClick={() => void copySummary(summary.short_summary)}
+          >
+            <Copy className="h-3.5 w-3.5" /> Copy
+          </Button>
+          <Button
+            size="sm"
+            className="bg-gradient-primary hover:opacity-90"
+            disabled={isGenerating}
+            onClick={onRegenerate}
+          >
+            {isGenerating ? (
+              <Loader2 className="h-3.5 w-3.5 animate-spin" />
+            ) : (
+              <Sparkles className="h-3.5 w-3.5" />
+            )}
+            Regenerate
+          </Button>
+        </div>
+      </div>
+      <Card className="p-6 sm:p-8 shadow-card border-border/50">
+        <Tabs defaultValue="short">
+          <TabsList className="grid grid-cols-3 mb-6">
+            <TabsTrigger value="short">Short Summary</TabsTrigger>
+            <TabsTrigger value="detailed">Detailed Summary</TabsTrigger>
+            <TabsTrigger value="key">Key Points</TabsTrigger>
+          </TabsList>
+          <TabsContent value="short" className="prose prose-neutral dark:prose-invert max-w-none">
+            <p className="text-lg leading-relaxed text-foreground/90">{summary.short_summary}</p>
+          </TabsContent>
+          <TabsContent value="detailed">
+            <div className="space-y-4 text-foreground/90 leading-relaxed whitespace-pre-wrap">
+              {summary.detailed_summary}
+            </div>
+          </TabsContent>
+          <TabsContent value="key">
+            <ul className="space-y-3">
+              {summary.key_points.map((point, i) => (
+                <li key={i} className="flex gap-3 p-3 rounded-lg bg-muted/40">
+                  <span className="grid h-6 w-6 shrink-0 place-items-center rounded-full bg-gradient-primary text-primary-foreground text-xs font-bold">
+                    {i + 1}
+                  </span>
+                  <span className="leading-relaxed">{point}</span>
+                </li>
+              ))}
+            </ul>
+          </TabsContent>
+        </Tabs>
+      </Card>
+    </div>
+  );
+}
 
 function Summaries() {
-  const [active, setActive] = useState<string | null>(null);
+  const { noteId: urlNoteId } = Route.useSearch();
+  const navigate = Route.useNavigate();
 
-  if (active) {
-    const note = recentUploads.find((n) => n.id === active)!;
+  const [notes, setNotes] = useState<Note[]>([]);
+  const [loadingNotes, setLoadingNotes] = useState(true);
+  const [loadingDetail, setLoadingDetail] = useState(false);
+  const [activeNote, setActiveNote] = useState<Note | null>(null);
+  const [summary, setSummary] = useState<SummaryResult | null>(null);
+  const [generatingNoteId, setGeneratingNoteId] = useState<number | null>(null);
+
+  const setNoteInUrl = useCallback(
+    (noteId?: number) => {
+      void navigate({
+        search: noteId ? { noteId } : {},
+        replace: true,
+      });
+    },
+    [navigate],
+  );
+
+  const markNoteHasSummary = useCallback((noteId: number, generatedAt?: string) => {
+    setNotes((prev) =>
+      prev.map((n) =>
+        n.noteId === noteId
+          ? { ...n, hasSummary: true, summaryGeneratedAt: generatedAt ?? n.summaryGeneratedAt }
+          : n,
+      ),
+    );
+  }, []);
+
+  const loadNotes = useCallback(async () => {
+    try {
+      const data = await fetchNotes();
+      setNotes(data);
+    } catch (err) {
+      if (err instanceof ApiError) {
+        toast.error(err.message);
+      } else {
+        toast.error("Failed to load notes.");
+      }
+    } finally {
+      setLoadingNotes(false);
+    }
+  }, []);
+
+  useEffect(() => {
+    loadNotes();
+  }, [loadNotes]);
+
+  const openSummary = useCallback(
+    async (note: Note, options?: { forceRegenerate?: boolean }) => {
+      const forceRegenerate = options?.forceRegenerate ?? false;
+      setGeneratingNoteId(note.noteId);
+      setNoteInUrl(note.noteId);
+
+      try {
+        const result = forceRegenerate
+          ? await summarizeNote(note.noteId, { forceRegenerate: true })
+          : note.hasSummary
+            ? await fetchSummary(note.noteId)
+            : await summarizeNote(note.noteId);
+
+        setActiveNote(note);
+        setSummary(result);
+        markNoteHasSummary(note.noteId, result.generated_at);
+
+        if (forceRegenerate) {
+          toast.success("Summary regenerated successfully!");
+        } else if (result.cached || note.hasSummary) {
+          toast.success("Summary loaded from history.");
+        } else {
+          toast.success("Summary generated successfully!");
+        }
+      } catch (err) {
+        setNoteInUrl(undefined);
+        if (err instanceof ApiError) {
+          toast.error(err.message);
+        } else {
+          toast.error("Failed to load summary.");
+        }
+      } finally {
+        setGeneratingNoteId(null);
+      }
+    },
+    [markNoteHasSummary, setNoteInUrl],
+  );
+
+  useEffect(() => {
+    if (!urlNoteId || loadingNotes || notes.length === 0) return;
+    if (generatingNoteId === urlNoteId) return;
+    if (activeNote?.noteId === urlNoteId && summary) return;
+
+    const note = notes.find((n) => n.noteId === urlNoteId);
+    if (!note) {
+      setNoteInUrl(undefined);
+      return;
+    }
+
+    if (!note.hasSummary) {
+      void openSummary(note);
+      return;
+    }
+
+    let cancelled = false;
+    setLoadingDetail(true);
+
+    fetchSummary(urlNoteId)
+      .then((result) => {
+        if (cancelled) return;
+        setActiveNote(note);
+        setSummary(result);
+      })
+      .catch((err) => {
+        if (cancelled) return;
+        setNoteInUrl(undefined);
+        if (err instanceof ApiError) {
+          toast.error(err.message);
+        }
+      })
+      .finally(() => {
+        if (!cancelled) setLoadingDetail(false);
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [urlNoteId, loadingNotes, notes, activeNote?.noteId, summary, generatingNoteId, setNoteInUrl, openSummary]);
+
+  const handleBack = () => {
+    setActiveNote(null);
+    setSummary(null);
+    setNoteInUrl(undefined);
+  };
+
+  if (loadingDetail) {
     return (
-      <div className="max-w-4xl mx-auto space-y-6">
-        <Button variant="ghost" onClick={() => setActive(null)} className="-ml-3">
-          <ArrowLeft className="h-4 w-4" /> Back to notes
-        </Button>
-        <div className="flex items-start justify-between gap-4 flex-wrap">
-          <div>
-            <h1 className="text-2xl font-bold font-display">{note.name}</h1>
-            <p className="text-sm text-muted-foreground mt-1">AI summary • Generated just now</p>
-          </div>
-          <div className="flex gap-2">
-            <Button variant="outline" size="sm" onClick={() => toast.success("Copied!")}><Copy className="h-3.5 w-3.5" /> Copy</Button>
-            <Button variant="outline" size="sm"><Bookmark className="h-3.5 w-3.5" /> Save</Button>
-          </div>
-        </div>
-        <Card className="p-6 sm:p-8 shadow-card border-border/50">
-          <Tabs defaultValue="short">
-            <TabsList className="grid grid-cols-3 mb-6">
-              <TabsTrigger value="short">Short Summary</TabsTrigger>
-              <TabsTrigger value="detailed">Detailed Summary</TabsTrigger>
-              <TabsTrigger value="key">Key Points</TabsTrigger>
-            </TabsList>
-            <TabsContent value="short" className="prose prose-neutral dark:prose-invert max-w-none">
-              <p className="text-lg leading-relaxed text-foreground/90">{summaryData.short}</p>
-            </TabsContent>
-            <TabsContent value="detailed">
-              <div className="space-y-4 text-foreground/90 leading-relaxed">
-                {summaryData.detailed.split("\n\n").map((p, i) => {
-                  if (p.startsWith("**")) {
-                    return <h3 key={i} className="font-display font-semibold text-lg pt-2">{p.replace(/\*\*/g, "")}</h3>;
-                  }
-                  return <p key={i}>{p}</p>;
-                })}
-              </div>
-            </TabsContent>
-            <TabsContent value="key">
-              <ul className="space-y-3">
-                {summaryData.keyPoints.map((p, i) => (
-                  <li key={i} className="flex gap-3 p-3 rounded-lg bg-muted/40">
-                    <span className="grid h-6 w-6 shrink-0 place-items-center rounded-full bg-gradient-primary text-primary-foreground text-xs font-bold">{i + 1}</span>
-                    <span className="leading-relaxed">{p}</span>
-                  </li>
-                ))}
-              </ul>
-            </TabsContent>
-          </Tabs>
-        </Card>
+      <div className="flex items-center justify-center py-16 text-muted-foreground gap-2">
+        <Loader2 className="h-5 w-5 animate-spin" />
+        Loading saved summary...
       </div>
     );
   }
 
+  if (activeNote && summary) {
+    return (
+      <SummaryView
+        note={activeNote}
+        summary={summary}
+        onBack={handleBack}
+        onRegenerate={() => openSummary(activeNote, { forceRegenerate: true })}
+        isGenerating={generatingNoteId === activeNote.noteId}
+      />
+    );
+  }
+
+  const historyNotes = notes.filter((n) => n.hasSummary);
+
   return (
     <div className="max-w-7xl mx-auto space-y-6">
-      <PageHeader title="AI Summaries" subtitle="Pick a note to generate an AI-powered summary." />
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-        {recentUploads.map((n) => (
-          <Card key={n.id} className="p-5 shadow-card hover:shadow-glow/40 hover:-translate-y-0.5 transition-all border-border/50">
-            <div className="grid h-12 w-12 place-items-center rounded-xl bg-gradient-primary text-primary-foreground shadow-glow mb-4">
-              <FileText className="h-5 w-5" />
-            </div>
-            <h3 className="font-semibold text-sm truncate">{n.name}</h3>
-            <p className="text-xs text-muted-foreground mt-1">{n.date}</p>
-            <Button className="w-full mt-4 bg-gradient-primary hover:opacity-90" onClick={() => setActive(n.id)}>
-              <Sparkles className="h-4 w-4" /> Generate Summary
-            </Button>
-          </Card>
-        ))}
-      </div>
+      <PageHeader title="AI Summaries" subtitle="Pick a note to generate or view a saved AI summary." />
+
+      {loadingNotes ? (
+        <div className="flex items-center justify-center py-16 text-muted-foreground gap-2">
+          <Loader2 className="h-5 w-5 animate-spin" />
+          Loading your notes...
+        </div>
+      ) : notes.length === 0 ? (
+        <Card className="p-10 text-center text-muted-foreground">
+          No notes uploaded yet. Upload a PDF, DOCX, or TXT file first to generate summaries.
+        </Card>
+      ) : (
+        <>
+          {historyNotes.length > 0 && (
+            <section className="space-y-3">
+              <div className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
+                <History className="h-4 w-4" />
+                Saved summaries ({historyNotes.length})
+              </div>
+              <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+                {historyNotes.map((note) => (
+                  <Card
+                    key={`history-${note.noteId}`}
+                    className="p-4 border-primary/20 bg-primary/5 cursor-pointer hover:bg-primary/10 transition-colors"
+                    onClick={() => void openSummary(note)}
+                  >
+                    <p className="font-medium text-sm truncate">{note.fileName}</p>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      {formatHistoryDate(note.summaryGeneratedAt)}
+                    </p>
+                  </Card>
+                ))}
+              </div>
+            </section>
+          )}
+
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {notes.map((note) => {
+              const Icon = fileIcons[note.fileType] ?? FileText;
+              const isGenerating = generatingNoteId === note.noteId;
+
+              return (
+                <Card
+                  key={note.noteId}
+                  className="p-5 shadow-card hover:shadow-glow/40 hover:-translate-y-0.5 transition-all border-border/50"
+                >
+                  <div className="grid h-12 w-12 place-items-center rounded-xl bg-gradient-primary text-primary-foreground shadow-glow mb-4">
+                    <Icon className="h-5 w-5" />
+                  </div>
+                  <h3 className="font-semibold text-sm truncate">{note.fileName}</h3>
+                  <div className="flex items-center gap-2 mt-1 flex-wrap">
+                    <p className="text-xs text-muted-foreground uppercase">{note.fileType}</p>
+                    {note.hasSummary && (
+                      <Badge variant="secondary" className="text-xs">
+                        Summary saved
+                      </Badge>
+                    )}
+                  </div>
+                  {note.hasSummary ? (
+                    <div className="flex gap-2 mt-4">
+                      <Button
+                        className="flex-1 bg-gradient-primary hover:opacity-90"
+                        disabled={isGenerating || generatingNoteId !== null}
+                        onClick={() => void openSummary(note)}
+                      >
+                        {isGenerating ? (
+                          <Loader2 className="h-4 w-4 animate-spin" />
+                        ) : (
+                          <>
+                            <Eye className="h-4 w-4" /> View
+                          </>
+                        )}
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="icon"
+                        disabled={isGenerating || generatingNoteId !== null}
+                        title="Regenerate summary"
+                        onClick={() => void openSummary(note, { forceRegenerate: true })}
+                      >
+                        <Sparkles className="h-4 w-4" />
+                      </Button>
+                    </div>
+                  ) : (
+                    <Button
+                      className="w-full mt-4 bg-gradient-primary hover:opacity-90"
+                      disabled={isGenerating || generatingNoteId !== null}
+                      onClick={() => void openSummary(note)}
+                    >
+                      {isGenerating ? (
+                        <>
+                          <Loader2 className="h-4 w-4 animate-spin" />
+                          Generating...
+                        </>
+                      ) : (
+                        <>
+                          <Sparkles className="h-4 w-4" /> Generate Summary
+                        </>
+                      )}
+                    </Button>
+                  )}
+                </Card>
+              );
+            })}
+          </div>
+        </>
+      )}
     </div>
   );
 }

@@ -2,7 +2,7 @@ import { Link, useRouter, useRouterState } from "@tanstack/react-router";
 import {
   LayoutDashboard, Upload, FileText, ClipboardList, Layers,
   MessageSquare, CalendarDays, User, Settings, GraduationCap,
-  LogOut, Search, Bell,
+  LogOut, Search, Bell, BookOpen,
 } from "lucide-react";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { Button } from "@/components/ui/button";
@@ -17,6 +17,7 @@ const nav = [
   { to: "/app/dashboard", label: "Dashboard", icon: LayoutDashboard },
   { to: "/app/upload", label: "Upload Notes", icon: Upload },
   { to: "/app/summaries", label: "Summaries", icon: FileText },
+  { to: "/app/study-guide", label: "Study Guide", icon: BookOpen },
   { to: "/app/quizzes", label: "Quizzes", icon: ClipboardList },
   { to: "/app/flashcards", label: "Flashcards", icon: Layers },
   { to: "/app/chat", label: "AI Chat", icon: MessageSquare },
