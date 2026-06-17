@@ -42,3 +42,14 @@ export async function generateQuiz(
     cached: result.cached,
   };
 }
+
+export async function completeQuiz(
+  quizId: number,
+  payload: { score: number; correct_count: number; total_questions: number },
+): Promise<void> {
+  await authFetch(`/api/ai/quizzes/${quizId}/complete`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload),
+  });
+}

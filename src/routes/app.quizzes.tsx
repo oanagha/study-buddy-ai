@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import {
   Brain,
   Clock,
@@ -29,7 +29,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { ApiError } from "@/lib/api/auth";
-import { generateQuiz, type QuizDifficulty, type QuizQuestion } from "@/lib/api/quiz";
+import { generateQuiz, completeQuiz, type QuizDifficulty, type QuizQuestion } from "@/lib/api/quiz";
 import { fetchNotes, type Note } from "@/lib/api/notes";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
@@ -70,6 +70,7 @@ function Quizzes() {
   const [current, setCurrent] = useState(0);
   const [answers, setAnswers] = useState<(number | null)[]>([]);
   const [timeLeft, setTimeLeft] = useState(60);
+  const completionRecorded = useRef(false);
 
   const selectedNote = notes.find((n) => n.noteId === selectedNoteId) ?? null;
 
@@ -106,6 +107,24 @@ function Quizzes() {
     const t = setTimeout(() => setTimeLeft((s) => s - 1), 1000);
     return () => clearTimeout(t);
   }, [stage, timeLeft]);
+
+  useEffect(() => {
+    if (stage !== "result" || !quizMeta || questions.length === 0 || completionRecorded.current) {
+      return;
+    }
+
+    const correct = answers.filter((a, i) => a === questions[i]?.correct_index).length;
+    const score = Math.round((correct / questions.length) * 100);
+
+    completionRecorded.current = true;
+    void completeQuiz(quizMeta.quizId, {
+      score,
+      correct_count: correct,
+      total_questions: questions.length,
+    }).catch(() => {
+      completionRecorded.current = false;
+    });
+  }, [stage, quizMeta, questions, answers]);
 
   const handleSelectNote = (noteId: string) => {
     const id = Number(noteId);
@@ -147,6 +166,7 @@ function Quizzes() {
   };
 
   const resetToSetup = () => {
+    completionRecorded.current = false;
     setStage("setup");
     setQuestions([]);
     setQuizMeta(null);
