@@ -2,6 +2,7 @@ import { createFileRoute, Link, redirect, useNavigate } from "@tanstack/react-ro
 import { Mail, Lock, ArrowRight, Loader2 } from "lucide-react";
 import { useState } from "react";
 import { AuthHeader } from "@/components/auth-header";
+import { PasswordInput } from "@/components/password-input";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -85,7 +86,7 @@ function Register() {
             </p>
           </div>
 
-          <form className="space-y-5" onSubmit={handleSubmit}>
+          <form className="space-y-5" onSubmit={handleSubmit} autoComplete="off">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-1.5">
                 <Label htmlFor="firstName" className="text-xs font-medium text-foreground/80">
@@ -126,6 +127,9 @@ function Register() {
                   type="email"
                   placeholder="name@university.edu"
                   className="pl-10 h-11 bg-card"
+                  autoComplete="off"
+                  data-1p-ignore
+                  data-lpignore="true"
                   required
                   disabled={isSubmitting}
                 />
@@ -136,13 +140,13 @@ function Register() {
                 Password
               </Label>
               <div className="relative">
-                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                <Input
+                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground z-10 pointer-events-none" />
+                <PasswordInput
                   id="password"
                   name="password"
-                  type="password"
-                  placeholder="At least 8 characters"
                   className="pl-10 h-11 bg-card"
+                  autoComplete="off"
+                  readOnlyUntilFocus
                   minLength={8}
                   required
                   disabled={isSubmitting}
@@ -154,13 +158,13 @@ function Register() {
                 Confirm password
               </Label>
               <div className="relative">
-                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                <Input
+                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground z-10 pointer-events-none" />
+                <PasswordInput
                   id="confirmPassword"
                   name="confirmPassword"
-                  type="password"
-                  placeholder="Re-enter your password"
                   className="pl-10 h-11 bg-card"
+                  autoComplete="off"
+                  readOnlyUntilFocus
                   minLength={8}
                   required
                   disabled={isSubmitting}

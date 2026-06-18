@@ -28,8 +28,16 @@ type ApiErrorBody = {
 };
 
 export type LoginResponse = {
-  token: string;
+  token?: string;
   user: AuthUser;
+  requires_2fa?: boolean;
+  temp_token?: string;
+  message?: string;
+};
+
+export type Verify2faPayload = {
+  temp_token: string;
+  pin: string;
 };
 
 export class ApiError extends Error {
@@ -71,7 +79,18 @@ export async function registerUser(payload: RegisterPayload): Promise<AuthUser> 
 }
 
 export async function loginUser(payload: LoginPayload): Promise<LoginResponse> {
-  const data = await postAuth<{ token: string; user: AuthUser }>("login", payload, "Login failed");
+  const data = await postAuth<LoginResponse & { status: string }>("login", payload, "Login failed");
+  return {
+    token: data.token,
+    user: data.user,
+    requires_2fa: data.requires_2fa,
+    temp_token: data.temp_token,
+    message: data.message,
+  };
+}
+
+export async function verify2fa(payload: Verify2faPayload): Promise<LoginResponse> {
+  const data = await postAuth<{ token: string; user: AuthUser }>("verify-2fa", payload, "PIN verification failed");
   return { token: data.token, user: data.user };
 }
 

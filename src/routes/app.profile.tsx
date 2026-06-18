@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Camera, Mail, GraduationCap, BookOpen, Award, Loader2 } from "lucide-react";
 import { PageHeader } from "@/components/widgets";
+import { PasswordInput } from "@/components/password-input";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -271,9 +272,9 @@ function Profile() {
           <div className="space-y-4 py-2">
             <div className="space-y-1.5">
               <Label htmlFor="current_password">Current Password</Label>
-              <Input
+              <PasswordInput
                 id="current_password"
-                type="password"
+                autoComplete="off"
                 value={passwordForm.current_password}
                 onChange={(e) =>
                   setPasswordForm((current) => ({ ...current, current_password: e.target.value }))
@@ -282,9 +283,9 @@ function Profile() {
             </div>
             <div className="space-y-1.5">
               <Label htmlFor="new_password">New Password</Label>
-              <Input
+              <PasswordInput
                 id="new_password"
-                type="password"
+                autoComplete="off"
                 value={passwordForm.new_password}
                 onChange={(e) =>
                   setPasswordForm((current) => ({ ...current, new_password: e.target.value }))
@@ -293,9 +294,9 @@ function Profile() {
             </div>
             <div className="space-y-1.5">
               <Label htmlFor="confirm_password">Confirm New Password</Label>
-              <Input
+              <PasswordInput
                 id="confirm_password"
-                type="password"
+                autoComplete="off"
                 value={passwordForm.confirm_password}
                 onChange={(e) =>
                   setPasswordForm((current) => ({ ...current, confirm_password: e.target.value }))
