@@ -67,7 +67,7 @@ export async function requestDataExport(): Promise<{ download_url: string }> {
   return authFetch("/api/settings/export-data") as Promise<{ download_url: string }>;
 }
 
-export async function downloadExportedData(downloadPath: string, fileName = "user-data.json") {
+export async function downloadExportedData(downloadPath: string, fileName = "studymate-data.pdf") {
   const token = getAuthToken();
 
   if (!token) {
@@ -99,4 +99,9 @@ export async function downloadExportedData(downloadPath: string, fileName = "use
   link.click();
   link.remove();
   URL.revokeObjectURL(url);
+}
+
+export function openExportedDataPreview(downloadPath: string) {
+  const previewUrl = `/report-preview?path=${encodeURIComponent(downloadPath)}`;
+  window.open(previewUrl, "_blank", "noopener,noreferrer");
 }

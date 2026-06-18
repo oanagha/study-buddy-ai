@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useCallback, useEffect, useState } from "react";
 import { Moon, Bell, Globe, Shield, User, Loader2 } from "lucide-react";
 import { PageHeader } from "@/components/widgets";
@@ -16,9 +16,11 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
+import { Input } from "@/components/ui/input";
 import { useTheme } from "@/lib/theme";
 import {
   downloadExportedData,
+  openExportedDataPreview,
   disableTwoFactor,
   fetchSettings,
   LANGUAGE_OPTIONS,
@@ -27,7 +29,8 @@ import {
   updateSettings,
   type UserSettings,
 } from "@/lib/api/settings";
-import { ApiError } from "@/lib/api/auth";
+import { ApiError, deleteAccount, signOutAllDevices } from "@/lib/api/auth";
+import { clearAuthUser } from "@/lib/auth";
 import { toast } from "sonner";
 import type { ReactNode } from "react";
 
@@ -37,15 +40,22 @@ export const Route = createFileRoute("/app/settings")({
 });
 
 function Settings() {
+  const navigate = useNavigate();
   const { theme, setTheme } = useTheme();
   const [settings, setSettings] = useState<UserSettings | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [exporting, setExporting] = useState(false);
   const [updating2fa, setUpdating2fa] = useState(false);
+  const [signingOutAll, setSigningOutAll] = useState(false);
+  const [deletingAccount, setDeletingAccount] = useState(false);
   const [setupDialogOpen, setSetupDialogOpen] = useState(false);
   const [disableDialogOpen, setDisableDialogOpen] = useState(false);
+  const [signOutDialogOpen, setSignOutDialogOpen] = useState(false);
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [pinForm, setPinForm] = useState({ pin: "", confirm_pin: "", password: "" });
+  const [signOutPassword, setSignOutPassword] = useState("");
+  const [deleteForm, setDeleteForm] = useState({ password: "", confirmation: "" });
 
   const loadSettings = useCallback(async () => {
     setLoading(true);
@@ -169,12 +179,61 @@ function Settings() {
     }
   };
 
+  const handleSignOutAll = async () => {
+    setSigningOutAll(true);
+    try {
+      const result = await signOutAllDevices(signOutPassword);
+      clearAuthUser();
+      setSignOutDialogOpen(false);
+      setSignOutPassword("");
+      toast.success(result.message);
+      await navigate({ to: "/login" });
+    } catch (err) {
+      if (err instanceof ApiError) {
+        toast.error(err.message);
+      } else {
+        toast.error("Failed to sign out from all devices.");
+      }
+    } finally {
+      setSigningOutAll(false);
+    }
+  };
+
+  const handleDeleteAccount = async () => {
+    if (deleteForm.confirmation.trim() !== "DELETE") {
+      toast.error('Confirmation text must be DELETE');
+      return;
+    }
+
+    setDeletingAccount(true);
+    try {
+      const result = await deleteAccount({
+        password: deleteForm.password,
+        confirmation: deleteForm.confirmation.trim(),
+      });
+      clearAuthUser();
+      setDeleteDialogOpen(false);
+      setDeleteForm({ password: "", confirmation: "" });
+      toast.success(result.message);
+      await navigate({ to: "/login" });
+    } catch (err) {
+      if (err instanceof ApiError) {
+        toast.error(err.message);
+      } else {
+        toast.error("Failed to delete account.");
+      }
+    } finally {
+      setDeletingAccount(false);
+    }
+  };
+
   const handleExportData = async () => {
     setExporting(true);
     try {
       const { download_url: downloadUrl } = await requestDataExport();
+      openExportedDataPreview(downloadUrl);
       await downloadExportedData(downloadUrl);
-      toast.success("Download started!");
+      toast.success("PDF report opened and download started!");
     } catch (err) {
       if (err instanceof ApiError) {
         toast.error(err.message);
@@ -325,6 +384,118 @@ function Settings() {
         </DialogContent>
       </Dialog>
 
+      <Dialog
+        open={signOutDialogOpen}
+        onOpenChange={(open) => {
+          setSignOutDialogOpen(open);
+          if (!open) setSignOutPassword("");
+        }}
+      >
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Sign out on all devices</DialogTitle>
+            <DialogDescription>
+              This will end every active session, including this one. Enter your password to continue.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-2">
+            <div className="space-y-1.5">
+              <Label htmlFor="signout_password">Password</Label>
+              <PasswordInput
+                id="signout_password"
+                autoComplete="off"
+                value={signOutPassword}
+                onChange={(e) => setSignOutPassword(e.target.value)}
+                disabled={signingOutAll}
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setSignOutDialogOpen(false)} disabled={signingOutAll}>
+              Cancel
+            </Button>
+            <Button
+              variant="destructive"
+              disabled={signingOutAll || !signOutPassword}
+              onClick={() => void handleSignOutAll()}
+            >
+              {signingOutAll ? (
+                <>
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  Signing out...
+                </>
+              ) : (
+                "Sign out all"
+              )}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog
+        open={deleteDialogOpen}
+        onOpenChange={(open) => {
+          setDeleteDialogOpen(open);
+          if (!open) setDeleteForm({ password: "", confirmation: "" });
+        }}
+      >
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Delete account</DialogTitle>
+            <DialogDescription>
+              This action is permanent and cannot be undone. All your data, notes, quizzes, and study plans will be
+              removed.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-2">
+            <div className="space-y-1.5">
+              <Label htmlFor="delete_password">Password</Label>
+              <PasswordInput
+                id="delete_password"
+                autoComplete="off"
+                value={deleteForm.password}
+                onChange={(e) => setDeleteForm((current) => ({ ...current, password: e.target.value }))}
+                disabled={deletingAccount}
+              />
+            </div>
+            <div className="space-y-1.5">
+              <Label htmlFor="delete_confirmation">Type DELETE to confirm</Label>
+              <Input
+                id="delete_confirmation"
+                value={deleteForm.confirmation}
+                onChange={(e) => setDeleteForm((current) => ({ ...current, confirmation: e.target.value }))}
+                placeholder="DELETE"
+                disabled={deletingAccount}
+                autoComplete="off"
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setDeleteDialogOpen(false)} disabled={deletingAccount}>
+              Cancel
+            </Button>
+            <Button
+              variant="destructive"
+              disabled={
+                deletingAccount ||
+                !deleteForm.password ||
+                deleteForm.confirmation.trim() !== "DELETE"
+              }
+              onClick={() => void handleDeleteAccount()}
+            >
+              {deletingAccount ? (
+                <>
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  Deleting...
+                </>
+              ) : (
+                "Delete account"
+              )}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
       <Section icon={<Moon className="h-4 w-4" />} title="Appearance" desc="Switch between light and dark themes.">
         <Row label="Dark Mode" desc="Easier on the eyes in low light.">
           <Switch checked={theme === "dark"} onCheckedChange={handleDarkModeChange} disabled={saving} />
@@ -355,7 +526,7 @@ function Settings() {
         </Row>
       </Section>
 
-      <Section icon={<Globe className="h-4 w-4" />} title="Language & Region" desc="Choose your preferred language.">
+      {/* <Section icon={<Globe className="h-4 w-4" />} title="Language & Region" desc="Choose your preferred language.">
         <Row label="Language" desc="Interface language.">
           <select
             className="rounded-lg border bg-card px-3 py-1.5 text-sm"
@@ -370,7 +541,7 @@ function Settings() {
             ))}
           </select>
         </Row>
-      </Section>
+      </Section> */}
 
       <Section icon={<User className="h-4 w-4" />} title="Account" desc="Manage your account preferences.">
         <Row label="Two-factor authentication" desc="Extra layer of security with a custom PIN.">
@@ -390,7 +561,7 @@ function Settings() {
             {settings.two_factor_enabled ? "Disable" : "Enable"}
           </Button>
         </Row>
-        <Row label="Download my data" desc="Get a copy of everything we have on file.">
+        <Row label="Download my data" desc="Get a personalized PDF report of your StudyMate data.">
           <Button variant="outline" size="sm" disabled={exporting} onClick={() => void handleExportData()}>
             {exporting ? (
               <>
@@ -406,10 +577,30 @@ function Settings() {
 
       <Section icon={<Shield className="h-4 w-4" />} title="Security" desc="Sign out or delete your account.">
         <Row label="Sign out on all devices" desc="Ends every active session.">
-          <Button variant="outline" size="sm">Sign out all</Button>
+          <Button
+            variant="outline"
+            size="sm"
+            disabled={!settings.has_password}
+            onClick={() => {
+              setSignOutPassword("");
+              setSignOutDialogOpen(true);
+            }}
+          >
+            Sign out all
+          </Button>
         </Row>
         <Row label="Delete account" desc="This action is permanent.">
-          <Button variant="destructive" size="sm">Delete</Button>
+          <Button
+            variant="destructive"
+            size="sm"
+            disabled={!settings.has_password}
+            onClick={() => {
+              setDeleteForm({ password: "", confirmation: "" });
+              setDeleteDialogOpen(true);
+            }}
+          >
+            Delete
+          </Button>
         </Row>
       </Section>
     </div>

@@ -113,3 +113,26 @@ export async function changePassword(payload: ChangePasswordPayload): Promise<{ 
     body: JSON.stringify(payload),
   }) as Promise<{ message: string }>;
 }
+
+export async function signOutAllDevices(password: string): Promise<{ message: string }> {
+  const { authFetch } = await import("./client");
+  return authFetch("/api/auth/signout-all", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ password }),
+  }) as Promise<{ message: string }>;
+}
+
+export type DeleteAccountPayload = {
+  password: string;
+  confirmation: string;
+};
+
+export async function deleteAccount(payload: DeleteAccountPayload): Promise<{ message: string }> {
+  const { authFetch } = await import("./client");
+  return authFetch("/api/auth/delete-account", {
+    method: "DELETE",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload),
+  }) as Promise<{ message: string }>;
+}

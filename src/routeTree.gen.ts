@@ -9,6 +9,7 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
+import { Route as ReportPreviewRouteImport } from './routes/report-preview'
 import { Route as RegisterRouteImport } from './routes/register'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as AppRouteImport } from './routes/app'
@@ -26,6 +27,11 @@ import { Route as AppDashboardRouteImport } from './routes/app.dashboard'
 import { Route as AppChatRouteImport } from './routes/app.chat'
 import { Route as AuthGoogleCallbackRouteImport } from './routes/auth.google.callback'
 
+const ReportPreviewRoute = ReportPreviewRouteImport.update({
+  id: '/report-preview',
+  path: '/report-preview',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const RegisterRoute = RegisterRouteImport.update({
   id: '/register',
   path: '/register',
@@ -112,6 +118,7 @@ export interface FileRoutesByFullPath {
   '/app': typeof AppRouteWithChildren
   '/login': typeof LoginRoute
   '/register': typeof RegisterRoute
+  '/report-preview': typeof ReportPreviewRoute
   '/app/chat': typeof AppChatRoute
   '/app/dashboard': typeof AppDashboardRoute
   '/app/flashcards': typeof AppFlashcardsRoute
@@ -129,6 +136,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/login': typeof LoginRoute
   '/register': typeof RegisterRoute
+  '/report-preview': typeof ReportPreviewRoute
   '/app/chat': typeof AppChatRoute
   '/app/dashboard': typeof AppDashboardRoute
   '/app/flashcards': typeof AppFlashcardsRoute
@@ -148,6 +156,7 @@ export interface FileRoutesById {
   '/app': typeof AppRouteWithChildren
   '/login': typeof LoginRoute
   '/register': typeof RegisterRoute
+  '/report-preview': typeof ReportPreviewRoute
   '/app/chat': typeof AppChatRoute
   '/app/dashboard': typeof AppDashboardRoute
   '/app/flashcards': typeof AppFlashcardsRoute
@@ -168,6 +177,7 @@ export interface FileRouteTypes {
     | '/app'
     | '/login'
     | '/register'
+    | '/report-preview'
     | '/app/chat'
     | '/app/dashboard'
     | '/app/flashcards'
@@ -185,6 +195,7 @@ export interface FileRouteTypes {
     | '/'
     | '/login'
     | '/register'
+    | '/report-preview'
     | '/app/chat'
     | '/app/dashboard'
     | '/app/flashcards'
@@ -203,6 +214,7 @@ export interface FileRouteTypes {
     | '/app'
     | '/login'
     | '/register'
+    | '/report-preview'
     | '/app/chat'
     | '/app/dashboard'
     | '/app/flashcards'
@@ -222,11 +234,19 @@ export interface RootRouteChildren {
   AppRoute: typeof AppRouteWithChildren
   LoginRoute: typeof LoginRoute
   RegisterRoute: typeof RegisterRoute
+  ReportPreviewRoute: typeof ReportPreviewRoute
   AuthGoogleCallbackRoute: typeof AuthGoogleCallbackRoute
 }
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
+    '/report-preview': {
+      id: '/report-preview'
+      path: '/report-preview'
+      fullPath: '/report-preview'
+      preLoaderRoute: typeof ReportPreviewRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/register': {
       id: '/register'
       path: '/register'
@@ -377,6 +397,7 @@ const rootRouteChildren: RootRouteChildren = {
   AppRoute: AppRouteWithChildren,
   LoginRoute: LoginRoute,
   RegisterRoute: RegisterRoute,
+  ReportPreviewRoute: ReportPreviewRoute,
   AuthGoogleCallbackRoute: AuthGoogleCallbackRoute,
 }
 export const routeTree = rootRouteImport
