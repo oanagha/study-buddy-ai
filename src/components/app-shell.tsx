@@ -14,7 +14,6 @@ import {
   Bell,
   BookOpen,
   Flame,
-  Zap,
   Timer,
 } from "lucide-react";
 import { ThemeToggle } from "@/components/theme-toggle";
