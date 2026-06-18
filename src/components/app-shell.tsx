@@ -1,8 +1,19 @@
 import { Link, useRouter, useRouterState } from "@tanstack/react-router";
 import {
-  LayoutDashboard, Upload, FileText, ClipboardList, Layers,
-  MessageSquare, CalendarDays, User, Settings, GraduationCap,
-  LogOut, Search, Bell, BookOpen,
+  LayoutDashboard,
+  Upload,
+  FileText,
+  ClipboardList,
+  Layers,
+  MessageSquare,
+  CalendarDays,
+  User,
+  Settings,
+  GraduationCap,
+  LogOut,
+  Search,
+  Bell,
+  BookOpen,
 } from "lucide-react";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { Button } from "@/components/ui/button";
@@ -72,7 +83,9 @@ export function AppShell({ children }: { children: ReactNode }) {
           <div className="grid h-9 w-9 place-items-center rounded-xl bg-gradient-primary shadow-glow">
             <GraduationCap className="h-5 w-5 text-primary-foreground" />
           </div>
-          <span className="font-display text-lg font-bold">StudyMate <span className="text-gradient">AI</span></span>
+          <span className="font-display text-lg font-bold">
+            StudyMate <span className="text-gradient">AI</span>
+          </span>
         </div>
         <nav className="min-h-0 flex-1 space-y-1 overflow-x-hidden overflow-y-auto p-3">
           {nav.map((item) => {
@@ -107,7 +120,10 @@ export function AppShell({ children }: { children: ReactNode }) {
       </aside>
 
       {mobileOpen && (
-        <div className="fixed inset-0 z-30 bg-black/40 lg:hidden" onClick={() => setMobileOpen(false)} />
+        <div
+          className="fixed inset-0 z-30 bg-black/40 lg:hidden"
+          onClick={() => setMobileOpen(false)}
+        />
       )}
 
       {/* Main */}
@@ -119,12 +135,20 @@ export function AppShell({ children }: { children: ReactNode }) {
             aria-label="Open menu"
           >
             <svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M4 6h16M4 12h16M4 18h16"
+              />
             </svg>
           </button>
           <div className="relative max-w-md flex-1 hidden sm:block">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            <Input placeholder="Search notes, quizzes, flashcards..." className="pl-9 bg-muted/50 border-0" />
+            <Input
+              placeholder="Search notes, quizzes, flashcards..."
+              className="pl-9 bg-muted/50 border-0"
+            />
           </div>
           <div className="ml-auto flex items-center gap-1">
             <ThemeToggle className="h-11 w-11 [&_svg]:!size-6" />
@@ -142,12 +166,16 @@ export function AppShell({ children }: { children: ReactNode }) {
               aria-label="Go to profile"
             >
               <Avatar className="h-10 w-10 ring-2 ring-primary/20 cursor-pointer">
-                <AvatarFallback className="bg-gradient-primary text-primary-foreground font-semibold">A</AvatarFallback>
+                <AvatarFallback className="bg-gradient-primary text-primary-foreground font-semibold">
+                  A
+                </AvatarFallback>
               </Avatar>
             </Link>
           </div>
         </header>
-        <main className="min-h-0 flex-1 overflow-y-auto p-4 animate-fade-in lg:p-8">{children}</main>
+        <main className="min-h-0 flex-1 overflow-y-auto p-4 animate-fade-in lg:p-8">
+          {children}
+        </main>
       </div>
     </div>
   );

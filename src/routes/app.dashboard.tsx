@@ -1,8 +1,18 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useCallback, useEffect, useState } from "react";
 import {
-  FileText, Layers, ClipboardCheck, Flame, Upload, ArrowRight,
-  FileType, File as FileIcon, FileCode, Clock, BookOpen, Loader2,
+  FileText,
+  Layers,
+  ClipboardCheck,
+  Flame,
+  Upload,
+  ArrowRight,
+  FileType,
+  File as FileIcon,
+  FileCode,
+  Clock,
+  BookOpen,
+  Loader2,
 } from "lucide-react";
 import { StatCard, PageHeader } from "@/components/widgets";
 import { Card } from "@/components/ui/card";
@@ -10,7 +20,13 @@ import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 import { Badge } from "@/components/ui/badge";
 import {
-  ResponsiveContainer, AreaChart, Area, XAxis, YAxis, Tooltip, CartesianGrid,
+  ResponsiveContainer,
+  AreaChart,
+  Area,
+  XAxis,
+  YAxis,
+  Tooltip,
+  CartesianGrid,
 } from "recharts";
 import {
   fetchDashboardOverview,
@@ -38,9 +54,24 @@ export const Route = createFileRoute("/app/dashboard")({
 const fileIcons: Record<string, typeof FileText> = { pdf: FileType, docx: FileIcon, txt: FileCode };
 
 const statConfig = [
-  { key: "notes_uploaded" as const, label: "Notes Uploaded", icon: FileText, tint: "primary" as const },
-  { key: "flashcards_generated" as const, label: "Flashcards Generated", icon: Layers, tint: "secondary" as const },
-  { key: "quizzes_completed" as const, label: "Quizzes Completed", icon: ClipboardCheck, tint: "accent" as const },
+  {
+    key: "notes_uploaded" as const,
+    label: "Notes Uploaded",
+    icon: FileText,
+    tint: "primary" as const,
+  },
+  {
+    key: "flashcards_generated" as const,
+    label: "Flashcards Generated",
+    icon: Layers,
+    tint: "secondary" as const,
+  },
+  {
+    key: "quizzes_completed" as const,
+    label: "Quizzes Completed",
+    icon: ClipboardCheck,
+    tint: "accent" as const,
+  },
   { key: "study_streak" as const, label: "Study Streak", icon: Flame, tint: "warning" as const },
 ];
 
@@ -217,21 +248,50 @@ function Dashboard() {
                 Loading activity...
               </div>
             ) : (
-            <ResponsiveContainer width="100%" height="100%">
-              <AreaChart data={weeklyActivity}>
-                <defs>
-                  <linearGradient id="hours" x1="0" y1="0" x2="0" y2="1">
-                    <stop offset="0%" stopColor="oklch(0.534 0.226 277)" stopOpacity={0.4} />
-                    <stop offset="100%" stopColor="oklch(0.534 0.226 277)" stopOpacity={0} />
-                  </linearGradient>
-                </defs>
-                <CartesianGrid strokeDasharray="3 3" stroke="oklch(0.92 0.01 260)" vertical={false} />
-                <XAxis dataKey="day" stroke="currentColor" fontSize={12} tickLine={false} axisLine={false} className="text-muted-foreground" />
-                <YAxis stroke="currentColor" fontSize={12} tickLine={false} axisLine={false} className="text-muted-foreground" />
-                <Tooltip contentStyle={{ background: "var(--card)", border: "1px solid var(--border)", borderRadius: 12 }} />
-                <Area type="monotone" dataKey="hours" stroke="oklch(0.534 0.226 277)" strokeWidth={2.5} fill="url(#hours)" />
-              </AreaChart>
-            </ResponsiveContainer>
+              <ResponsiveContainer width="100%" height="100%">
+                <AreaChart data={weeklyActivity}>
+                  <defs>
+                    <linearGradient id="hours" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="0%" stopColor="oklch(0.534 0.226 277)" stopOpacity={0.4} />
+                      <stop offset="100%" stopColor="oklch(0.534 0.226 277)" stopOpacity={0} />
+                    </linearGradient>
+                  </defs>
+                  <CartesianGrid
+                    strokeDasharray="3 3"
+                    stroke="oklch(0.92 0.01 260)"
+                    vertical={false}
+                  />
+                  <XAxis
+                    dataKey="day"
+                    stroke="currentColor"
+                    fontSize={12}
+                    tickLine={false}
+                    axisLine={false}
+                    className="text-muted-foreground"
+                  />
+                  <YAxis
+                    stroke="currentColor"
+                    fontSize={12}
+                    tickLine={false}
+                    axisLine={false}
+                    className="text-muted-foreground"
+                  />
+                  <Tooltip
+                    contentStyle={{
+                      background: "var(--card)",
+                      border: "1px solid var(--border)",
+                      borderRadius: 12,
+                    }}
+                  />
+                  <Area
+                    type="monotone"
+                    dataKey="hours"
+                    stroke="oklch(0.534 0.226 277)"
+                    strokeWidth={2.5}
+                    fill="url(#hours)"
+                  />
+                </AreaChart>
+              </ResponsiveContainer>
             )}
           </div>
         </Card>
@@ -240,34 +300,42 @@ function Dashboard() {
         <Card className="p-6 shadow-card border-border/50 flex flex-col">
           <h3 className="font-display font-semibold text-lg mb-4 shrink-0">Upcoming Sessions</h3>
           <div className="h-64 overflow-y-auto pr-1">
-          {loadingSessions ? (
-            <div className="h-full flex items-center justify-center gap-2 text-muted-foreground">
-              <Loader2 className="h-5 w-5 animate-spin" />
-              Loading sessions...
-            </div>
-          ) : upcomingSessions.length === 0 ? (
-            <div className="h-full flex flex-col items-center justify-center text-center text-muted-foreground">
-              <Clock className="h-8 w-8 mb-2 opacity-40" />
-              <p className="text-sm">No upcoming sessions</p>
-              <Link to="/app/planner" className="text-xs text-primary font-medium mt-1 inline-block">
-                Create a study plan
-              </Link>
-            </div>
-          ) : (
-          <div className="space-y-3">
-            {upcomingSessions.map((s) => (
-              <div key={`${s.date}-${s.time}-${s.topic}`} className="flex gap-3 p-3 rounded-xl bg-muted/40 hover:bg-muted transition">
-                <div className="grid h-10 w-10 shrink-0 place-items-center rounded-lg bg-gradient-primary text-primary-foreground">
-                  <Clock className="h-4 w-4" />
-                </div>
-                <div className="min-w-0 flex-1">
-                  <p className="font-medium text-sm truncate">{s.topic}</p>
-                  <p className="text-xs text-muted-foreground">{formatSessionLabel(s.date, s.time)}</p>
-                </div>
+            {loadingSessions ? (
+              <div className="h-full flex items-center justify-center gap-2 text-muted-foreground">
+                <Loader2 className="h-5 w-5 animate-spin" />
+                Loading sessions...
               </div>
-            ))}
-          </div>
-          )}
+            ) : upcomingSessions.length === 0 ? (
+              <div className="h-full flex flex-col items-center justify-center text-center text-muted-foreground">
+                <Clock className="h-8 w-8 mb-2 opacity-40" />
+                <p className="text-sm">No upcoming sessions</p>
+                <Link
+                  to="/app/planner"
+                  className="text-xs text-primary font-medium mt-1 inline-block"
+                >
+                  Create a study plan
+                </Link>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {upcomingSessions.map((s) => (
+                  <div
+                    key={`${s.date}-${s.time}-${s.topic}`}
+                    className="flex gap-3 p-3 rounded-xl bg-muted/40 hover:bg-muted transition"
+                  >
+                    <div className="grid h-10 w-10 shrink-0 place-items-center rounded-lg bg-gradient-primary text-primary-foreground">
+                      <Clock className="h-4 w-4" />
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <p className="font-medium text-sm truncate">{s.topic}</p>
+                      <p className="text-xs text-muted-foreground">
+                        {formatSessionLabel(s.date, s.time)}
+                      </p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         </Card>
       </div>
@@ -277,7 +345,10 @@ function Dashboard() {
         <Card className="p-6 shadow-card border-border/50">
           <div className="flex items-center justify-between mb-4">
             <h3 className="font-display font-semibold text-lg">Recent Uploads</h3>
-            <Link to="/app/upload" className="text-sm text-primary font-medium inline-flex items-center gap-1 hover:gap-2 transition-all">
+            <Link
+              to="/app/upload"
+              className="text-sm text-primary font-medium inline-flex items-center gap-1 hover:gap-2 transition-all"
+            >
               View all <ArrowRight className="h-3.5 w-3.5" />
             </Link>
           </div>
@@ -293,20 +364,25 @@ function Dashboard() {
                 <p className="text-sm">No uploads yet</p>
               </div>
             ) : (
-            recentUploads.map((f) => {
-              const Icon = fileIcons[getFileTypeFromTitle(f.title)] ?? FileText;
-              return (
-                <div key={`${f.title}-${f.uploaded_at}`} className="flex items-center gap-3 p-3 rounded-lg hover:bg-muted/60 transition cursor-pointer">
-                  <div className="grid h-10 w-10 shrink-0 place-items-center rounded-lg bg-primary/10 text-primary">
-                    <Icon className="h-5 w-5" />
+              recentUploads.map((f) => {
+                const Icon = fileIcons[getFileTypeFromTitle(f.title)] ?? FileText;
+                return (
+                  <div
+                    key={`${f.title}-${f.uploaded_at}`}
+                    className="flex items-center gap-3 p-3 rounded-lg hover:bg-muted/60 transition cursor-pointer"
+                  >
+                    <div className="grid h-10 w-10 shrink-0 place-items-center rounded-lg bg-primary/10 text-primary">
+                      <Icon className="h-5 w-5" />
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <p className="font-medium text-sm truncate">{f.title}</p>
+                      <p className="text-xs text-muted-foreground">
+                        {formatUploadDate(f.uploaded_at)} • {f.size}
+                      </p>
+                    </div>
                   </div>
-                  <div className="min-w-0 flex-1">
-                    <p className="font-medium text-sm truncate">{f.title}</p>
-                    <p className="text-xs text-muted-foreground">{formatUploadDate(f.uploaded_at)} • {f.size}</p>
-                  </div>
-                </div>
-              );
-            })
+                );
+              })
             )}
           </div>
         </Card>
@@ -329,15 +405,15 @@ function Dashboard() {
                 <p className="text-sm">Complete quizzes to track subject progress</p>
               </div>
             ) : (
-            learningProgress.map((p) => (
-              <div key={p.subject}>
-                <div className="flex justify-between text-sm mb-1.5">
-                  <span className="font-medium">{p.subject}</span>
-                  <span className="text-muted-foreground">{p.progress}%</span>
+              learningProgress.map((p) => (
+                <div key={p.subject}>
+                  <div className="flex justify-between text-sm mb-1.5">
+                    <span className="font-medium">{p.subject}</span>
+                    <span className="text-muted-foreground">{p.progress}%</span>
+                  </div>
+                  <Progress value={p.progress} className="h-2" />
                 </div>
-                <Progress value={p.progress} className="h-2" />
-              </div>
-            ))
+              ))
             )}
           </div>
         </Card>
@@ -360,19 +436,30 @@ function Dashboard() {
             </Link>
           </div>
         ) : (
-        <div className="grid gap-3 sm:grid-cols-3">
-          {recentQuizzes.map((q) => (
-            <div key={`${q.title}-${q.completed_at}-${q.score}`} className="rounded-xl border p-4 hover:shadow-card transition">
-              <div className="flex items-center justify-between mb-2">
-                <p className="font-medium text-sm">{q.title}</p>
-                <Badge className={q.score >= 85 ? "bg-accent text-accent-foreground" : "bg-warning text-warning-foreground"}>
-                  {q.score}%
-                </Badge>
+          <div className="grid gap-3 sm:grid-cols-3">
+            {recentQuizzes.map((q) => (
+              <div
+                key={`${q.title}-${q.completed_at}-${q.score}`}
+                className="rounded-xl border p-4 hover:shadow-card transition"
+              >
+                <div className="flex items-center justify-between mb-2">
+                  <p className="font-medium text-sm">{q.title}</p>
+                  <Badge
+                    className={
+                      q.score >= 85
+                        ? "bg-accent text-accent-foreground"
+                        : "bg-warning text-warning-foreground"
+                    }
+                  >
+                    {q.score}%
+                  </Badge>
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  {q.questions} questions • {q.completed_at}
+                </p>
               </div>
-              <p className="text-xs text-muted-foreground">{q.questions} questions • {q.completed_at}</p>
-            </div>
-          ))}
-        </div>
+            ))}
+          </div>
         )}
       </Card>
     </div>

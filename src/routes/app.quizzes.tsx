@@ -177,7 +177,10 @@ function Quizzes() {
   if (stage === "setup") {
     return (
       <div className="max-w-4xl mx-auto space-y-6">
-        <PageHeader title="Quiz Generator" subtitle="AI-generated MCQ quizzes from your uploaded notes." />
+        <PageHeader
+          title="Quiz Generator"
+          subtitle="AI-generated MCQ quizzes from your uploaded notes."
+        />
 
         {loadingNotes ? (
           <div className="flex items-center justify-center py-16 text-muted-foreground gap-2">
@@ -241,7 +244,11 @@ function Quizzes() {
                     >
                       <div className="font-semibold">{d}</div>
                       <div className="text-xs text-muted-foreground mt-1">
-                        {d === "Easy" ? "Basic recall" : d === "Medium" ? "Application" : "Deep analysis"}
+                        {d === "Easy"
+                          ? "Basic recall"
+                          : d === "Medium"
+                            ? "Application"
+                            : "Deep analysis"}
                       </div>
                     </button>
                   ))}
@@ -317,7 +324,9 @@ function Quizzes() {
           <div
             className={cn(
               "flex items-center gap-2 px-4 py-2 rounded-xl border font-semibold tabular-nums",
-              timeLeft < 10 ? "bg-destructive/10 text-destructive border-destructive/30" : "bg-card",
+              timeLeft < 10
+                ? "bg-destructive/10 text-destructive border-destructive/30"
+                : "bg-card",
             )}
           >
             <Clock className="h-4 w-4" /> {timeLeft}s
@@ -325,7 +334,9 @@ function Quizzes() {
         </div>
         <Progress value={((current + 1) / questions.length) * 100} className="h-2" />
         <Card className="p-6 sm:p-8 shadow-card border-border/50">
-          <h2 className="font-display text-xl sm:text-2xl font-semibold leading-snug">{q.question}</h2>
+          <h2 className="font-display text-xl sm:text-2xl font-semibold leading-snug">
+            {q.question}
+          </h2>
           <div className="mt-6 space-y-2">
             {q.options.map((opt, i) => (
               <button
@@ -353,7 +364,11 @@ function Quizzes() {
           </div>
         </Card>
         <div className="flex justify-between gap-3">
-          <Button variant="outline" disabled={current === 0} onClick={() => setCurrent((c) => c - 1)}>
+          <Button
+            variant="outline"
+            disabled={current === 0}
+            onClick={() => setCurrent((c) => c - 1)}
+          >
             <ChevronLeft className="h-4 w-4" /> Previous
           </Button>
           {current < questions.length - 1 ? (

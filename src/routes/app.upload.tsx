@@ -1,6 +1,18 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { Upload, Search, Filter, FileText, Trash2, Eye, Sparkles, FileType, File as FileIcon, FileCode, Loader2 } from "lucide-react";
+import {
+  Upload,
+  Search,
+  Filter,
+  FileText,
+  Trash2,
+  Eye,
+  Sparkles,
+  FileType,
+  File as FileIcon,
+  FileCode,
+  Loader2,
+} from "lucide-react";
 import { PageHeader } from "@/components/widgets";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -197,7 +209,10 @@ function UploadPage() {
         className={`relative p-10 border-2 border-dashed transition-all ${
           dragging ? "border-primary bg-primary/5 scale-[1.01]" : "border-border bg-muted/20"
         }`}
-        onDragOver={(e) => { e.preventDefault(); setDragging(true); }}
+        onDragOver={(e) => {
+          e.preventDefault();
+          setDragging(true);
+        }}
         onDragLeave={() => setDragging(false)}
         onDrop={(e) => {
           e.preventDefault();
@@ -246,7 +261,12 @@ function UploadPage() {
         <div className="flex gap-2 col-span-2">
           <div className="relative flex-1 sm:w-72">
             <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            <Input placeholder="Search notes..." value={query} onChange={(e) => setQuery(e.target.value)} className="pl-9" />
+            <Input
+              placeholder="Search notes..."
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              className="pl-9"
+            />
           </div>
           <Popover>
             <PopoverTrigger asChild>
@@ -323,7 +343,10 @@ function UploadPage() {
           {filtered.map((f) => {
             const Icon = fileIcons[f.fileType] ?? FileText;
             return (
-              <Card key={f.noteId} className="p-5 shadow-card hover:shadow-glow/40 hover:-translate-y-0.5 transition-all border-border/50 group">
+              <Card
+                key={f.noteId}
+                className="p-5 shadow-card hover:shadow-glow/40 hover:-translate-y-0.5 transition-all border-border/50 group"
+              >
                 <div className="flex items-start gap-3 mb-4">
                   <div className="grid h-12 w-12 shrink-0 place-items-center rounded-xl bg-gradient-primary text-primary-foreground shadow-glow">
                     <Icon className="h-5 w-5" />
@@ -367,14 +390,18 @@ function UploadPage() {
           })}
         </div>
       )}
-      <AlertDialog open={noteToDelete !== null} onOpenChange={(open) => !open && setNoteToDelete(null)}>
+      <AlertDialog
+        open={noteToDelete !== null}
+        onOpenChange={(open) => !open && setNoteToDelete(null)}
+      >
         <AlertDialogContent className="max-w-md text-center">
           <AlertDialogHeader className="items-center space-y-3">
             <AlertDialogTitle>Delete note?</AlertDialogTitle>
             <AlertDialogDescription className="text-center">
               {noteToDelete ? (
                 <>
-                  You are about to delete <span className="font-medium text-foreground">"{noteToDelete.fileName}"</span>.
+                  You are about to delete{" "}
+                  <span className="font-medium text-foreground">"{noteToDelete.fileName}"</span>.
                   <br />
                   This action cannot be undone.
                 </>

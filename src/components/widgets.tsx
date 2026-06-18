@@ -29,7 +29,12 @@ export function StatCard({
           <p className="text-3xl font-bold font-display mt-1 truncate">{value}</p>
           {change && <p className="text-xs text-accent mt-1 font-medium">{change}</p>}
         </div>
-        <div className={cn("grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-gradient-to-br", tints[tint])}>
+        <div
+          className={cn(
+            "grid h-11 w-11 shrink-0 place-items-center rounded-xl bg-gradient-to-br",
+            tints[tint],
+          )}
+        >
           {icon}
         </div>
       </div>
@@ -37,7 +42,15 @@ export function StatCard({
   );
 }
 
-export function PageHeader({ title, subtitle, action }: { title: string; subtitle?: string; action?: ReactNode }) {
+export function PageHeader({
+  title,
+  subtitle,
+  action,
+}: {
+  title: string;
+  subtitle?: string;
+  action?: ReactNode;
+}) {
   return (
     <div className="grid grid-cols-[minmax(0,1fr)_auto] items-start gap-4 sm:flex sm:flex-wrap sm:justify-between mb-6">
       <div className="min-w-0">
@@ -49,7 +62,17 @@ export function PageHeader({ title, subtitle, action }: { title: string; subtitl
   );
 }
 
-export function EmptyState({ icon, title, description, action }: { icon: ReactNode; title: string; description: string; action?: ReactNode }) {
+export function EmptyState({
+  icon,
+  title,
+  description,
+  action,
+}: {
+  icon: ReactNode;
+  title: string;
+  description: string;
+  action?: ReactNode;
+}) {
   return (
     <div className="text-center py-16 px-4">
       <div className="mx-auto grid h-16 w-16 place-items-center rounded-2xl bg-gradient-soft mb-4">

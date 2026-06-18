@@ -63,11 +63,7 @@ async function postAuth<T>(path: string, payload: unknown, fallbackMessage: stri
 
   if (!response.ok) {
     const error = data as ApiErrorBody;
-    throw new ApiError(
-      response.status,
-      error.message ?? fallbackMessage,
-      error.errors,
-    );
+    throw new ApiError(response.status, error.message ?? fallbackMessage, error.errors);
   }
 
   return data as T;
@@ -90,12 +86,20 @@ export async function loginUser(payload: LoginPayload): Promise<LoginResponse> {
 }
 
 export async function verify2fa(payload: Verify2faPayload): Promise<LoginResponse> {
-  const data = await postAuth<{ token: string; user: AuthUser }>("verify-2fa", payload, "PIN verification failed");
+  const data = await postAuth<{ token: string; user: AuthUser }>(
+    "verify-2fa",
+    payload,
+    "PIN verification failed",
+  );
   return { token: data.token, user: data.user };
 }
 
 export async function googleLogin(idToken: string): Promise<LoginResponse> {
-  const data = await postAuth<{ token: string; user: AuthUser }>("google", { idToken }, "Google sign-in failed");
+  const data = await postAuth<{ token: string; user: AuthUser }>(
+    "google",
+    { idToken },
+    "Google sign-in failed",
+  );
   return { token: data.token, user: data.user };
 }
 

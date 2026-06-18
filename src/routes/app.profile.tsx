@@ -155,7 +155,7 @@ function Profile() {
               ...current,
               ...result.profile,
             }
-          : current
+          : current,
       );
       setEditing(false);
       setImageFile(null);
@@ -182,7 +182,11 @@ function Profile() {
   };
 
   const handleChangePassword = async () => {
-    if (!passwordForm.current_password || !passwordForm.new_password || !passwordForm.confirm_password) {
+    if (
+      !passwordForm.current_password ||
+      !passwordForm.new_password ||
+      !passwordForm.confirm_password
+    ) {
       toast.error("All password fields are required.");
       return;
     }
@@ -308,7 +312,11 @@ function Profile() {
             </p>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setPasswordDialogOpen(false)} disabled={changingPassword}>
+            <Button
+              variant="outline"
+              onClick={() => setPasswordDialogOpen(false)}
+              disabled={changingPassword}
+            >
               Cancel
             </Button>
             <Button
@@ -395,7 +403,11 @@ function Profile() {
       </Card>
 
       <div className="grid gap-6 md:grid-cols-3">
-        <StatBlock icon={<BookOpen className="h-4 w-4" />} label="Notes" value={String(profile.stats.notes_uploaded)} />
+        <StatBlock
+          icon={<BookOpen className="h-4 w-4" />}
+          label="Notes"
+          value={String(profile.stats.notes_uploaded)}
+        />
         <StatBlock
           icon={<Award className="h-4 w-4" />}
           label="Avg Quiz Score"
@@ -427,14 +439,14 @@ function Profile() {
           <Field
             label="Education"
             icon={<GraduationCap className="h-4 w-4" />}
-            value={editing ? form.education : profile.education ?? ""}
+            value={editing ? form.education : (profile.education ?? "")}
             editing={editing}
             onChange={(value) => setForm((current) => ({ ...current, education: value }))}
           />
           <Field
             label="Course"
             icon={<BookOpen className="h-4 w-4" />}
-            value={editing ? form.course : profile.course ?? ""}
+            value={editing ? form.course : (profile.course ?? "")}
             editing={editing}
             onChange={(value) => setForm((current) => ({ ...current, course: value }))}
           />
@@ -459,11 +471,21 @@ function Profile() {
   );
 }
 
-function StatBlock({ icon, label, value }: { icon: React.ReactNode; label: string; value: string }) {
+function StatBlock({
+  icon,
+  label,
+  value,
+}: {
+  icon: React.ReactNode;
+  label: string;
+  value: string;
+}) {
   return (
     <Card className="p-5 shadow-card border-border/50">
       <div className="flex items-center gap-3">
-        <div className="grid h-10 w-10 place-items-center rounded-lg bg-gradient-primary text-primary-foreground">{icon}</div>
+        <div className="grid h-10 w-10 place-items-center rounded-lg bg-gradient-primary text-primary-foreground">
+          {icon}
+        </div>
         <div>
           <p className="text-xs text-muted-foreground">{label}</p>
           <p className="font-bold font-display text-lg">{value}</p>
@@ -491,7 +513,9 @@ function Field({
       <Label>{label}</Label>
       {editing && onChange ? (
         <div className="relative">
-          <div className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">{icon}</div>
+          <div className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">
+            {icon}
+          </div>
           <Input value={value} onChange={(e) => onChange(e.target.value)} className="pl-9" />
         </div>
       ) : (

@@ -36,11 +36,7 @@ export async function authFetch(path: string, options: RequestInit = {}) {
     }
 
     const error = data as ApiErrorBody;
-    throw new ApiError(
-      response.status,
-      error.message ?? "Request failed",
-      error.errors,
-    );
+    throw new ApiError(response.status, error.message ?? "Request failed", error.errors);
   }
 
   return data;

@@ -235,7 +235,10 @@ function Planner() {
 
   return (
     <div className="max-w-6xl mx-auto space-y-6">
-      <PageHeader title="Study Planner" subtitle="AI-generated study schedules tailored to your exam." />
+      <PageHeader
+        title="Study Planner"
+        subtitle="AI-generated study schedules tailored to your exam."
+      />
 
       {(allDone || isPlanCompleted) && completionQuote && (
         <Card className="p-6 shadow-glow border-primary/30 bg-gradient-soft text-center">

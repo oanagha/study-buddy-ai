@@ -105,7 +105,10 @@ function Flashcards() {
     void navigate({ search: { noteId: id }, replace: true });
   };
 
-  const applyDeck = (note: Note, result: { flashcards: Flashcard[]; flashcard_set_id?: number }) => {
+  const applyDeck = (
+    note: Note,
+    result: { flashcards: Flashcard[]; flashcard_set_id?: number },
+  ) => {
     const setId = result.flashcard_set_id ?? Date.now();
     const newDeck = result.flashcards.map((fc, i) => ({
       ...fc,
@@ -162,9 +165,7 @@ function Flashcards() {
       }
 
       setNotes((prev) =>
-        prev.map((n) =>
-          n.noteId === selectedNote.noteId ? { ...n, hasFlashcards: true } : n,
-        ),
+        prev.map((n) => (n.noteId === selectedNote.noteId ? { ...n, hasFlashcards: true } : n)),
       );
 
       if (result.cached) {

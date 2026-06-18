@@ -45,10 +45,7 @@ export async function deleteNote(noteId: number): Promise<void> {
   await authFetch(`/api/notes/${noteId}`, { method: "DELETE" });
 }
 
-export function uploadNote(
-  file: File,
-  onProgress?: (percent: number) => void,
-): Promise<Note> {
+export function uploadNote(file: File, onProgress?: (percent: number) => void): Promise<Note> {
   const validationError = validateNoteFile(file);
   if (validationError) {
     return Promise.reject(new ApiError(400, validationError));

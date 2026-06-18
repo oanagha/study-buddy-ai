@@ -91,7 +91,10 @@ function TopicCard({ topic, index }: { topic: StudyTopic; index: number }) {
           <div className="min-w-0 flex-1">
             <div className="flex items-center gap-2 flex-wrap">
               <span className="font-semibold">{topic.title}</span>
-              <Badge variant="outline" className={cn("text-xs capitalize", importanceStyles[topic.importance])}>
+              <Badge
+                variant="outline"
+                className={cn("text-xs capitalize", importanceStyles[topic.importance])}
+              >
                 {topic.importance} priority
               </Badge>
             </div>
@@ -102,7 +105,9 @@ function TopicCard({ topic, index }: { topic: StudyTopic; index: number }) {
         <p className="leading-relaxed text-foreground/90">{topic.summary}</p>
         {topic.key_terms.length > 0 && (
           <div>
-            <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-2">Key terms</p>
+            <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-2">
+              Key terms
+            </p>
             <div className="flex flex-wrap gap-1.5">
               {topic.key_terms.map((term) => (
                 <Badge key={term} variant="secondary" className="text-xs">
@@ -188,11 +193,21 @@ function StudyMaterialView({
       <Card className="p-6 sm:p-8 shadow-card border-border/50">
         <Tabs defaultValue="overview">
           <TabsList className="grid grid-cols-2 sm:grid-cols-5 mb-6 h-auto gap-1">
-            <TabsTrigger value="overview" className="text-xs sm:text-sm">Overview</TabsTrigger>
-            <TabsTrigger value="exam" className="text-xs sm:text-sm">Exam Focus</TabsTrigger>
-            <TabsTrigger value="topics" className="text-xs sm:text-sm">All Topics</TabsTrigger>
-            <TabsTrigger value="plan" className="text-xs sm:text-sm">Study Plan</TabsTrigger>
-            <TabsTrigger value="practice" className="text-xs sm:text-sm">Practice</TabsTrigger>
+            <TabsTrigger value="overview" className="text-xs sm:text-sm">
+              Overview
+            </TabsTrigger>
+            <TabsTrigger value="exam" className="text-xs sm:text-sm">
+              Exam Focus
+            </TabsTrigger>
+            <TabsTrigger value="topics" className="text-xs sm:text-sm">
+              All Topics
+            </TabsTrigger>
+            <TabsTrigger value="plan" className="text-xs sm:text-sm">
+              Study Plan
+            </TabsTrigger>
+            <TabsTrigger value="practice" className="text-xs sm:text-sm">
+              Practice
+            </TabsTrigger>
           </TabsList>
 
           <TabsContent value="overview">
@@ -213,7 +228,10 @@ function StudyMaterialView({
               </div>
               <ul className="space-y-2">
                 {material.exam_focus.must_know.map((item, i) => (
-                  <li key={i} className="flex gap-2 p-3 rounded-lg bg-red-500/5 border border-red-500/10">
+                  <li
+                    key={i}
+                    className="flex gap-2 p-3 rounded-lg bg-red-500/5 border border-red-500/10"
+                  >
                     <span className="text-red-500 font-bold shrink-0">!</span>
                     <span className="leading-relaxed">{item}</span>
                   </li>
@@ -439,7 +457,16 @@ function StudyGuide() {
     return () => {
       cancelled = true;
     };
-  }, [urlNoteId, loadingNotes, notes, activeNote?.noteId, material, generatingNoteId, setNoteInUrl, openStudyGuide]);
+  }, [
+    urlNoteId,
+    loadingNotes,
+    notes,
+    activeNote?.noteId,
+    material,
+    generatingNoteId,
+    setNoteInUrl,
+    openStudyGuide,
+  ]);
 
   const handleBack = () => {
     setActiveNote(null);

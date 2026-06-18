@@ -30,7 +30,10 @@ function GoogleIcon() {
   );
 }
 
-export function GoogleSignInButton({ disabled = false, isLoading = false }: GoogleSignInButtonProps) {
+export function GoogleSignInButton({
+  disabled = false,
+  isLoading = false,
+}: GoogleSignInButtonProps) {
   function handleClick() {
     window.location.href = `${API_URL}/api/auth/google`;
   }

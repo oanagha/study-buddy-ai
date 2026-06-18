@@ -1,6 +1,17 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useCallback, useEffect, useState } from "react";
-import { Sparkles, FileText, ArrowLeft, Copy, FileType, File as FileIcon, FileCode, Loader2, Eye, History } from "lucide-react";
+import {
+  Sparkles,
+  FileText,
+  ArrowLeft,
+  Copy,
+  FileType,
+  File as FileIcon,
+  FileCode,
+  Loader2,
+  Eye,
+  History,
+} from "lucide-react";
 import { PageHeader } from "@/components/widgets";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -262,7 +273,16 @@ function Summaries() {
     return () => {
       cancelled = true;
     };
-  }, [urlNoteId, loadingNotes, notes, activeNote?.noteId, summary, generatingNoteId, setNoteInUrl, openSummary]);
+  }, [
+    urlNoteId,
+    loadingNotes,
+    notes,
+    activeNote?.noteId,
+    summary,
+    generatingNoteId,
+    setNoteInUrl,
+    openSummary,
+  ]);
 
   const handleBack = () => {
     setActiveNote(null);
@@ -295,7 +315,10 @@ function Summaries() {
 
   return (
     <div className="max-w-7xl mx-auto space-y-6">
-      <PageHeader title="AI Summaries" subtitle="Pick a note to generate or view a saved AI summary." />
+      <PageHeader
+        title="AI Summaries"
+        subtitle="Pick a note to generate or view a saved AI summary."
+      />
 
       {loadingNotes ? (
         <div className="flex items-center justify-center py-16 text-muted-foreground gap-2">

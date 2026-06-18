@@ -14,13 +14,21 @@ export function MarketingNav() {
           <div className="grid h-9 w-9 place-items-center rounded-xl bg-gradient-primary shadow-glow">
             <GraduationCap className="h-5 w-5 text-primary-foreground" />
           </div>
-          <span className="font-display text-lg font-bold">StudyMate <span className="text-gradient">AI</span></span>
+          <span className="font-display text-lg font-bold">
+            StudyMate <span className="text-gradient">AI</span>
+          </span>
         </Link>
 
         <nav className="hidden md:flex items-center gap-8 text-sm font-medium text-muted-foreground">
-          <a href="#features" className="hover:text-foreground transition">Features</a>
-          <a href="#how" className="hover:text-foreground transition">How it works</a>
-          <a href="#testimonials" className="hover:text-foreground transition">Students</a>
+          <a href="#features" className="hover:text-foreground transition">
+            Features
+          </a>
+          <a href="#how" className="hover:text-foreground transition">
+            How it works
+          </a>
+          <a href="#testimonials" className="hover:text-foreground transition">
+            Students
+          </a>
         </nav>
 
         <div className="flex items-center gap-2">
@@ -29,7 +37,9 @@ export function MarketingNav() {
             <Button variant="ghost">Log in</Button>
           </Link>
           <Link to="/register">
-            <Button className="bg-gradient-primary hover:opacity-90 shadow-glow">Get Started</Button>
+            <Button className="bg-gradient-primary hover:opacity-90 shadow-glow">
+              Get Started
+            </Button>
           </Link>
           <button className="md:hidden p-2" onClick={() => setOpen(!open)}>
             {open ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
@@ -38,10 +48,22 @@ export function MarketingNav() {
       </div>
       {open && (
         <div className="md:hidden border-t px-4 py-4 space-y-3 bg-background">
-          <a href="#features" className="block text-sm font-medium" onClick={() => setOpen(false)}>Features</a>
-          <a href="#how" className="block text-sm font-medium" onClick={() => setOpen(false)}>How it works</a>
-          <a href="#testimonials" className="block text-sm font-medium" onClick={() => setOpen(false)}>Students</a>
-          <Link to="/login" className="block text-sm font-medium">Log in</Link>
+          <a href="#features" className="block text-sm font-medium" onClick={() => setOpen(false)}>
+            Features
+          </a>
+          <a href="#how" className="block text-sm font-medium" onClick={() => setOpen(false)}>
+            How it works
+          </a>
+          <a
+            href="#testimonials"
+            className="block text-sm font-medium"
+            onClick={() => setOpen(false)}
+          >
+            Students
+          </a>
+          <Link to="/login" className="block text-sm font-medium">
+            Log in
+          </Link>
         </div>
       )}
     </header>
@@ -64,25 +86,55 @@ export function MarketingFooter() {
         <div>
           <h4 className="font-semibold mb-3 text-sm">Product</h4>
           <ul className="space-y-2 text-sm text-muted-foreground">
-            <li><a href="#features" className="hover:text-foreground">Features</a></li>
-            <li><a href="#how" className="hover:text-foreground">How it works</a></li>
-            <li><Link to="/register" className="hover:text-foreground">Get Started</Link></li>
+            <li>
+              <a href="#features" className="hover:text-foreground">
+                Features
+              </a>
+            </li>
+            <li>
+              <a href="#how" className="hover:text-foreground">
+                How it works
+              </a>
+            </li>
+            <li>
+              <Link to="/register" className="hover:text-foreground">
+                Get Started
+              </Link>
+            </li>
           </ul>
         </div>
         <div>
           <h4 className="font-semibold mb-3 text-sm">Company</h4>
           <ul className="space-y-2 text-sm text-muted-foreground">
-            <li><a href="#" className="hover:text-foreground">About</a></li>
-            <li><a href="#" className="hover:text-foreground">Contact</a></li>
-            <li><a href="#" className="hover:text-foreground">Privacy Policy</a></li>
+            <li>
+              <a href="#" className="hover:text-foreground">
+                About
+              </a>
+            </li>
+            <li>
+              <a href="#" className="hover:text-foreground">
+                Contact
+              </a>
+            </li>
+            <li>
+              <a href="#" className="hover:text-foreground">
+                Privacy Policy
+              </a>
+            </li>
           </ul>
         </div>
         <div>
           <h4 className="font-semibold mb-3 text-sm">Connect</h4>
           <div className="flex gap-3 text-muted-foreground">
-            <a href="#" aria-label="Twitter" className="hover:text-foreground">𝕏</a>
-            <a href="#" aria-label="GitHub" className="hover:text-foreground">GitHub</a>
-            <a href="#" aria-label="LinkedIn" className="hover:text-foreground">in</a>
+            <a href="#" aria-label="Twitter" className="hover:text-foreground">
+              𝕏
+            </a>
+            <a href="#" aria-label="GitHub" className="hover:text-foreground">
+              GitHub
+            </a>
+            <a href="#" aria-label="LinkedIn" className="hover:text-foreground">
+              in
+            </a>
           </div>
         </div>
       </div>

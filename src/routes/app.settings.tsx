@@ -132,7 +132,9 @@ function Settings() {
         pin: pinForm.pin,
         confirm_pin: pinForm.confirm_pin,
       });
-      setSettings((current) => (current ? { ...current, two_factor_enabled: result.enabled } : current));
+      setSettings((current) =>
+        current ? { ...current, two_factor_enabled: result.enabled } : current,
+      );
       setSetupDialogOpen(false);
       resetPinForm();
       toast.success(result.message);
@@ -160,7 +162,9 @@ function Settings() {
         pin: pinForm.pin,
         password: settings.has_password ? pinForm.password : undefined,
       });
-      setSettings((current) => (current ? { ...current, two_factor_enabled: result.enabled } : current));
+      setSettings((current) =>
+        current ? { ...current, two_factor_enabled: result.enabled } : current,
+      );
       setDisableDialogOpen(false);
       resetPinForm();
       toast.success(result.message);
@@ -201,7 +205,7 @@ function Settings() {
 
   const handleDeleteAccount = async () => {
     if (deleteForm.confirmation.trim() !== "DELETE") {
-      toast.error('Confirmation text must be DELETE');
+      toast.error("Confirmation text must be DELETE");
       return;
     }
 
@@ -296,12 +300,14 @@ function Settings() {
                 autoComplete="new-password"
               />
             </div>
-            <p className="text-xs text-muted-foreground">
-              Avoid easy PINs like 1234 or 1111.
-            </p>
+            <p className="text-xs text-muted-foreground">Avoid easy PINs like 1234 or 1111.</p>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setSetupDialogOpen(false)} disabled={updating2fa}>
+            <Button
+              variant="outline"
+              onClick={() => setSetupDialogOpen(false)}
+              disabled={updating2fa}
+            >
               Cancel
             </Button>
             <Button
@@ -333,7 +339,8 @@ function Settings() {
           <DialogHeader>
             <DialogTitle>Disable two-factor authentication</DialogTitle>
             <DialogDescription>
-              Enter your PIN{settings.has_password ? " and password" : ""} to turn off two-factor authentication.
+              Enter your PIN{settings.has_password ? " and password" : ""} to turn off two-factor
+              authentication.
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4 py-2">
@@ -363,7 +370,11 @@ function Settings() {
             ) : null}
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setDisableDialogOpen(false)} disabled={updating2fa}>
+            <Button
+              variant="outline"
+              onClick={() => setDisableDialogOpen(false)}
+              disabled={updating2fa}
+            >
               Cancel
             </Button>
             <Button
@@ -395,7 +406,8 @@ function Settings() {
           <DialogHeader>
             <DialogTitle>Sign out on all devices</DialogTitle>
             <DialogDescription>
-              This will end every active session, including this one. Enter your password to continue.
+              This will end every active session, including this one. Enter your password to
+              continue.
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4 py-2">
@@ -411,7 +423,11 @@ function Settings() {
             </div>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setSignOutDialogOpen(false)} disabled={signingOutAll}>
+            <Button
+              variant="outline"
+              onClick={() => setSignOutDialogOpen(false)}
+              disabled={signingOutAll}
+            >
               Cancel
             </Button>
             <Button
@@ -443,8 +459,8 @@ function Settings() {
           <DialogHeader>
             <DialogTitle>Delete account</DialogTitle>
             <DialogDescription>
-              This action is permanent and cannot be undone. All your data, notes, quizzes, and study plans will be
-              removed.
+              This action is permanent and cannot be undone. All your data, notes, quizzes, and
+              study plans will be removed.
             </DialogDescription>
           </DialogHeader>
           <div className="space-y-4 py-2">
@@ -454,7 +470,9 @@ function Settings() {
                 id="delete_password"
                 autoComplete="off"
                 value={deleteForm.password}
-                onChange={(e) => setDeleteForm((current) => ({ ...current, password: e.target.value }))}
+                onChange={(e) =>
+                  setDeleteForm((current) => ({ ...current, password: e.target.value }))
+                }
                 disabled={deletingAccount}
               />
             </div>
@@ -463,7 +481,9 @@ function Settings() {
               <Input
                 id="delete_confirmation"
                 value={deleteForm.confirmation}
-                onChange={(e) => setDeleteForm((current) => ({ ...current, confirmation: e.target.value }))}
+                onChange={(e) =>
+                  setDeleteForm((current) => ({ ...current, confirmation: e.target.value }))
+                }
                 placeholder="DELETE"
                 disabled={deletingAccount}
                 autoComplete="off"
@@ -471,7 +491,11 @@ function Settings() {
             </div>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setDeleteDialogOpen(false)} disabled={deletingAccount}>
+            <Button
+              variant="outline"
+              onClick={() => setDeleteDialogOpen(false)}
+              disabled={deletingAccount}
+            >
               Cancel
             </Button>
             <Button
@@ -496,13 +520,25 @@ function Settings() {
         </DialogContent>
       </Dialog>
 
-      <Section icon={<Moon className="h-4 w-4" />} title="Appearance" desc="Switch between light and dark themes.">
+      <Section
+        icon={<Moon className="h-4 w-4" />}
+        title="Appearance"
+        desc="Switch between light and dark themes."
+      >
         <Row label="Dark Mode" desc="Easier on the eyes in low light.">
-          <Switch checked={theme === "dark"} onCheckedChange={handleDarkModeChange} disabled={saving} />
+          <Switch
+            checked={theme === "dark"}
+            onCheckedChange={handleDarkModeChange}
+            disabled={saving}
+          />
         </Row>
       </Section>
 
-      <Section icon={<Bell className="h-4 w-4" />} title="Notifications" desc="Control what arrives in your inbox.">
+      <Section
+        icon={<Bell className="h-4 w-4" />}
+        title="Notifications"
+        desc="Control what arrives in your inbox."
+      >
         <Row label="Email reminders" desc="Daily study session reminders.">
           <Switch
             checked={settings.email_reminders}
@@ -543,7 +579,11 @@ function Settings() {
         </Row>
       </Section> */}
 
-      <Section icon={<User className="h-4 w-4" />} title="Account" desc="Manage your account preferences.">
+      <Section
+        icon={<User className="h-4 w-4" />}
+        title="Account"
+        desc="Manage your account preferences."
+      >
         <Row label="Two-factor authentication" desc="Extra layer of security with a custom PIN.">
           <Button
             variant="outline"
@@ -562,7 +602,12 @@ function Settings() {
           </Button>
         </Row>
         <Row label="Download my data" desc="Get a personalized PDF report of your StudyMate data.">
-          <Button variant="outline" size="sm" disabled={exporting} onClick={() => void handleExportData()}>
+          <Button
+            variant="outline"
+            size="sm"
+            disabled={exporting}
+            onClick={() => void handleExportData()}
+          >
             {exporting ? (
               <>
                 <Loader2 className="h-4 w-4 animate-spin" />
@@ -575,7 +620,11 @@ function Settings() {
         </Row>
       </Section>
 
-      <Section icon={<Shield className="h-4 w-4" />} title="Security" desc="Sign out or delete your account.">
+      <Section
+        icon={<Shield className="h-4 w-4" />}
+        title="Security"
+        desc="Sign out or delete your account."
+      >
         <Row label="Sign out on all devices" desc="Ends every active session.">
           <Button
             variant="outline"
@@ -607,7 +656,17 @@ function Settings() {
   );
 }
 
-function Section({ icon, title, desc, children }: { icon: ReactNode; title: string; desc: string; children: ReactNode }) {
+function Section({
+  icon,
+  title,
+  desc,
+  children,
+}: {
+  icon: ReactNode;
+  title: string;
+  desc: string;
+  children: ReactNode;
+}) {
   return (
     <Card className="p-6 shadow-card border-border/50">
       <div className="flex items-start gap-3 mb-5">
