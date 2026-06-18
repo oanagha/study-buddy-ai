@@ -20,7 +20,6 @@ import {
 import { ThemeToggle } from "@/components/theme-toggle";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Input } from "@/components/ui/input";
 import { useState, useEffect, type ReactNode } from "react";
 import { cn } from "@/lib/utils";
 import { clearAuthUser, getAuthToken, hasValidClientSession, isTokenExpired } from "@/lib/auth";
