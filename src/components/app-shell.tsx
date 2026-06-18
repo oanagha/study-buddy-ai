@@ -11,9 +11,11 @@ import {
   Settings,
   GraduationCap,
   LogOut,
-  Search,
   Bell,
   BookOpen,
+  Flame,
+  Zap,
+  Timer,
 } from "lucide-react";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { Button } from "@/components/ui/button";
