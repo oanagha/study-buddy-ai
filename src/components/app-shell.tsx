@@ -148,7 +148,7 @@ export function AppShell({ children }: { children: ReactNode }) {
             <div className="relative flex items-center gap-1 rounded-full border border-border/60 bg-muted/40 p-1 pr-2 shadow-sm backdrop-blur-sm">
               {/* Streak Badge */}
               <div className="flex items-center gap-1 rounded-full bg-gradient-to-r from-orange-500 to-red-500 px-3 py-1.5 text-xs font-bold text-white shadow-sm">
-                <Flame className="h-3.5 w-3.5" />
+                <Flame className="h-3.5 w-3.5 animate-flame-pulse" />
                 <span>12</span>
               </div>
               <div className="h-4 w-px bg-border/50" />
@@ -162,14 +162,14 @@ export function AppShell({ children }: { children: ReactNode }) {
               </Link>
               <Link
                 to="/app/quizzes"
-                className="flex items-center gap-1 rounded-full bg-accent/15 px-3 py-1.5 text-xs font-medium text-accent-foreground hover:bg-accent/25 transition-colors"
+                className="flex items-center gap-1 rounded-full bg-accent/15 px-3 py-1.5 text-xs font-medium text-accent hover:bg-accent/25 transition-colors"
               >
                 <ClipboardList className="h-3 w-3" />
                 Quiz
               </Link>
               <Link
                 to="/app/chat"
-                className="flex items-center gap-1 rounded-full bg-secondary/15 px-3 py-1.5 text-xs font-medium text-secondary-foreground hover:bg-secondary/25 transition-colors"
+                className="flex items-center gap-1 rounded-full bg-secondary/15 px-3 py-1.5 text-xs font-medium text-secondary hover:bg-secondary/25 transition-colors"
               >
                 <MessageSquare className="h-3 w-3" />
                 Chat
