@@ -11,14 +11,14 @@ import {
   Settings,
   GraduationCap,
   LogOut,
-  Search,
   Bell,
   BookOpen,
+  Flame,
+  Timer,
 } from "lucide-react";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { Button } from "@/components/ui/button";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Input } from "@/components/ui/input";
 import { useState, useEffect, type ReactNode } from "react";
 import { cn } from "@/lib/utils";
 import { clearAuthUser, getAuthToken, hasValidClientSession, isTokenExpired } from "@/lib/auth";
@@ -143,12 +143,43 @@ export function AppShell({ children }: { children: ReactNode }) {
               />
             </svg>
           </button>
-          <div className="relative max-w-md flex-1 hidden sm:block">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-            <Input
-              placeholder="Search notes, quizzes, flashcards..."
-              className="pl-9 bg-muted/50 border-0"
-            />
+          <div className="hidden sm:flex flex-1 items-center justify-center">
+            <div className="relative flex items-center gap-1 rounded-full border border-border/60 bg-muted/40 p-1 pr-2 shadow-sm backdrop-blur-sm">
+              {/* Streak Badge */}
+              <div className="flex items-center gap-1 rounded-full bg-gradient-to-r from-orange-500 to-red-500 px-3 py-1.5 text-xs font-bold text-white shadow-sm">
+                <Flame className="h-3.5 w-3.5 animate-flame-pulse" />
+                <span>12</span>
+              </div>
+              <div className="h-4 w-px bg-border/50" />
+              {/* Quick Actions */}
+              <Link
+                to="/app/upload"
+                className="flex items-center gap-1 rounded-full bg-primary/10 px-3 py-1.5 text-xs font-medium text-primary hover:bg-primary/20 transition-colors"
+              >
+                <Upload className="h-3 w-3" />
+                Upload
+              </Link>
+              <Link
+                to="/app/quizzes"
+                className="flex items-center gap-1 rounded-full bg-accent/15 px-3 py-1.5 text-xs font-medium text-accent hover:bg-accent/25 transition-colors"
+              >
+                <ClipboardList className="h-3 w-3" />
+                Quiz
+              </Link>
+              <Link
+                to="/app/chat"
+                className="flex items-center gap-1 rounded-full bg-secondary/15 px-3 py-1.5 text-xs font-medium text-secondary hover:bg-secondary/25 transition-colors"
+              >
+                <MessageSquare className="h-3 w-3" />
+                Chat
+              </Link>
+              <div className="h-4 w-px bg-border/50" />
+              {/* Focus Timer */}
+              <div className="flex items-center gap-1.5 rounded-full bg-gradient-primary px-3 py-1.5 text-xs font-bold text-primary-foreground shadow-glow">
+                <Timer className="h-3 w-3" />
+                <span>25:00</span>
+              </div>
+            </div>
           </div>
           <div className="ml-auto flex items-center gap-1">
             <ThemeToggle className="h-11 w-11 [&_svg]:!size-6" />
