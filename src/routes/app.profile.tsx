@@ -462,7 +462,7 @@ function Profile() {
                     className="rounded-xl border-primary/30 bg-primary/5 hover:bg-primary/10"
                     onClick={() => setPasswordDialogOpen(true)}
                   >
-                    Security
+                    Change Password
                   </Button>
                   <Button
                     onClick={startEditing}
