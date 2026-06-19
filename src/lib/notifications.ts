@@ -166,7 +166,7 @@ export function getUnreadNotificationCount() {
 export function subscribeNotifications(listener: NotificationListener) {
   listener(mergeNotifications());
   listeners.add(listener);
-  return () => listeners.delete(listener);
+  return () => { listeners.delete(listener); };
 }
 
 export function subscribeUnreadNotificationCount(listener: UnreadCountListener) {
