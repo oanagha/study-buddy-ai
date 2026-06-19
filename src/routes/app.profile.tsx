@@ -309,7 +309,7 @@ function Profile() {
   const initials = getProfileInitials(displayName);
 
   return (
-    <div className="max-w-7xl mx-auto space-y-6">
+    <div className="max-w-5xl mx-auto space-y-6">
       <PageHeader title="Profile" subtitle="Your StudyMate identity and learning info." />
 
       <input
@@ -398,75 +398,93 @@ function Profile() {
         </DialogContent>
       </Dialog>
 
-      <Card className="overflow-hidden shadow-card border-border/50">
-        <div className="h-32 bg-gradient-primary relative">
-          <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_50%,rgba(255,255,255,0.2),transparent)]" />
+      {/* Profile Header */}
+      <div className="relative overflow-hidden rounded-[2rem] bg-card border border-border/50 shadow-2xl">
+        <div className="h-40 md:h-48 w-full bg-gradient-primary relative">
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_120%,hsl(var(--primary)/0.5),transparent)]" />
+          <div className="absolute inset-0 bg-[radial-gradient(circle_at_20%_20%,rgba(255,255,255,0.15),transparent_50%)]" />
         </div>
-        <div className="p-6 -mt-12 relative">
-          <div className="flex items-end justify-between flex-wrap gap-4">
-            <div className="flex items-end gap-4">
-              <div className="relative">
-                <Avatar
-                  key={avatarSrc ?? `initials-${initials}`}
-                  className="h-24 w-24 ring-4 ring-background"
+
+        <div className="px-6 md:px-8 pb-8 flex flex-col md:flex-row items-center md:items-end -mt-16 gap-6 relative z-10">
+          <div className="relative group">
+            <div className="absolute -inset-1.5 bg-gradient-to-tr from-primary to-purple-400 rounded-full blur opacity-40 group-hover:opacity-100 transition duration-500" />
+            <div className="relative">
+              <Avatar
+                key={avatarSrc ?? `initials-${initials}`}
+                className="h-32 w-32 border-4 border-card shadow-xl"
+              >
+                {avatarSrc ? (
+                  <AvatarImage src={avatarSrc} alt={displayName} className="object-cover" />
+                ) : null}
+                <AvatarFallback
+                  delayMs={0}
+                  className="bg-gradient-primary text-primary-foreground text-3xl font-bold"
                 >
-                  {avatarSrc ? (
-                    <AvatarImage src={avatarSrc} alt={displayName} className="object-cover" />
-                  ) : null}
-                  <AvatarFallback
-                    delayMs={0}
-                    className="bg-gradient-primary text-primary-foreground text-2xl font-bold"
+                  {initials || "U"}
+                </AvatarFallback>
+              </Avatar>
+              {editing && (
+                <div className="absolute -bottom-1 -right-1 flex gap-1">
+                  <button
+                    type="button"
+                    className="grid h-9 w-9 place-items-center rounded-full bg-primary text-primary-foreground shadow-lg hover:scale-105 transition"
+                    onClick={() => fileInputRef.current?.click()}
+                    aria-label="Change profile photo"
                   >
-                    {initials || "U"}
-                  </AvatarFallback>
-                </Avatar>
-                {editing && (
-                  <div className="absolute -bottom-1 -right-1 flex gap-1">
+                    <Camera className="h-4 w-4" />
+                  </button>
+                  {avatarSrc && (
                     <button
                       type="button"
-                      className="grid h-8 w-8 place-items-center rounded-full bg-card shadow-card border"
-                      onClick={() => fileInputRef.current?.click()}
-                      aria-label="Change profile photo"
+                      className="grid h-9 w-9 place-items-center rounded-full bg-card border text-destructive hover:bg-destructive/10 shadow-lg"
+                      onClick={handleRemoveImage}
+                      aria-label="Remove profile photo"
                     >
-                      <Camera className="h-4 w-4" />
+                      <Trash2 className="h-4 w-4" />
                     </button>
-                    {avatarSrc && (
-                      <button
-                        type="button"
-                        className="grid h-8 w-8 place-items-center rounded-full bg-card shadow-card border text-destructive hover:bg-destructive/10"
-                        onClick={handleRemoveImage}
-                        aria-label="Remove profile photo"
-                      >
-                        <Trash2 className="h-4 w-4" />
-                      </button>
-                    )}
-                  </div>
-                )}
-              </div>
-              <div className="pb-1">
-                <h2 className="font-display text-2xl font-bold">{displayName}</h2>
-                <p className="text-sm text-muted-foreground">{subtitle}</p>
-              </div>
+                  )}
+                </div>
+              )}
             </div>
-            <div className="flex gap-2">
+          </div>
+
+          <div className="flex-1 flex flex-col md:flex-row justify-between items-center md:items-end w-full pb-2 gap-4">
+            <div className="text-center md:text-left">
+              <h2 className="font-display text-3xl font-bold tracking-tight">{displayName}</h2>
+              <p className="text-primary/80 font-medium">{subtitle}</p>
+            </div>
+
+            <div className="flex gap-3">
               {!editing ? (
                 <>
-                  <Button variant="outline" onClick={() => setPasswordDialogOpen(true)}>
-                    Change Password
+                  <Button
+                    variant="outline"
+                    className="rounded-xl border-primary/30 bg-primary/5 hover:bg-primary/10"
+                    onClick={() => setPasswordDialogOpen(true)}
+                  >
+                    Security
                   </Button>
-                  <Button onClick={startEditing} className="bg-gradient-primary">
+                  <Button
+                    onClick={startEditing}
+                    className="rounded-xl bg-primary hover:bg-primary/90 shadow-lg shadow-primary/20"
+                  >
                     Edit Profile
                   </Button>
                 </>
               ) : (
                 <>
-                  <Button variant="outline" onClick={cancelEditing} disabled={saving}>
+                  <Button
+                    variant="outline"
+                    className="rounded-xl"
+                    onClick={cancelEditing}
+                    disabled={saving}
+                  >
                     Cancel
                   </Button>
                   <Button
                     onClick={() => void handleSave()}
                     disabled={saving}
-                    className="bg-gradient-primary shadow-glow"
+                    className="rounded-xl bg-primary hover:bg-primary/90 shadow-lg shadow-primary/20"
                   >
                     {saving ? (
                       <>
@@ -482,103 +500,110 @@ function Profile() {
             </div>
           </div>
         </div>
-      </Card>
-
-      <div className="grid gap-6 lg:grid-cols-3">
-        <Card className="p-6 shadow-card border-border/50 lg:col-span-2 lg:row-span-2">
-          <h3 className="font-display font-semibold text-lg mb-6">Personal Info</h3>
-          <div className="grid gap-5 sm:grid-cols-2">
-            <Field
-              label="Full Name"
-              icon={<GraduationCap className="h-4 w-4" />}
-              value={editing ? form.full_name : profile.full_name}
-              editing={editing}
-              onChange={(value) => setForm((current) => ({ ...current, full_name: value }))}
-            />
-            <Field
-              label="Email"
-              icon={<Mail className="h-4 w-4" />}
-              value={profile.email}
-              editing={false}
-            />
-            <Field
-              label="Education"
-              icon={<GraduationCap className="h-4 w-4" />}
-              value={editing ? form.education : (profile.education ?? "")}
-              editing={editing}
-              onChange={(value) => setForm((current) => ({ ...current, education: value }))}
-            />
-            <Field
-              label="Course"
-              icon={<BookOpen className="h-4 w-4" />}
-              value={editing ? form.course : (profile.course ?? "")}
-              editing={editing}
-              onChange={(value) => setForm((current) => ({ ...current, course: value }))}
-            />
-          </div>
-          <div className="mt-5 space-y-1.5">
-            <Label>Bio</Label>
-            {editing ? (
-              <Textarea
-                value={form.bio}
-                onChange={(e) => setForm((current) => ({ ...current, bio: e.target.value }))}
-                rows={4}
-                maxLength={500}
-              />
-            ) : (
-              <p className="text-sm text-muted-foreground p-3 rounded-lg bg-muted/40 min-h-[88px]">
-                {profile.bio || "No bio added yet."}
-              </p>
-            )}
-          </div>
-        </Card>
-
-        <StatBlock
-          icon={<BookOpen className="h-4 w-4" />}
-          label="Notes"
-          value={String(profile.stats.notes_uploaded)}
-        />
-        <StatBlock
-          icon={<Award className="h-4 w-4" />}
-          label="Avg Quiz Score"
-          value={`${profile.stats.avg_quiz_score}%`}
-        />
-        <StatBlock
-          icon={<GraduationCap className="h-4 w-4" />}
-          label="Streak"
-          value={profile.stats.study_streak === 1 ? "1 day" : `${profile.stats.study_streak} days`}
-        />
       </div>
 
+      {/* Bento Grid */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="lg:col-span-2">
+          <div className="bg-card/60 backdrop-blur-xl rounded-[2rem] border border-border/50 p-6 md:p-8 h-full shadow-xl">
+            <div className="flex items-center justify-between mb-8">
+              <div className="flex items-center gap-3">
+                <div className="p-2 bg-primary/10 rounded-lg">
+                  <GraduationCap className="w-5 h-5 text-primary" />
+                </div>
+                <h3 className="font-display text-xl font-bold">Personal Information</h3>
+              </div>
+              <span className="hidden sm:inline text-[10px] font-bold uppercase tracking-[0.2em] text-primary/50">
+                Profile Details
+              </span>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
+              <LuxField
+                label="Full Name"
+                icon={<GraduationCap className="h-4 w-4" />}
+                value={editing ? form.full_name : profile.full_name}
+                editing={editing}
+                onChange={(value) => setForm((c) => ({ ...c, full_name: value }))}
+              />
+              <LuxField
+                label="Email Address"
+                icon={<Mail className="h-4 w-4" />}
+                value={profile.email}
+                editing={false}
+              />
+              <LuxField
+                label="Education"
+                icon={<GraduationCap className="h-4 w-4" />}
+                value={editing ? form.education : (profile.education ?? "")}
+                editing={editing}
+                onChange={(value) => setForm((c) => ({ ...c, education: value }))}
+              />
+              <LuxField
+                label="Course"
+                icon={<BookOpen className="h-4 w-4" />}
+                value={editing ? form.course : (profile.course ?? "")}
+                editing={editing}
+                onChange={(value) => setForm((c) => ({ ...c, course: value }))}
+              />
+              <div className="md:col-span-2 space-y-1.5">
+                <label className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider">
+                  Bio
+                </label>
+                {editing ? (
+                  <Textarea
+                    value={form.bio}
+                    onChange={(e) => setForm((c) => ({ ...c, bio: e.target.value }))}
+                    rows={4}
+                    maxLength={500}
+                    className="rounded-xl bg-background/40 border-border/50"
+                  />
+                ) : (
+                  <div className="w-full bg-background/40 border border-border/50 rounded-xl px-4 py-4 text-sm text-muted-foreground leading-relaxed min-h-[96px]">
+                    {profile.bio || "No bio added yet."}
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div className="flex flex-col gap-6">
+          <LuxStat
+            label="Notes Uploaded"
+            value={String(profile.stats.notes_uploaded)}
+            accent="indigo"
+            footer="Knowledge library"
+            progress={Math.min(100, profile.stats.notes_uploaded * 5)}
+          />
+          <LuxStat
+            label="Avg Quiz Score"
+            value={`${profile.stats.avg_quiz_score}%`}
+            accent="purple"
+            footer={
+              profile.stats.avg_quiz_score >= 80
+                ? "Top performer"
+                : profile.stats.avg_quiz_score >= 50
+                  ? "Steady progress"
+                  : "Keep practicing"
+            }
+            progress={profile.stats.avg_quiz_score}
+          />
+          <LuxStat
+            label="Current Streak"
+            value={String(profile.stats.study_streak)}
+            suffix={profile.stats.study_streak === 1 ? "DAY" : "DAYS"}
+            accent="orange"
+            footer="Stay consistent"
+            dots={Math.min(5, profile.stats.study_streak)}
+          />
+        </div>
+      </div>
     </div>
   );
 }
 
-function StatBlock({
-  icon,
-  label,
-  value,
-}: {
-  icon: React.ReactNode;
-  label: string;
-  value: string;
-}) {
-  return (
-    <Card className="p-5 shadow-card border-border/50">
-      <div className="flex items-center gap-3">
-        <div className="grid h-10 w-10 place-items-center rounded-lg bg-gradient-primary text-primary-foreground">
-          {icon}
-        </div>
-        <div>
-          <p className="text-xs text-muted-foreground">{label}</p>
-          <p className="font-bold font-display text-lg">{value}</p>
-        </div>
-      </div>
-    </Card>
-  );
-}
-
-function Field({
+function LuxField({
   label,
   icon,
   value,
@@ -593,20 +618,103 @@ function Field({
 }) {
   return (
     <div className="space-y-1.5">
-      <Label>{label}</Label>
+      <label className="text-[11px] font-bold text-muted-foreground uppercase tracking-wider">
+        {label}
+      </label>
       {editing && onChange ? (
         <div className="relative">
           <div className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">
             {icon}
           </div>
-          <Input value={value} onChange={(e) => onChange(e.target.value)} className="pl-9" />
+          <Input
+            value={value}
+            onChange={(e) => onChange(e.target.value)}
+            className="pl-9 rounded-xl bg-background/40 border-border/50"
+          />
         </div>
       ) : (
-        <div className="flex items-center gap-2 p-3 rounded-lg bg-muted/40 text-sm">
+        <div className="flex items-center gap-2 w-full bg-background/40 border border-border/50 rounded-xl px-4 py-3 text-sm">
           <span className="text-muted-foreground">{icon}</span>
           <span className="font-medium">{value || "—"}</span>
         </div>
       )}
+    </div>
+  );
+}
+
+function LuxStat({
+  label,
+  value,
+  suffix,
+  accent,
+  footer,
+  progress,
+  dots,
+}: {
+  label: string;
+  value: string;
+  suffix?: string;
+  accent: "indigo" | "purple" | "orange";
+  footer: string;
+  progress?: number;
+  dots?: number;
+}) {
+  const accentMap = {
+    indigo: {
+      hover: "hover:border-primary/50",
+      bar: "bg-primary shadow-[0_0_8px_hsl(var(--primary)/0.5)]",
+      text: "text-primary",
+      dot: "bg-primary shadow-[0_0_8px_hsl(var(--primary)/0.5)]",
+    },
+    purple: {
+      hover: "hover:border-purple-500/50",
+      bar: "bg-purple-500 shadow-[0_0_8px_rgba(168,85,247,0.5)]",
+      text: "text-purple-400",
+      dot: "bg-purple-500 shadow-[0_0_8px_rgba(168,85,247,0.5)]",
+    },
+    orange: {
+      hover: "hover:border-orange-500/50",
+      bar: "bg-orange-500 shadow-[0_0_8px_rgba(249,115,22,0.5)]",
+      text: "text-orange-400",
+      dot: "bg-orange-500 shadow-[0_0_8px_rgba(249,115,22,0.5)]",
+    },
+  }[accent];
+
+  return (
+    <div
+      className={`bg-card rounded-[2rem] border border-border/50 p-6 group transition-all shadow-lg overflow-hidden relative ${accentMap.hover}`}
+    >
+      <p className="text-muted-foreground text-sm font-medium">{label}</p>
+      <div className="flex items-baseline gap-2 mt-1">
+        <p className="font-display text-4xl font-bold">{value}</p>
+        {suffix && (
+          <p className={`font-bold text-xs tracking-widest ${accentMap.text}`}>{suffix}</p>
+        )}
+      </div>
+
+      {typeof progress === "number" && (
+        <div className="mt-4 h-1.5 w-full bg-muted rounded-full overflow-hidden">
+          <div
+            className={`h-full rounded-full ${accentMap.bar}`}
+            style={{ width: `${Math.max(4, Math.min(100, progress))}%` }}
+          />
+        </div>
+      )}
+
+      {typeof dots === "number" && (
+        <div className="mt-4 flex items-center gap-2">
+          {Array.from({ length: 5 }).map((_, i) => (
+            <div
+              key={i}
+              className={`w-2 h-2 rounded-full ${i < dots ? accentMap.dot : "bg-muted"}`}
+            />
+          ))}
+        </div>
+      )}
+
+      <p className={`text-[10px] font-bold mt-2 uppercase tracking-widest ${accentMap.text}`}>
+        {footer}
+      </p>
     </div>
   );
 }
