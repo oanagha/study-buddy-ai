@@ -172,7 +172,7 @@ export function subscribeNotifications(listener: NotificationListener) {
 export function subscribeUnreadNotificationCount(listener: UnreadCountListener) {
   listener(getCombinedUnreadCount());
   unreadListeners.add(listener);
-  return () => unreadListeners.delete(listener);
+  return () => { unreadListeners.delete(listener); };
 }
 
 export async function refreshServerNotifications() {
