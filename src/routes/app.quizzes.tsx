@@ -177,17 +177,10 @@ function Quizzes() {
   if (stage === "setup") {
     return (
       <div className="w-full max-w-6xl mx-auto px-10 flex flex-col gap-8">
-        {/* Bento Header */}
-        <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
-          <div>
-            <h1 className="text-4xl md:text-5xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-foreground via-foreground to-foreground/40">
-              Quizzes
-            </h1>
-            <p className="text-muted-foreground mt-3 text-lg">
-              Test your knowledge across your uploaded notes.
-            </p>
-          </div>
-        </div>
+        <PageHeader
+          title="Quizzes"
+          subtitle="Test your knowledge across your uploaded notes."
+        />
 
         {loadingNotes ? (
           <LoadingState label="Loading notes" className="py-16 text-muted-foreground" />

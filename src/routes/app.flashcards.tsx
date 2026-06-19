@@ -419,24 +419,14 @@ function Flashcards() {
 
     return (
       <div className="w-full max-w-6xl mx-auto px-10">
-        {/* Gradient Header */}
-        <div className="mb-10 flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-primary/10 pb-8">
-          <div>
-            <h1 className="text-4xl md:text-5xl font-bold font-display tracking-tight text-foreground">
-              Flashcards
-            </h1>
-            <p className="text-muted-foreground mt-3 text-lg">
-              {selectedNote ? (
-                <>
-                  Ready to study{" "}
-                  <span className="text-foreground">{selectedNote.fileName}</span>
-                </>
-              ) : (
-                "Generate AI flashcards from your uploaded notes."
-              )}
-            </p>
-          </div>
-        </div>
+        <PageHeader
+          title="Flashcards"
+          subtitle={
+            selectedNote
+              ? `Ready to study ${selectedNote.fileName}`
+              : "Generate AI flashcards from your uploaded notes."
+          }
+        />
 
         {loadingNotes ? (
           <LoadingState label="Loading notes" className="py-16 text-muted-foreground" />
