@@ -583,7 +583,9 @@ function Settings() {
         </DialogContent>
       </Dialog>
 
+      <div className="grid gap-6 lg:grid-cols-2">
       <Section
+
         icon={<Moon className="h-4 w-4" />}
         title="Appearance"
         desc="Switch between light and dark themes."
