@@ -415,106 +415,231 @@ function Flashcards() {
   }
 
   if (!hasDeck || deck.length === 0) {
+    const savedDecks = notes.filter((n) => n.hasFlashcards);
+
     return (
-      <div className="max-w-7xl mx-auto space-y-6">
-        <PageHeader
-          title="Flashcards"
-          subtitle="Generate AI flashcards from your uploaded notes."
-        />
+      <div className="w-full max-w-full mx-auto">
+        {/* Gradient Header */}
+        <div className="mb-10 flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-primary/10 pb-8">
+          <div>
+            <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight bg-gradient-to-r from-indigo-400 via-violet-400 to-cyan-400 bg-clip-text text-transparent">
+              Flashcards
+            </h1>
+            <p className="mt-3 text-lg text-muted-foreground font-medium">
+              {selectedNote ? (
+                <>
+                  Ready to study{" "}
+                  <span className="text-foreground">{selectedNote.fileName}</span>
+                </>
+              ) : (
+                "Generate AI flashcards from your uploaded notes."
+              )}
+            </p>
+          </div>
+        </div>
 
         {loadingNotes ? (
           <LoadingState label="Loading notes" className="py-16 text-muted-foreground" />
         ) : notes.length === 0 ? (
-          <Card className="p-10 text-center text-muted-foreground">
+          <Card className="p-10 text-center text-muted-foreground rounded-[32px] border-border/50">
             No notes uploaded yet. Upload a PDF, DOCX, or TXT file first to generate flashcards.
           </Card>
         ) : (
-          <Card className="p-8 shadow-card border-border/50 space-y-6">
-            <div className="text-center">
-              <div className="mx-auto grid h-16 w-16 place-items-center rounded-2xl bg-gradient-primary shadow-glow mb-4">
-                <Layers className="h-7 w-7 text-primary-foreground" />
+          <div className="grid grid-cols-1 md:grid-cols-4 lg:grid-cols-6 gap-6">
+            {/* Main Generator Hero (4 cols, 2 rows) */}
+            <div className="md:col-span-4 md:row-span-2 relative group overflow-hidden rounded-[2.5rem] border border-primary/20 bg-card/40 backdrop-blur-3xl p-8 md:p-12 flex flex-col transition-all hover:border-primary/40 shadow-2xl">
+              <div className="absolute -top-24 -right-24 w-64 h-64 bg-primary/15 blur-[100px] rounded-full pointer-events-none" />
+              <div className="absolute -bottom-24 -left-24 w-64 h-64 bg-violet-500/10 blur-[100px] rounded-full pointer-events-none" />
+
+              <div className="relative z-10 flex flex-col h-full">
+                <div className="inline-flex items-center px-4 py-1.5 rounded-full bg-primary/10 border border-primary/20 mb-6 w-fit">
+                  <Layers className="h-3.5 w-3.5 mr-2 text-primary" />
+                  <span className="text-xs font-bold uppercase tracking-widest text-primary">
+                    New Deck
+                  </span>
+                </div>
+
+                <h2 className="font-display text-3xl md:text-4xl font-bold leading-tight mb-2">
+                  Generate Flashcards
+                </h2>
+                <p className="text-muted-foreground mb-8">
+                  Pick a note and how many cards you want to study.
+                </p>
+
+                <div className="space-y-5 flex-1">
+                  <div className="space-y-2">
+                    <Label>Select note</Label>
+                    <Select
+                      value={selectedNoteId ? String(selectedNoteId) : undefined}
+                      onValueChange={handleSelectNote}
+                    >
+                      <SelectTrigger className="h-12 rounded-xl">
+                        <SelectValue placeholder="Choose a note" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {notes.map((note) => {
+                          const Icon = fileIcons[note.fileType] ?? FileText;
+                          return (
+                            <SelectItem key={note.noteId} value={String(note.noteId)}>
+                              <span className="flex items-center gap-2">
+                                <Icon className="h-4 w-4 shrink-0" />
+                                {note.fileName}
+                                {note.hasFlashcards && (
+                                  <Badge variant="secondary" className="text-xs ml-1">
+                                    saved
+                                  </Badge>
+                                )}
+                              </span>
+                            </SelectItem>
+                          );
+                        })}
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label>Number of cards</Label>
+                    <Select
+                      value={String(cardCount)}
+                      onValueChange={(v) => setCardCount(Number(v))}
+                    >
+                      <SelectTrigger className="h-12 rounded-xl">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {CARD_COUNTS.map((count) => (
+                          <SelectItem key={count} value={String(count)}>
+                            {count} cards
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+
+                <div className="flex flex-col sm:flex-row gap-3 mt-8">
+                  {selectedNote?.hasFlashcards && (
+                    <Button
+                      variant="outline"
+                      className="flex-1 h-12 rounded-2xl"
+                      disabled={loadingSaved || generating || !selectedNote}
+                      onClick={() => selectedNote && void handleLoadSaved(selectedNote)}
+                    >
+                      <Eye className="h-4 w-4" />
+                      View Saved Deck
+                    </Button>
+                  )}
+                  <Button
+                    className="flex-1 h-12 bg-gradient-primary hover:opacity-90 shadow-glow text-base rounded-2xl"
+                    disabled={generating || loadingSaved || !selectedNote}
+                    onClick={() => void handleGenerate()}
+                  >
+                    {generating ? (
+                      <>
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                        Generating...
+                      </>
+                    ) : (
+                      <>
+                        <Sparkles className="h-4 w-4" />
+                        {selectedNote?.hasFlashcards ? "Generate New Deck" : "Generate Flashcards"}
+                      </>
+                    )}
+                  </Button>
+                </div>
               </div>
-              <h2 className="font-display text-2xl font-bold">Generate Flashcards</h2>
-              <p className="text-muted-foreground mt-1">Pick a note and how many cards you want</p>
             </div>
 
-            <div className="space-y-2">
-              <Label>Select note</Label>
-              <Select
-                value={selectedNoteId ? String(selectedNoteId) : undefined}
-                onValueChange={handleSelectNote}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Choose a note" />
-                </SelectTrigger>
-                <SelectContent>
-                  {notes.map((note) => {
+            {/* Stat: Cards Selected */}
+            <div className="lg:col-span-2 rounded-[2rem] border border-border/50 bg-card/40 backdrop-blur-xl p-8 flex flex-col justify-between hover:bg-card/60 transition-all">
+              <div className="flex items-center justify-between">
+                <span className="text-muted-foreground font-semibold tracking-wide uppercase text-xs">
+                  Cards Per Deck
+                </span>
+                <div className="h-10 w-10 rounded-2xl bg-orange-500/20 flex items-center justify-center">
+                  <Sparkles className="w-5 h-5 text-orange-400" />
+                </div>
+              </div>
+              <div className="mt-8">
+                <div className="text-7xl font-black tracking-tighter">{cardCount}</div>
+                <div className="text-muted-foreground font-medium mt-1">Ready to generate</div>
+              </div>
+            </div>
+
+            {/* Stat: Available Notes */}
+            <div className="lg:col-span-2 rounded-[2rem] border border-border/50 bg-card/40 backdrop-blur-xl p-8 flex flex-col justify-between hover:bg-card/60 transition-all">
+              <div className="flex items-center justify-between">
+                <span className="text-muted-foreground font-semibold tracking-wide uppercase text-xs">
+                  Library
+                </span>
+                <span className="text-xs font-bold text-emerald-400 bg-emerald-400/10 px-2 py-1 rounded-lg">
+                  {savedDecks.length} saved
+                </span>
+              </div>
+              <div className="mt-8">
+                <div className="text-6xl font-black tracking-tight">{notes.length}</div>
+                <div className="w-full h-2.5 bg-muted/40 rounded-full mt-4 overflow-hidden">
+                  <div
+                    className="h-full bg-gradient-to-r from-indigo-500 via-indigo-400 to-cyan-400 rounded-full transition-all"
+                    style={{
+                      width: `${notes.length ? (savedDecks.length / notes.length) * 100 : 0}%`,
+                    }}
+                  />
+                </div>
+              </div>
+            </div>
+
+            {/* My Decks List */}
+            <div className="lg:col-span-2 rounded-[2rem] border border-border/50 bg-card/40 backdrop-blur-xl p-8 flex flex-col">
+              <h3 className="text-muted-foreground font-semibold tracking-wide uppercase text-xs mb-6">
+                My Decks
+              </h3>
+              {savedDecks.length === 0 ? (
+                <p className="text-sm text-muted-foreground">
+                  Saved decks will appear here once you generate flashcards.
+                </p>
+              ) : (
+                <div className="space-y-4">
+                  {savedDecks.slice(0, 4).map((note, i) => {
                     const Icon = fileIcons[note.fileType] ?? FileText;
+                    const tones = [
+                      "bg-primary/20 text-primary",
+                      "bg-cyan-500/20 text-cyan-400",
+                      "bg-violet-500/20 text-violet-400",
+                      "bg-emerald-500/20 text-emerald-400",
+                    ];
+                    const initials = note.fileName.replace(/\.[^.]+$/, "").slice(0, 2).toUpperCase();
                     return (
-                      <SelectItem key={note.noteId} value={String(note.noteId)}>
-                        <span className="flex items-center gap-2">
-                          <Icon className="h-4 w-4 shrink-0" />
-                          {note.fileName}
-                          {note.hasFlashcards && (
-                            <Badge variant="secondary" className="text-xs ml-1">
-                              saved
-                            </Badge>
+                      <button
+                        key={note.noteId}
+                        type="button"
+                        onClick={() => void handleLoadSaved(note)}
+                        className="w-full flex items-center gap-4 group cursor-pointer text-left"
+                      >
+                        <div
+                          className={cn(
+                            "h-12 w-12 rounded-2xl flex items-center justify-center font-bold group-hover:scale-110 transition-transform",
+                            tones[i % tones.length],
                           )}
-                        </span>
-                      </SelectItem>
+                        >
+                          {initials}
+                        </div>
+                        <div className="flex-1 border-b border-border/40 pb-4 min-w-0">
+                          <div className="text-sm font-bold truncate flex items-center gap-2">
+                            <Icon className="h-3.5 w-3.5 shrink-0 opacity-60" />
+                            {note.fileName}
+                          </div>
+                          <div className="text-xs text-muted-foreground mt-0.5">
+                            Saved deck • Tap to resume
+                          </div>
+                        </div>
+                      </button>
                     );
                   })}
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div className="space-y-2">
-              <Label>Number of cards</Label>
-              <Select value={String(cardCount)} onValueChange={(v) => setCardCount(Number(v))}>
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {CARD_COUNTS.map((count) => (
-                    <SelectItem key={count} value={String(count)}>
-                      {count} cards
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div className="flex flex-col sm:flex-row gap-3 mt-8">
-              {selectedNote?.hasFlashcards && (
-                <Button
-                  variant="outline"
-                  className="flex-1 h-12"
-                  disabled={loadingSaved || generating || !selectedNote}
-                  onClick={() => selectedNote && void handleLoadSaved(selectedNote)}
-                >
-                  <Eye className="h-4 w-4" />
-                  View Saved Deck
-                </Button>
+                </div>
               )}
-              <Button
-                className="flex-1 h-12 bg-gradient-primary hover:opacity-90 shadow-glow text-base"
-                disabled={generating || loadingSaved || !selectedNote}
-                onClick={() => void handleGenerate()}
-              >
-                {generating ? (
-                  <>
-                    <Loader2 className="h-4 w-4 animate-spin" />
-                    Generating...
-                  </>
-                ) : (
-                  <>
-                    <Sparkles className="h-4 w-4" />
-                    {selectedNote?.hasFlashcards ? "Generate New Deck" : "Generate Flashcards"}
-                  </>
-                )}
-              </Button>
             </div>
-          </Card>
+          </div>
         )}
       </div>
     );
