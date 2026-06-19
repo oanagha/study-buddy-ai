@@ -25,4 +25,6 @@ export function invalidateStudyPlanQueries(queryClient: QueryClient) {
 
 export function setStudyPlanCache(queryClient: QueryClient, plan: StudyPlanResult) {
   queryClient.setQueryData(queryKeys.studyPlan, plan);
+  void queryClient.invalidateQueries({ queryKey: queryKeys.dashboardSessions });
+  void queryClient.invalidateQueries({ queryKey: queryKeys.dashboardOverview });
 }
