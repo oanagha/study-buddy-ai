@@ -31,6 +31,11 @@ import {
 } from "@/lib/api/settings";
 import { ApiError, deleteAccount, signOutAllDevices } from "@/lib/api/auth";
 import { clearAuthUser } from "@/lib/auth";
+import {
+  areFocusAlertsEnabled,
+  setFocusAlertsEnabled,
+  subscribeFocusAlertsEnabled,
+} from "@/lib/focus-notify";
 import { toast } from "sonner";
 import type { ReactNode } from "react";
 
@@ -56,13 +61,26 @@ function Settings() {
   const [pinForm, setPinForm] = useState({ pin: "", confirm_pin: "", password: "" });
   const [signOutPassword, setSignOutPassword] = useState("");
   const [deleteForm, setDeleteForm] = useState({ password: "", confirmation: "" });
+  const [focusAlerts, setFocusAlerts] = useState(areFocusAlertsEnabled);
+
+  useEffect(() => {
+    return subscribeFocusAlertsEnabled(setFocusAlerts);
+  }, []);
 
   const loadSettings = useCallback(async () => {
     setLoading(true);
     try {
       const data = await fetchSettings();
       setSettings(data);
-      setTheme(data.dark_mode ? "dark" : "light");
+      const stored =
+        typeof window !== "undefined"
+          ? (localStorage.getItem("theme") as "light" | "dark" | null)
+          : null;
+      if (stored === "light" || stored === "dark") {
+        setTheme(stored);
+      } else {
+        setTheme(data.dark_mode ? "dark" : "light");
+      }
     } catch (err) {
       if (err instanceof ApiError) {
         toast.error(err.message);
@@ -551,6 +569,16 @@ function Settings() {
             checked={settings.push_notifications}
             onCheckedChange={(checked) => updateField("push_notifications", checked)}
             disabled={saving}
+          />
+        </Row>
+        <Row label="Focus timer alerts" desc="Notify when a focus session starts or ends.">
+          <Switch
+            checked={focusAlerts}
+            onCheckedChange={(checked) => {
+              setFocusAlerts(checked);
+              setFocusAlertsEnabled(checked);
+              toast.success(checked ? "Focus timer alerts enabled" : "Focus timer alerts disabled");
+            }}
           />
         </Row>
         <Row label="Weekly digest" desc="Your progress summary every Sunday.">

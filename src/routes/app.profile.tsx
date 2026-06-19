@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useCallback, useEffect, useRef, useState } from "react";
-import { Camera, Mail, GraduationCap, BookOpen, Award, Loader2 } from "lucide-react";
+import { Camera, Mail, GraduationCap, BookOpen, Award, Loader2, Trash2 } from "lucide-react";
 import { PageHeader } from "@/components/widgets";
 import { PasswordInput } from "@/components/password-input";
 import { Card } from "@/components/ui/card";
@@ -20,10 +20,12 @@ import {
 import {
   fetchProfile,
   getProfileInitials,
+  preloadProfileImage,
   updateProfile,
   validateProfileImage,
   type UserProfile,
 } from "@/lib/api/profile";
+import { emitProfileUpdate } from "@/lib/profile-sync";
 import { ApiError, changePassword } from "@/lib/api/auth";
 import { toast } from "sonner";
 
@@ -51,6 +53,7 @@ function Profile() {
   });
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [removeImage, setRemoveImage] = useState(false);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [passwordDialogOpen, setPasswordDialogOpen] = useState(false);
@@ -61,7 +64,7 @@ function Profile() {
     confirm_password: "",
   });
 
-  const loadProfile = useCallback(async () => {
+  const loadProfile = useCallback(async (): Promise<UserProfile | null> => {
     setLoading(true);
     try {
       const data = await fetchProfile();
@@ -72,12 +75,14 @@ function Profile() {
         course: data.course ?? "",
         bio: data.bio ?? "",
       });
+      return data;
     } catch (err) {
       if (err instanceof ApiError) {
         toast.error(err.message);
       } else {
         toast.error("Failed to load profile.");
       }
+      return null;
     } finally {
       setLoading(false);
     }
@@ -97,6 +102,7 @@ function Profile() {
     });
     setImageFile(null);
     setImagePreview(null);
+    setRemoveImage(false);
   }, [profile]);
 
   const startEditing = () => {
@@ -120,7 +126,24 @@ function Profile() {
 
     setImageFile(file);
     setImagePreview(URL.createObjectURL(file));
+    setRemoveImage(false);
   };
+
+  const handleRemoveImage = () => {
+    setImageFile(null);
+    setImagePreview(null);
+    setRemoveImage(true);
+  };
+
+  const refreshProfileSilently = useCallback(async () => {
+    try {
+      const data = await fetchProfile();
+      setProfile(data);
+      emitProfileUpdate(data);
+    } catch {
+      // Keep optimistic UI if background refresh fails.
+    }
+  }, []);
 
   const handleSave = async () => {
     if (!form.full_name.trim()) {
@@ -141,27 +164,70 @@ function Profile() {
     setSaving(true);
 
     try {
+      const uploadedPreview = imagePreview;
+      const hadUpload = Boolean(imageFile);
+      const hadRemove = removeImage && !imageFile;
+
       const result = await updateProfile({
         full_name: form.full_name,
         education: form.education,
         course: form.course,
         bio: form.bio,
         profile_image: imageFile,
+        remove_profile_image: hadRemove,
       });
 
-      setProfile((current) =>
-        current
-          ? {
-              ...current,
-              ...result.profile,
-            }
-          : current,
-      );
+      if (!profile) return;
+
+      const updatedProfile: UserProfile = {
+        ...profile,
+        ...result.profile,
+      };
+
       setEditing(false);
       setImageFile(null);
-      setImagePreview(null);
+      setRemoveImage(false);
+
+      if (hadRemove) {
+        setImagePreview(null);
+        updatedProfile.profile_image = null;
+        setProfile(updatedProfile);
+        emitProfileUpdate(updatedProfile);
+        void refreshProfileSilently();
+      } else if (hadUpload && result.profile.profile_image && uploadedPreview) {
+        const instantProfile: UserProfile = {
+          ...updatedProfile,
+          profile_image: uploadedPreview,
+        };
+        setProfile(instantProfile);
+        emitProfileUpdate(instantProfile);
+
+        const serverImage = result.profile.profile_image;
+        void preloadProfileImage(serverImage)
+          .then(() => {
+            if (uploadedPreview.startsWith("blob:")) {
+              URL.revokeObjectURL(uploadedPreview);
+            }
+            setImagePreview(null);
+            const finalProfile = { ...updatedProfile, profile_image: serverImage };
+            setProfile(finalProfile);
+            emitProfileUpdate(finalProfile);
+            void refreshProfileSilently();
+          })
+          .catch(() => {
+            setImagePreview(null);
+            setProfile(updatedProfile);
+            emitProfileUpdate(updatedProfile);
+            void refreshProfileSilently();
+          });
+      } else {
+        setImagePreview(null);
+        setProfile(updatedProfile);
+        emitProfileUpdate(updatedProfile);
+        void refreshProfileSilently();
+      }
+
       toast.success(result.message);
-      await loadProfile();
     } catch (err) {
       if (err instanceof ApiError) {
         toast.error(err.message);
@@ -244,7 +310,7 @@ function Profile() {
   const displayEducation = editing ? form.education : profile.education;
   const subtitle =
     [displayCourse, displayEducation].filter(Boolean).join(" • ") || "StudyMate learner";
-  const avatarSrc = imagePreview ?? profile.profile_image ?? undefined;
+  const avatarSrc = removeImage ? undefined : (imagePreview ?? profile.profile_image ?? undefined);
   const initials = getProfileInitials(displayName);
 
   return (
@@ -345,20 +411,41 @@ function Profile() {
           <div className="flex items-end justify-between flex-wrap gap-4">
             <div className="flex items-end gap-4">
               <div className="relative">
-                <Avatar className="h-24 w-24 ring-4 ring-background">
-                  {avatarSrc ? <AvatarImage src={avatarSrc} alt={displayName} /> : null}
-                  <AvatarFallback className="bg-gradient-primary text-primary-foreground text-2xl font-bold">
+                <Avatar
+                  key={avatarSrc ?? `initials-${initials}`}
+                  className="h-24 w-24 ring-4 ring-background"
+                >
+                  {avatarSrc ? (
+                    <AvatarImage src={avatarSrc} alt={displayName} className="object-cover" />
+                  ) : null}
+                  <AvatarFallback
+                    delayMs={0}
+                    className="bg-gradient-primary text-primary-foreground text-2xl font-bold"
+                  >
                     {initials || "U"}
                   </AvatarFallback>
                 </Avatar>
                 {editing && (
-                  <button
-                    type="button"
-                    className="absolute bottom-0 right-0 grid h-8 w-8 place-items-center rounded-full bg-card shadow-card border"
-                    onClick={() => fileInputRef.current?.click()}
-                  >
-                    <Camera className="h-4 w-4" />
-                  </button>
+                  <div className="absolute -bottom-1 -right-1 flex gap-1">
+                    <button
+                      type="button"
+                      className="grid h-8 w-8 place-items-center rounded-full bg-card shadow-card border"
+                      onClick={() => fileInputRef.current?.click()}
+                      aria-label="Change profile photo"
+                    >
+                      <Camera className="h-4 w-4" />
+                    </button>
+                    {avatarSrc && (
+                      <button
+                        type="button"
+                        className="grid h-8 w-8 place-items-center rounded-full bg-card shadow-card border text-destructive hover:bg-destructive/10"
+                        onClick={handleRemoveImage}
+                        aria-label="Remove profile photo"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </button>
+                    )}
+                  </div>
                 )}
               </div>
               <div className="pb-1">

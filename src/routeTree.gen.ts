@@ -22,6 +22,7 @@ import { Route as AppSettingsRouteImport } from './routes/app.settings'
 import { Route as AppQuizzesRouteImport } from './routes/app.quizzes'
 import { Route as AppProfileRouteImport } from './routes/app.profile'
 import { Route as AppPlannerRouteImport } from './routes/app.planner'
+import { Route as AppNotificationsRouteImport } from './routes/app.notifications'
 import { Route as AppFlashcardsRouteImport } from './routes/app.flashcards'
 import { Route as AppDashboardRouteImport } from './routes/app.dashboard'
 import { Route as AppChatRouteImport } from './routes/app.chat'
@@ -92,6 +93,11 @@ const AppPlannerRoute = AppPlannerRouteImport.update({
   path: '/planner',
   getParentRoute: () => AppRoute,
 } as any)
+const AppNotificationsRoute = AppNotificationsRouteImport.update({
+  id: '/notifications',
+  path: '/notifications',
+  getParentRoute: () => AppRoute,
+} as any)
 const AppFlashcardsRoute = AppFlashcardsRouteImport.update({
   id: '/flashcards',
   path: '/flashcards',
@@ -122,6 +128,7 @@ export interface FileRoutesByFullPath {
   '/app/chat': typeof AppChatRoute
   '/app/dashboard': typeof AppDashboardRoute
   '/app/flashcards': typeof AppFlashcardsRoute
+  '/app/notifications': typeof AppNotificationsRoute
   '/app/planner': typeof AppPlannerRoute
   '/app/profile': typeof AppProfileRoute
   '/app/quizzes': typeof AppQuizzesRoute
@@ -140,6 +147,7 @@ export interface FileRoutesByTo {
   '/app/chat': typeof AppChatRoute
   '/app/dashboard': typeof AppDashboardRoute
   '/app/flashcards': typeof AppFlashcardsRoute
+  '/app/notifications': typeof AppNotificationsRoute
   '/app/planner': typeof AppPlannerRoute
   '/app/profile': typeof AppProfileRoute
   '/app/quizzes': typeof AppQuizzesRoute
@@ -160,6 +168,7 @@ export interface FileRoutesById {
   '/app/chat': typeof AppChatRoute
   '/app/dashboard': typeof AppDashboardRoute
   '/app/flashcards': typeof AppFlashcardsRoute
+  '/app/notifications': typeof AppNotificationsRoute
   '/app/planner': typeof AppPlannerRoute
   '/app/profile': typeof AppProfileRoute
   '/app/quizzes': typeof AppQuizzesRoute
@@ -181,6 +190,7 @@ export interface FileRouteTypes {
     | '/app/chat'
     | '/app/dashboard'
     | '/app/flashcards'
+    | '/app/notifications'
     | '/app/planner'
     | '/app/profile'
     | '/app/quizzes'
@@ -199,6 +209,7 @@ export interface FileRouteTypes {
     | '/app/chat'
     | '/app/dashboard'
     | '/app/flashcards'
+    | '/app/notifications'
     | '/app/planner'
     | '/app/profile'
     | '/app/quizzes'
@@ -218,6 +229,7 @@ export interface FileRouteTypes {
     | '/app/chat'
     | '/app/dashboard'
     | '/app/flashcards'
+    | '/app/notifications'
     | '/app/planner'
     | '/app/profile'
     | '/app/quizzes'
@@ -331,6 +343,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AppPlannerRouteImport
       parentRoute: typeof AppRoute
     }
+    '/app/notifications': {
+      id: '/app/notifications'
+      path: '/notifications'
+      fullPath: '/app/notifications'
+      preLoaderRoute: typeof AppNotificationsRouteImport
+      parentRoute: typeof AppRoute
+    }
     '/app/flashcards': {
       id: '/app/flashcards'
       path: '/flashcards'
@@ -366,6 +385,7 @@ interface AppRouteChildren {
   AppChatRoute: typeof AppChatRoute
   AppDashboardRoute: typeof AppDashboardRoute
   AppFlashcardsRoute: typeof AppFlashcardsRoute
+  AppNotificationsRoute: typeof AppNotificationsRoute
   AppPlannerRoute: typeof AppPlannerRoute
   AppProfileRoute: typeof AppProfileRoute
   AppQuizzesRoute: typeof AppQuizzesRoute
@@ -380,6 +400,7 @@ const AppRouteChildren: AppRouteChildren = {
   AppChatRoute: AppChatRoute,
   AppDashboardRoute: AppDashboardRoute,
   AppFlashcardsRoute: AppFlashcardsRoute,
+  AppNotificationsRoute: AppNotificationsRoute,
   AppPlannerRoute: AppPlannerRoute,
   AppProfileRoute: AppProfileRoute,
   AppQuizzesRoute: AppQuizzesRoute,
@@ -403,3 +424,13 @@ const rootRouteChildren: RootRouteChildren = {
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
+
+import type { getRouter } from './router.tsx'
+import type { startInstance } from './start.ts'
+declare module '@tanstack/react-start' {
+  interface Register {
+    ssr: true
+    router: Awaited<ReturnType<typeof getRouter>>
+    config: Awaited<ReturnType<typeof startInstance.getOptions>>
+  }
+}

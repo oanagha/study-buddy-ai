@@ -26,6 +26,7 @@ export type UpdateProfilePayload = {
   course?: string;
   bio?: string;
   profile_image?: File | null;
+  remove_profile_image?: boolean;
 };
 
 export type UpdateProfileResponse = {
@@ -84,6 +85,7 @@ export async function updateProfile(payload: UpdateProfilePayload): Promise<Upda
       education: payload.education?.trim() || undefined,
       course: payload.course?.trim() || undefined,
       bio: payload.bio?.trim() || undefined,
+      remove_profile_image: payload.remove_profile_image || undefined,
     });
   }
 
@@ -113,4 +115,13 @@ export function getProfileInitials(fullName: string) {
     .slice(0, 2)
     .map((part) => part[0]?.toUpperCase() ?? "")
     .join("");
+}
+
+export function preloadProfileImage(url: string): Promise<void> {
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    img.onload = () => resolve();
+    img.onerror = () => reject(new Error("Failed to preload profile image"));
+    img.src = url;
+  });
 }
