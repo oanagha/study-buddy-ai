@@ -127,19 +127,19 @@ export function MarketingFooter() {
           <h4 className="font-semibold mb-3 text-sm">Resources</h4>
           <ul className="space-y-2 text-sm text-muted-foreground">
             <li>
-              <a href="#" className="hover:text-foreground">
+              <Link to="/login" className="hover:text-foreground">
                 Study Tips
-              </a>
+              </Link>
             </li>
             <li>
-              <a href="#" className="hover:text-foreground">
-                Help Center
-              </a>
+              <Link to="/login" className="hover:text-foreground">
+                AI Summaries
+              </Link>
             </li>
             <li>
-              <a href="#" className="hover:text-foreground">
-                Blog
-              </a>
+              <Link to="/login" className="hover:text-foreground">
+                Smart Quizzes
+              </Link>
             </li>
           </ul>
         </div>
