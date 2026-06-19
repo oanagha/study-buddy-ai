@@ -26,7 +26,7 @@ export function setPushNotificationsEnabled(enabled: boolean) {
 export function subscribePushNotificationsEnabled(listener: PushListener) {
   listener(pushEnabled);
   listeners.add(listener);
-  return () => listeners.delete(listener);
+  return () => { listeners.delete(listener); };
 }
 
 export function syncPushNotificationsFromSettings(enabled: boolean) {
