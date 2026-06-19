@@ -1,6 +1,6 @@
 import { createFileRoute, redirect } from "@tanstack/react-router";
-import { Loader2 } from "lucide-react";
 import { useEffect, useState } from "react";
+import { LoadingState } from "@/components/loading-spinner";
 import { API_URL } from "@/lib/api/config";
 import { ApiError } from "@/lib/api/auth";
 import { getAuthToken, isTokenExpired, clearAuthUser } from "@/lib/auth";
@@ -93,10 +93,7 @@ function ReportPreview() {
   if (!pdfUrl) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
-        <div className="flex items-center gap-2 text-muted-foreground">
-          <Loader2 className="h-5 w-5 animate-spin" />
-          Opening your report...
-        </div>
+        <LoadingState label="Opening report" className="text-muted-foreground" />
       </div>
     );
   }

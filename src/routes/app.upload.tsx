@@ -14,6 +14,7 @@ import {
   Loader2,
 } from "lucide-react";
 import { PageHeader } from "@/components/widgets";
+import { LoadingState } from "@/components/loading-spinner";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -330,10 +331,7 @@ function UploadPage() {
       </div>
 
       {loadingNotes ? (
-        <div className="flex items-center justify-center py-16 text-muted-foreground gap-2">
-          <Loader2 className="h-5 w-5 animate-spin" />
-          Loading your notes...
-        </div>
+        <LoadingState label="Loading notes" className="py-16 text-muted-foreground" />
       ) : filtered.length === 0 ? (
         <Card className="p-10 text-center text-muted-foreground">
           {notes.length === 0

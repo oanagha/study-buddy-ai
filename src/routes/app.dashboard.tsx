@@ -12,9 +12,9 @@ import {
   FileCode,
   Clock,
   BookOpen,
-  Loader2,
 } from "lucide-react";
 import { StatCard, PageHeader } from "@/components/widgets";
+import { LoadingState } from "@/components/loading-spinner";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
@@ -211,9 +211,8 @@ function Dashboard() {
       {/* Stats */}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {loadingStats ? (
-          <Card className="p-5 sm:col-span-2 lg:col-span-4 flex items-center justify-center gap-2 text-muted-foreground">
-            <Loader2 className="h-5 w-5 animate-spin" />
-            Loading dashboard stats...
+          <Card className="p-5 sm:col-span-2 lg:col-span-4">
+            <LoadingState label="Loading dashboard stats" className="py-4 text-muted-foreground" />
           </Card>
         ) : (
           statConfig.map((s) => {
@@ -243,10 +242,7 @@ function Dashboard() {
           </div>
           <div className="h-64">
             {loadingWeekly ? (
-              <div className="h-full flex items-center justify-center gap-2 text-muted-foreground">
-                <Loader2 className="h-5 w-5 animate-spin" />
-                Loading activity...
-              </div>
+              <LoadingState label="Loading activity" className="h-full text-muted-foreground" />
             ) : (
               <ResponsiveContainer width="100%" height="100%">
                 <AreaChart data={weeklyActivity}>
@@ -301,10 +297,7 @@ function Dashboard() {
           <h3 className="font-display font-semibold text-lg mb-4 shrink-0">Upcoming Sessions</h3>
           <div className="h-64 overflow-y-auto pr-1">
             {loadingSessions ? (
-              <div className="h-full flex items-center justify-center gap-2 text-muted-foreground">
-                <Loader2 className="h-5 w-5 animate-spin" />
-                Loading sessions...
-              </div>
+              <LoadingState label="Loading sessions" className="h-full text-muted-foreground" />
             ) : upcomingSessions.length === 0 ? (
               <div className="h-full flex flex-col items-center justify-center text-center text-muted-foreground">
                 <Clock className="h-8 w-8 mb-2 opacity-40" />
@@ -354,10 +347,7 @@ function Dashboard() {
           </div>
           <div className="space-y-2">
             {loadingUploads ? (
-              <div className="flex items-center justify-center gap-2 py-8 text-muted-foreground">
-                <Loader2 className="h-5 w-5 animate-spin" />
-                Loading uploads...
-              </div>
+              <LoadingState label="Loading uploads" className="py-8 text-muted-foreground" />
             ) : recentUploads.length === 0 ? (
               <div className="text-center py-8 text-muted-foreground">
                 <FileText className="h-8 w-8 mx-auto mb-2 opacity-40" />
@@ -395,10 +385,7 @@ function Dashboard() {
           </div>
           <div className="space-y-4">
             {loadingProgress ? (
-              <div className="flex items-center justify-center gap-2 py-8 text-muted-foreground">
-                <Loader2 className="h-5 w-5 animate-spin" />
-                Loading progress...
-              </div>
+              <LoadingState label="Loading progress" className="py-8 text-muted-foreground" />
             ) : learningProgress.length === 0 ? (
               <div className="text-center py-8 text-muted-foreground">
                 <BookOpen className="h-8 w-8 mx-auto mb-2 opacity-40" />
@@ -423,10 +410,7 @@ function Dashboard() {
       <Card className="p-6 shadow-card border-border/50">
         <h3 className="font-display font-semibold text-lg mb-4">Recent Quizzes</h3>
         {loadingQuizzes ? (
-          <div className="flex items-center justify-center gap-2 py-8 text-muted-foreground">
-            <Loader2 className="h-5 w-5 animate-spin" />
-            Loading quizzes...
-          </div>
+          <LoadingState label="Loading quizzes" className="py-8 text-muted-foreground" />
         ) : recentQuizzes.length === 0 ? (
           <div className="text-center py-8 text-muted-foreground">
             <ClipboardCheck className="h-8 w-8 mx-auto mb-2 opacity-40" />

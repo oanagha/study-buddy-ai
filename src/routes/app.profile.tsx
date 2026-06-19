@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Camera, Mail, GraduationCap, BookOpen, Award, Loader2, Trash2 } from "lucide-react";
 import { PageHeader } from "@/components/widgets";
+import { LoadingState } from "@/components/loading-spinner";
 import { PasswordInput } from "@/components/password-input";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -286,12 +287,7 @@ function Profile() {
   };
 
   if (loading) {
-    return (
-      <div className="flex items-center justify-center py-16 text-muted-foreground gap-2">
-        <Loader2 className="h-5 w-5 animate-spin" />
-        Loading profile...
-      </div>
-    );
+    return <LoadingState label="Loading profile" className="py-16 text-muted-foreground" />;
   }
 
   if (!profile) {

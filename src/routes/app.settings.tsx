@@ -4,6 +4,7 @@ import { Moon, Bell, Globe, Shield, User, Loader2, Timer } from "lucide-react";
 import { PageHeader } from "@/components/widgets";
 import { PinInput } from "@/components/pin-input";
 import { PasswordInput } from "@/components/password-input";
+import { LoadingState } from "@/components/loading-spinner";
 import { Card } from "@/components/ui/card";
 import { Switch } from "@/components/ui/switch";
 import { Button } from "@/components/ui/button";
@@ -320,12 +321,7 @@ function Settings() {
   };
 
   if (loading || !settings) {
-    return (
-      <div className="flex items-center justify-center py-16 text-muted-foreground gap-2">
-        <Loader2 className="h-5 w-5 animate-spin" />
-        Loading settings...
-      </div>
-    );
+    return <LoadingState label="Loading settings" className="py-16 text-muted-foreground" />;
   }
 
   return (

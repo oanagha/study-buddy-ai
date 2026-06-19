@@ -1,6 +1,6 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { Loader2 } from "lucide-react";
 import { useEffect } from "react";
+import { LoadingState } from "@/components/loading-spinner";
 import type { AuthUser } from "@/lib/api/auth";
 import { setAuthSession } from "@/lib/auth";
 import { toast } from "sonner";
@@ -40,10 +40,7 @@ function GoogleCallback() {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-background">
-      <div className="flex items-center gap-2 text-muted-foreground">
-        <Loader2 className="h-5 w-5 animate-spin" />
-        Completing Google sign-in...
-      </div>
+      <LoadingState label="Completing Google sign-in" className="text-muted-foreground" />
     </div>
   );
 }

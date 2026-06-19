@@ -19,6 +19,7 @@ import {
   Download,
 } from "lucide-react";
 import { PageHeader } from "@/components/widgets";
+import { LoadingState } from "@/components/loading-spinner";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -163,8 +164,8 @@ function Notifications() {
       />
 
       {loading && notifications.length === 0 ? (
-        <Card className="p-10 text-center shadow-card border-border/50">
-          <p className="text-sm text-muted-foreground">Loading notifications…</p>
+        <Card className="p-10 shadow-card border-border/50">
+          <LoadingState label="Loading notifications" className="py-4 text-muted-foreground" />
         </Card>
       ) : notifications.length === 0 ? (
         <Card className="p-10 text-center shadow-card border-border/50">
