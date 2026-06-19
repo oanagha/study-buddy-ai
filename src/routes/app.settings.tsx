@@ -322,7 +322,7 @@ function Settings() {
   }
 
   return (
-    <div className="max-w-3xl mx-auto space-y-6">
+    <div className="max-w-7xl mx-auto space-y-6">
       <PageHeader
         title="Settings"
         subtitle={saving ? "Saving changes..." : "Customize StudyMate the way you study."}
@@ -583,7 +583,9 @@ function Settings() {
         </DialogContent>
       </Dialog>
 
+      <div className="grid gap-6 lg:grid-cols-2">
       <Section
+
         icon={<Moon className="h-4 w-4" />}
         title="Appearance"
         desc="Switch between light and dark themes."
@@ -770,9 +772,11 @@ function Settings() {
           </Button>
         </Row>
       </Section>
+      </div>
     </div>
   );
 }
+
 
 function Section({
   icon,
