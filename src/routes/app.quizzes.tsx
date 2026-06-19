@@ -176,123 +176,207 @@ function Quizzes() {
 
   if (stage === "setup") {
     return (
-      <div className="max-w-7xl mx-auto space-y-6">
-        <PageHeader
-          title="Quiz Generator"
-          subtitle="AI-generated MCQ quizzes from your uploaded notes."
-        />
+      <div className="w-full max-w-[1600px] mx-auto flex flex-col gap-8">
+        {/* Bento Header */}
+        <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
+          <div>
+            <h1 className="text-4xl md:text-5xl font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-r from-foreground via-foreground to-foreground/40">
+              Quizzes
+            </h1>
+            <p className="text-muted-foreground mt-3 text-lg">
+              Test your knowledge across your uploaded notes.
+            </p>
+          </div>
+        </div>
 
         {loadingNotes ? (
           <LoadingState label="Loading notes" className="py-16 text-muted-foreground" />
         ) : notes.length === 0 ? (
-          <Card className="p-10 text-center text-muted-foreground">
+          <Card className="p-10 text-center text-muted-foreground rounded-[32px] border-border/50">
             No notes uploaded yet. Upload a PDF, DOCX, or TXT file first to generate quizzes.
           </Card>
         ) : (
-          <Card className="p-8 shadow-card border-border/50">
-            <div className="text-center mb-8">
-              <div className="mx-auto grid h-16 w-16 place-items-center rounded-2xl bg-gradient-primary shadow-glow mb-4">
-                <Brain className="h-7 w-7 text-primary-foreground" />
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-5">
+            {/* Featured Hero Card (8 cols) */}
+            <div className="lg:col-span-8 group relative overflow-hidden rounded-[32px] border border-border/50 bg-card/60 backdrop-blur-md min-h-[500px] p-8 md:p-10 shadow-2xl transition-all hover:border-primary/30 flex flex-col">
+              <div className="absolute -top-24 -right-24 w-72 h-72 bg-primary/15 blur-[100px] rounded-full pointer-events-none" />
+              <div className="absolute -bottom-24 -left-24 w-72 h-72 bg-primary/10 blur-[100px] rounded-full pointer-events-none" />
+
+              <div className="relative z-10 flex flex-col h-full">
+                <div className="flex items-center gap-3 mb-6">
+                  <div className="grid h-12 w-12 place-items-center rounded-2xl bg-gradient-primary shadow-glow">
+                    <Brain className="h-6 w-6 text-primary-foreground" />
+                  </div>
+                  <div>
+                    <span className="px-3 py-1 bg-primary/15 text-primary text-[10px] font-bold uppercase tracking-widest rounded-full border border-primary/30">
+                      New Challenge
+                    </span>
+                    <h2 className="font-display text-2xl md:text-3xl font-bold mt-2">
+                      Generate a Quiz
+                    </h2>
+                  </div>
+                </div>
+
+                <div className="space-y-6 flex-1">
+                  <div className="space-y-2">
+                    <Label>Select note</Label>
+                    <Select
+                      value={selectedNoteId ? String(selectedNoteId) : undefined}
+                      onValueChange={handleSelectNote}
+                    >
+                      <SelectTrigger className="h-12 rounded-xl">
+                        <SelectValue placeholder="Choose a note" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {notes.map((note) => {
+                          const Icon = fileIcons[note.fileType] ?? FileText;
+                          return (
+                            <SelectItem key={note.noteId} value={String(note.noteId)}>
+                              <span className="flex items-center gap-2">
+                                <Icon className="h-4 w-4 shrink-0" />
+                                {note.fileName}
+                              </span>
+                            </SelectItem>
+                          );
+                        })}
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <div>
+                    <p className="font-medium text-sm mb-3">Select difficulty</p>
+                    <div className="grid grid-cols-3 gap-3">
+                      {(["Easy", "Medium", "Hard"] as QuizDifficulty[]).map((d) => (
+                        <button
+                          key={d}
+                          type="button"
+                          onClick={() => setDifficulty(d)}
+                          className={cn(
+                            "rounded-xl border p-4 transition-all text-left",
+                            difficulty === d
+                              ? "border-primary bg-primary/10 shadow-glow/30"
+                              : "border-border/50 bg-background/40 hover:border-primary/50",
+                          )}
+                        >
+                          <div className="font-semibold">{d}</div>
+                          <div className="text-xs text-muted-foreground mt-1">
+                            {d === "Easy"
+                              ? "Basic recall"
+                              : d === "Medium"
+                                ? "Application"
+                                : "Deep analysis"}
+                          </div>
+                        </button>
+                      ))}
+                    </div>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label>Number of questions</Label>
+                    <Select
+                      value={String(questionCount)}
+                      onValueChange={(v) => setQuestionCount(Number(v))}
+                    >
+                      <SelectTrigger className="h-12 rounded-xl">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {QUESTION_COUNTS.map((count) => (
+                          <SelectItem key={count} value={String(count)}>
+                            {count} questions
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+
+                <Button
+                  className="w-full mt-8 h-14 bg-gradient-primary hover:opacity-90 shadow-glow text-base rounded-2xl"
+                  disabled={generating || !selectedNote}
+                  onClick={() => void handleGenerateAndStart()}
+                >
+                  {generating ? (
+                    <>
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                      Generating Quiz...
+                    </>
+                  ) : (
+                    "Generate & Start Quiz"
+                  )}
+                </Button>
               </div>
-              <h2 className="font-display text-2xl font-bold">Generate a Quiz</h2>
-              <p className="text-muted-foreground mt-1">Pick a note and customize your quiz</p>
             </div>
 
-            <div className="space-y-6">
-              <div className="space-y-2">
-                <Label>Select note</Label>
-                <Select
-                  value={selectedNoteId ? String(selectedNoteId) : undefined}
-                  onValueChange={handleSelectNote}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Choose a note" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {notes.map((note) => {
-                      const Icon = fileIcons[note.fileType] ?? FileText;
-                      return (
-                        <SelectItem key={note.noteId} value={String(note.noteId)}>
-                          <span className="flex items-center gap-2">
-                            <Icon className="h-4 w-4 shrink-0" />
-                            {note.fileName}
-                          </span>
-                        </SelectItem>
-                      );
-                    })}
-                  </SelectContent>
-                </Select>
-              </div>
-
+            {/* Stats Sidebar (4 cols) */}
+            <div className="lg:col-span-4 rounded-[32px] border border-border/50 bg-card/40 backdrop-blur-3xl p-8 flex flex-col justify-between hover:border-border transition-all">
               <div>
-                <p className="font-medium text-sm mb-3">Select difficulty</p>
-                <div className="grid grid-cols-3 gap-3">
-                  {(["Easy", "Medium", "Hard"] as QuizDifficulty[]).map((d) => (
-                    <button
-                      key={d}
-                      type="button"
-                      onClick={() => setDifficulty(d)}
-                      className={cn(
-                        "rounded-xl border p-4 transition-all text-left",
-                        difficulty === d
-                          ? "border-primary bg-primary/5 shadow-glow/30"
-                          : "hover:border-primary/50",
-                      )}
-                    >
-                      <div className="font-semibold">{d}</div>
-                      <div className="text-xs text-muted-foreground mt-1">
-                        {d === "Easy"
-                          ? "Basic recall"
-                          : d === "Medium"
-                            ? "Application"
-                            : "Deep analysis"}
-                      </div>
-                    </button>
-                  ))}
+                <div className="flex items-center justify-between mb-8">
+                  <h3 className="text-xl font-bold">Your Stats</h3>
+                  <div className="w-10 h-10 rounded-xl bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center">
+                    <Trophy className="w-5 h-5 text-emerald-400" />
+                  </div>
+                </div>
+
+                <div className="space-y-6">
+                  <div className="p-5 rounded-2xl bg-background/40 border border-border/40">
+                    <div className="flex justify-between items-center mb-2">
+                      <span className="text-sm text-muted-foreground">Questions Ready</span>
+                      <span className="text-sm font-bold text-primary">{questionCount}</span>
+                    </div>
+                    <div className="h-2 bg-muted/40 rounded-full overflow-hidden">
+                      <div
+                        className="h-full bg-primary rounded-full shadow-[0_0_10px_hsl(var(--primary)/0.5)] transition-all"
+                        style={{ width: `${(questionCount / 30) * 100}%` }}
+                      />
+                    </div>
+                  </div>
+
+                  <div className="p-5 rounded-2xl bg-background/40 border border-border/40">
+                    <div className="flex justify-between items-center mb-2">
+                      <span className="text-sm text-muted-foreground">Time Limit</span>
+                      <span className="text-sm font-bold text-indigo-400">
+                        {Math.max(60, questionCount * 30)}s
+                      </span>
+                    </div>
+                    <div className="h-2 bg-muted/40 rounded-full overflow-hidden">
+                      <div className="h-full bg-indigo-500 rounded-full w-full shadow-[0_0_10px_rgba(99,102,241,0.5)]" />
+                    </div>
+                  </div>
+
+                  <div className="p-5 rounded-2xl bg-background/40 border border-border/40">
+                    <div className="flex justify-between items-center mb-2">
+                      <span className="text-sm text-muted-foreground">Points Available</span>
+                      <span className="text-sm font-bold text-amber-400">
+                        {questionCount * 10}
+                      </span>
+                    </div>
+                    <div className="h-2 bg-muted/40 rounded-full overflow-hidden">
+                      <div
+                        className="h-full bg-amber-500 rounded-full shadow-[0_0_10px_rgba(245,158,11,0.5)] transition-all"
+                        style={{ width: `${(questionCount / 30) * 100}%` }}
+                      />
+                    </div>
+                  </div>
                 </div>
               </div>
 
-              <div className="space-y-2">
-                <Label>Number of questions</Label>
-                <Select
-                  value={String(questionCount)}
-                  onValueChange={(v) => setQuestionCount(Number(v))}
-                >
-                  <SelectTrigger>
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {QUESTION_COUNTS.map((count) => (
-                      <SelectItem key={count} value={String(count)}>
-                        {count} questions
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+              <div className="mt-8 pt-8 border-t border-border/40">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-[10px] uppercase tracking-widest text-muted-foreground font-bold mb-1">
+                      Notes Available
+                    </p>
+                    <p className="text-2xl font-bold">{notes.length}</p>
+                  </div>
+                  <div className="flex items-center gap-2 px-3 py-2 rounded-xl bg-primary/10 border border-primary/20 text-primary">
+                    <Clock className="h-4 w-4" />
+                    <span className="text-xs font-semibold">Ready</span>
+                  </div>
+                </div>
               </div>
             </div>
-
-            <div className="grid grid-cols-3 gap-4 mt-8 pt-6 border-t">
-              <Info label="Questions" value={String(questionCount)} />
-              <Info label="Time Limit" value={`${Math.max(60, questionCount * 30)}s`} />
-              <Info label="Points" value={String(questionCount * 10)} />
-            </div>
-
-            <Button
-              className="w-full mt-8 h-12 bg-gradient-primary hover:opacity-90 shadow-glow text-base"
-              disabled={generating || !selectedNote}
-              onClick={() => void handleGenerateAndStart()}
-            >
-              {generating ? (
-                <>
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                  Generating Quiz...
-                </>
-              ) : (
-                "Generate & Start Quiz"
-              )}
-            </Button>
-          </Card>
+          </div>
         )}
       </div>
     );
