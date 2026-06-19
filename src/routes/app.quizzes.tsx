@@ -176,7 +176,7 @@ function Quizzes() {
 
   if (stage === "setup") {
     return (
-      <div className="max-w-4xl mx-auto space-y-6">
+      <div className="max-w-7xl mx-auto space-y-6">
         <PageHeader
           title="Quiz Generator"
           subtitle="AI-generated MCQ quizzes from your uploaded notes."
@@ -303,7 +303,7 @@ function Quizzes() {
     const selected = answers[current];
 
     return (
-      <div className="max-w-3xl mx-auto space-y-6">
+      <div className="max-w-7xl mx-auto space-y-6">
         <Button variant="ghost" onClick={resetToSetup} className="-ml-3">
           <ArrowLeft className="h-4 w-4" /> Back to setup
         </Button>
@@ -390,7 +390,7 @@ function Quizzes() {
   const score = questions.length > 0 ? Math.round((correct / questions.length) * 100) : 0;
 
   return (
-    <div className="max-w-3xl mx-auto space-y-6">
+    <div className="max-w-7xl mx-auto space-y-6">
       <Button variant="ghost" onClick={resetToSetup} className="-ml-3">
         <ArrowLeft className="h-4 w-4" /> Back to setup
       </Button>

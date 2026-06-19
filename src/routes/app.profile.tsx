@@ -309,7 +309,7 @@ function Profile() {
   const initials = getProfileInitials(displayName);
 
   return (
-    <div className="max-w-4xl mx-auto space-y-6">
+    <div className="max-w-7xl mx-auto space-y-6">
       <PageHeader title="Profile" subtitle="Your StudyMate identity and learning info." />
 
       <input

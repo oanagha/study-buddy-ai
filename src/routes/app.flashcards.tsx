@@ -416,7 +416,7 @@ function Flashcards() {
 
   if (!hasDeck || deck.length === 0) {
     return (
-      <div className="max-w-4xl mx-auto space-y-6">
+      <div className="max-w-7xl mx-auto space-y-6">
         <PageHeader
           title="Flashcards"
           subtitle="Generate AI flashcards from your uploaded notes."
@@ -527,7 +527,7 @@ function Flashcards() {
         : 0;
 
     return (
-      <div className="max-w-4xl mx-auto space-y-6">
+      <div className="max-w-7xl mx-auto space-y-6">
         <Button variant="ghost" onClick={resetDeck} className="-ml-3">
           <ArrowLeft className="h-4 w-4" /> Back to generator
         </Button>
@@ -604,7 +604,7 @@ function Flashcards() {
   }
 
   return (
-    <div className="max-w-4xl mx-auto space-y-6">
+    <div className="max-w-7xl mx-auto space-y-6">
       <Button variant="ghost" onClick={resetDeck} className="-ml-3">
         <ArrowLeft className="h-4 w-4" /> Back to generator
       </Button>
