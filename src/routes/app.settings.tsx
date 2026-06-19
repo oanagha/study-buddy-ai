@@ -772,9 +772,11 @@ function Settings() {
           </Button>
         </Row>
       </Section>
+      </div>
     </div>
   );
 }
+
 
 function Section({
   icon,
