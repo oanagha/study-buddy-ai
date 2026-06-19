@@ -484,7 +484,55 @@ function Profile() {
         </div>
       </Card>
 
-      <div className="grid gap-6 md:grid-cols-3">
+      <div className="grid gap-6 lg:grid-cols-3">
+        <Card className="p-6 shadow-card border-border/50 lg:col-span-2 lg:row-span-2">
+          <h3 className="font-display font-semibold text-lg mb-6">Personal Info</h3>
+          <div className="grid gap-5 sm:grid-cols-2">
+            <Field
+              label="Full Name"
+              icon={<GraduationCap className="h-4 w-4" />}
+              value={editing ? form.full_name : profile.full_name}
+              editing={editing}
+              onChange={(value) => setForm((current) => ({ ...current, full_name: value }))}
+            />
+            <Field
+              label="Email"
+              icon={<Mail className="h-4 w-4" />}
+              value={profile.email}
+              editing={false}
+            />
+            <Field
+              label="Education"
+              icon={<GraduationCap className="h-4 w-4" />}
+              value={editing ? form.education : (profile.education ?? "")}
+              editing={editing}
+              onChange={(value) => setForm((current) => ({ ...current, education: value }))}
+            />
+            <Field
+              label="Course"
+              icon={<BookOpen className="h-4 w-4" />}
+              value={editing ? form.course : (profile.course ?? "")}
+              editing={editing}
+              onChange={(value) => setForm((current) => ({ ...current, course: value }))}
+            />
+          </div>
+          <div className="mt-5 space-y-1.5">
+            <Label>Bio</Label>
+            {editing ? (
+              <Textarea
+                value={form.bio}
+                onChange={(e) => setForm((current) => ({ ...current, bio: e.target.value }))}
+                rows={4}
+                maxLength={500}
+              />
+            ) : (
+              <p className="text-sm text-muted-foreground p-3 rounded-lg bg-muted/40 min-h-[88px]">
+                {profile.bio || "No bio added yet."}
+              </p>
+            )}
+          </div>
+        </Card>
+
         <StatBlock
           icon={<BookOpen className="h-4 w-4" />}
           label="Notes"
@@ -502,53 +550,6 @@ function Profile() {
         />
       </div>
 
-      <Card className="p-6 shadow-card border-border/50">
-        <h3 className="font-display font-semibold text-lg mb-6">Personal Info</h3>
-        <div className="grid gap-5 sm:grid-cols-2">
-          <Field
-            label="Full Name"
-            icon={<GraduationCap className="h-4 w-4" />}
-            value={editing ? form.full_name : profile.full_name}
-            editing={editing}
-            onChange={(value) => setForm((current) => ({ ...current, full_name: value }))}
-          />
-          <Field
-            label="Email"
-            icon={<Mail className="h-4 w-4" />}
-            value={profile.email}
-            editing={false}
-          />
-          <Field
-            label="Education"
-            icon={<GraduationCap className="h-4 w-4" />}
-            value={editing ? form.education : (profile.education ?? "")}
-            editing={editing}
-            onChange={(value) => setForm((current) => ({ ...current, education: value }))}
-          />
-          <Field
-            label="Course"
-            icon={<BookOpen className="h-4 w-4" />}
-            value={editing ? form.course : (profile.course ?? "")}
-            editing={editing}
-            onChange={(value) => setForm((current) => ({ ...current, course: value }))}
-          />
-        </div>
-        <div className="mt-5 space-y-1.5">
-          <Label>Bio</Label>
-          {editing ? (
-            <Textarea
-              value={form.bio}
-              onChange={(e) => setForm((current) => ({ ...current, bio: e.target.value }))}
-              rows={3}
-              maxLength={500}
-            />
-          ) : (
-            <p className="text-sm text-muted-foreground p-3 rounded-lg bg-muted/40">
-              {profile.bio || "No bio added yet."}
-            </p>
-          )}
-        </div>
-      </Card>
     </div>
   );
 }
