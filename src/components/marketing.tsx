@@ -124,18 +124,24 @@ export function MarketingFooter() {
           </ul>
         </div>
         <div>
-          <h4 className="font-semibold mb-3 text-sm">Connect</h4>
-          <div className="flex gap-3 text-muted-foreground">
-            <a href="#" aria-label="Twitter" className="hover:text-foreground">
-              𝕏
-            </a>
-            <a href="#" aria-label="GitHub" className="hover:text-foreground">
-              GitHub
-            </a>
-            <a href="#" aria-label="LinkedIn" className="hover:text-foreground">
-              in
-            </a>
-          </div>
+          <h4 className="font-semibold mb-3 text-sm">Resources</h4>
+          <ul className="space-y-2 text-sm text-muted-foreground">
+            <li>
+              <a href="#" className="hover:text-foreground">
+                Study Tips
+              </a>
+            </li>
+            <li>
+              <a href="#" className="hover:text-foreground">
+                Help Center
+              </a>
+            </li>
+            <li>
+              <a href="#" className="hover:text-foreground">
+                Blog
+              </a>
+            </li>
+          </ul>
         </div>
       </div>
       <div className="border-t py-6 text-center text-xs text-muted-foreground">
