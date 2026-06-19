@@ -1,6 +1,7 @@
 import { toast } from "sonner";
 import { addAppNotification } from "@/lib/notifications";
 import { showBrowserNotification } from "@/lib/browser-notify";
+import { getRouteForFocusNotification } from "@/lib/notification-routes";
 
 const FOCUS_ALERTS_KEY = "studymate_focus_alerts_enabled";
 const FOCUS_STARTED_TOAST_ID = "focus-session-started";
@@ -62,6 +63,7 @@ export function notifyFocusSessionStarted(secondsLeft: number, topic?: string) {
     "Focus session started",
     `Your ${duration} study timer is running.${topicLine ? ` Topic: ${topic}.` : ""}`,
     FOCUS_STARTED_TOAST_ID,
+    { url: getRouteForFocusNotification() },
   );
 }
 
@@ -85,7 +87,9 @@ export function notifyFocusSessionPaused(secondsLeft: number, topic?: string) {
     duration: 6000,
   });
 
-  showBrowserNotification("Focus session paused", message, FOCUS_PAUSED_TOAST_ID);
+  showBrowserNotification("Focus session paused", message, FOCUS_PAUSED_TOAST_ID, {
+    url: getRouteForFocusNotification(),
+  });
 }
 
 export function notifyFocusSessionResumed(secondsLeft: number, topic?: string) {
@@ -108,7 +112,9 @@ export function notifyFocusSessionResumed(secondsLeft: number, topic?: string) {
     duration: 6000,
   });
 
-  showBrowserNotification("Focus session resumed", message, FOCUS_RESUMED_TOAST_ID);
+  showBrowserNotification("Focus session resumed", message, FOCUS_RESUMED_TOAST_ID, {
+    url: getRouteForFocusNotification(),
+  });
 }
 
 export function notifyFocusSessionComplete() {
@@ -133,6 +139,7 @@ export function notifyFocusSessionComplete() {
     "Focus session complete",
     "Your study timer has ended. Great work!",
     FOCUS_COMPLETE_TOAST_ID,
+    { url: getRouteForFocusNotification() },
   );
 }
 

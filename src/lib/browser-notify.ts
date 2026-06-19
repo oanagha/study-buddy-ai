@@ -1,3 +1,5 @@
+import { navigateFromNotification } from "@/lib/notification-routes";
+
 export async function requestBrowserNotificationPermission(): Promise<
   NotificationPermission | "unsupported"
 > {
@@ -12,9 +14,21 @@ export async function requestBrowserNotificationPermission(): Promise<
   }
 }
 
-export function showBrowserNotification(title: string, body: string, tag: string) {
+export type BrowserNotificationOptions = {
+  url?: string;
+  onClick?: () => void;
+};
+
+export function showBrowserNotification(
+  title: string,
+  body: string,
+  tag: string,
+  options?: BrowserNotificationOptions,
+) {
   if (typeof window === "undefined") return;
   if (!("Notification" in window) || Notification.permission !== "granted") return;
+
+  const url = options?.url ?? "/app/notifications";
 
   try {
     const notification = new Notification(title, {
@@ -25,9 +39,8 @@ export function showBrowserNotification(title: string, body: string, tag: string
 
     notification.onclick = () => {
       window.focus();
-      if (typeof window !== "undefined") {
-        window.location.href = "/app/notifications";
-      }
+      options?.onClick?.();
+      navigateFromNotification(url);
       notification.close();
     };
   } catch {

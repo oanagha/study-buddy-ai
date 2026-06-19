@@ -8,6 +8,7 @@ import {
   type ServerNotificationType,
 } from "@/lib/api/notifications";
 import { showBrowserNotification } from "@/lib/browser-notify";
+import { getRouteForServerNotificationType } from "@/lib/notification-routes";
 import { arePushNotificationsEnabled } from "@/lib/push-notifications";
 
 export type LocalNotificationType = "info" | "success" | "warning";
@@ -63,7 +64,12 @@ function notifyNewServerPushAlerts(notifications: ServerNotification[]) {
   knownServerNotificationIds = currentIds;
 
   for (const item of newItems.slice(0, 5)) {
-    showBrowserNotification(item.title, item.message, `server-notif-${item.id}`);
+    showBrowserNotification(item.title, item.message, `server-notif-${item.id}`, {
+      url: getRouteForServerNotificationType(item.type),
+      onClick: () => {
+        void markNotificationRead(`server:${item.id}`);
+      },
+    });
   }
 }
 

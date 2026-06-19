@@ -73,6 +73,10 @@ import {
   refreshServerNotifications,
   subscribeUnreadNotificationCount,
 } from "@/lib/notifications";
+import {
+  consumePendingNotificationRoute,
+  NOTIFICATION_NAVIGATE_EVENT,
+} from "@/lib/notification-routes";
 
 const quickActions = [
   { to: "/app/upload", label: "Upload", icon: Upload },
@@ -323,6 +327,26 @@ export function AppShell({ children }: { children: ReactNode }) {
       unsubscribe();
     };
   }, []);
+
+  useEffect(() => {
+    const navigateToPath = (path: string) => {
+      if (!path.startsWith("/app")) return;
+      void router.navigate({ to: path });
+    };
+
+    const pending = consumePendingNotificationRoute();
+    if (pending) {
+      navigateToPath(pending);
+    }
+
+    const handleNavigate = (event: Event) => {
+      const path = (event as CustomEvent<{ path: string }>).detail?.path;
+      if (path) navigateToPath(path);
+    };
+
+    window.addEventListener(NOTIFICATION_NAVIGATE_EVENT, handleNavigate);
+    return () => window.removeEventListener(NOTIFICATION_NAVIGATE_EVENT, handleNavigate);
+  }, [router]);
 
   useEffect(() => {
     void refreshServerNotifications();
