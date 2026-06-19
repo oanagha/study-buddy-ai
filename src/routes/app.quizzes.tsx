@@ -176,7 +176,7 @@ function Quizzes() {
 
   if (stage === "setup") {
     return (
-      <div className="w-full max-w-[1600px] mx-auto flex flex-col gap-8">
+      <div className="w-full max-w-6xl mx-auto px-10 flex flex-col gap-8">
         {/* Bento Header */}
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
           <div>
@@ -387,7 +387,7 @@ function Quizzes() {
     const selected = answers[current];
 
     return (
-      <div className="max-w-7xl mx-auto space-y-6">
+      <div className="max-w-6xl mx-auto space-y-6 px-10">
         <Button variant="ghost" onClick={resetToSetup} className="-ml-3">
           <ArrowLeft className="h-4 w-4" /> Back to setup
         </Button>
@@ -474,7 +474,7 @@ function Quizzes() {
   const score = questions.length > 0 ? Math.round((correct / questions.length) * 100) : 0;
 
   return (
-    <div className="max-w-7xl mx-auto space-y-6">
+    <div className="max-w-6xl mx-auto space-y-6 px-10">
       <Button variant="ghost" onClick={resetToSetup} className="-ml-3">
         <ArrowLeft className="h-4 w-4" /> Back to setup
       </Button>

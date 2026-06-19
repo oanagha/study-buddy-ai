@@ -418,14 +418,14 @@ function Flashcards() {
     const savedDecks = notes.filter((n) => n.hasFlashcards);
 
     return (
-      <div className="w-full max-w-full mx-auto">
+      <div className="w-full max-w-6xl mx-auto px-10">
         {/* Gradient Header */}
         <div className="mb-10 flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-primary/10 pb-8">
           <div>
-            <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight bg-gradient-to-r from-indigo-400 via-violet-400 to-cyan-400 bg-clip-text text-transparent">
+            <h1 className="text-4xl md:text-5xl font-bold font-display tracking-tight text-foreground">
               Flashcards
             </h1>
-            <p className="mt-3 text-lg text-muted-foreground font-medium">
+            <p className="text-muted-foreground mt-3 text-lg">
               {selectedNote ? (
                 <>
                   Ready to study{" "}
@@ -652,7 +652,7 @@ function Flashcards() {
         : 0;
 
     return (
-      <div className="max-w-7xl mx-auto space-y-6">
+      <div className="max-w-6xl mx-auto space-y-6 px-10">
         <Button variant="ghost" onClick={resetDeck} className="-ml-3">
           <ArrowLeft className="h-4 w-4" /> Back to generator
         </Button>
@@ -729,7 +729,7 @@ function Flashcards() {
   }
 
   return (
-    <div className="max-w-7xl mx-auto space-y-6">
+    <div className="max-w-6xl mx-auto space-y-6 px-10">
       <Button variant="ghost" onClick={resetDeck} className="-ml-3">
         <ArrowLeft className="h-4 w-4" /> Back to generator
       </Button>
