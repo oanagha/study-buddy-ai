@@ -30,6 +30,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { ApiError } from "@/lib/api/auth";
+import { refreshNotificationsAfterActivity } from "@/lib/notifications";
 import { fetchFlashcards, generateFlashcards, type Flashcard } from "@/lib/api/flashcards";
 import { fetchNotes, type Note } from "@/lib/api/notes";
 import { toast } from "sonner";
@@ -172,6 +173,7 @@ function Flashcards() {
         toast.success("Flashcards loaded from cache.");
       } else {
         toast.success("Flashcards generated successfully!");
+        refreshNotificationsAfterActivity();
       }
     } catch (err) {
       if (err instanceof ApiError) {

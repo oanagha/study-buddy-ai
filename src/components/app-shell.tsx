@@ -37,7 +37,9 @@ import {
 import { fetchProfile, getProfileInitials, type UserProfile } from "@/lib/api/profile";
 import { subscribeProfileUpdates } from "@/lib/profile-sync";
 import { fetchActiveStudyPlan, type StudyPlanResult } from "@/lib/api/studyPlan";
+import { fetchSettings } from "@/lib/api/settings";
 import { ApiError } from "@/lib/api/auth";
+import { syncPushNotificationsFromSettings } from "@/lib/push-notifications";
 import {
   clearFocusTimer,
   hasActiveFocusSession,
@@ -46,6 +48,12 @@ import {
   writeFocusTimer,
   type FocusTimerSnapshot,
 } from "@/lib/focus-timer";
+import {
+  DEFAULT_FOCUS_MINUTES,
+  FOCUS_DURATION_UPDATED_EVENT,
+  resolveEffectiveFocusMinutes,
+  subscribeFocusDurationPreference,
+} from "@/lib/focus-duration";
 import {
   notifyFocusSessionComplete,
   notifyFocusSessionPaused,
@@ -58,10 +66,9 @@ import {
 import {
   getUnreadNotificationCount,
   NOTIFICATIONS_UPDATED_EVENT,
+  refreshServerNotifications,
   subscribeUnreadNotificationCount,
 } from "@/lib/notifications";
-
-const DEFAULT_FOCUS_MINUTES = 25;
 
 const quickActions = [
   { to: "/app/upload", label: "Upload", icon: Upload },
@@ -73,23 +80,6 @@ function formatTimer(seconds: number) {
   const mins = Math.floor(seconds / 60);
   const secs = seconds % 60;
   return `${String(mins).padStart(2, "0")}:${String(secs).padStart(2, "0")}`;
-}
-
-function resolveFocusMinutes(plan: StudyPlanResult | null, nextSession: UpcomingSession | null) {
-  if (nextSession && plan?.study_plan?.length) {
-    const planDay = plan.study_plan.find(
-      (day) => day.topic.trim().toLowerCase() === nextSession.topic.trim().toLowerCase(),
-    );
-    if (planDay?.estimated_hours) {
-      return Math.min(60, Math.max(15, Math.round(planDay.estimated_hours * 60)));
-    }
-  }
-
-  if (plan?.study_hours_per_day) {
-    return Math.min(60, Math.max(15, Math.round((plan.study_hours_per_day * 60) / 4)));
-  }
-
-  return DEFAULT_FOCUS_MINUTES;
 }
 
 function truncateTopic(topic: string, max = 18) {
@@ -179,21 +169,28 @@ export function AppShell({ children }: { children: ReactNode }) {
   const loadHeaderData = useCallback(async () => {
     setHeaderLoading(true);
     try {
-      const [overview, profileData, planData, sessions] = await Promise.all([
+      const [overview, profileData, planData, sessions, settingsData] = await Promise.all([
         fetchDashboardOverview(),
         fetchProfile(),
         fetchActiveStudyPlan(),
         fetchUpcomingSessions(),
+        fetchSettings(),
       ]);
+
+      syncPushNotificationsFromSettings(settingsData.push_notifications);
 
       setStudyStreak(overview.study_streak);
       setProfile(profileData);
       setStudyPlan(planData.study_plan.length > 0 ? planData : null);
       setNextSession(sessions[0] ?? null);
 
+      void refreshServerNotifications();
+
       const durationSeconds =
-        resolveFocusMinutes(planData.study_plan.length > 0 ? planData : null, sessions[0] ?? null) *
-        60;
+        resolveEffectiveFocusMinutes(
+          planData.study_plan.length > 0 ? planData : null,
+          sessions[0] ?? null,
+        ) * 60;
 
       const stored = readFocusTimer();
       if (focusRunningRef.current || stored?.running) {
@@ -225,17 +222,64 @@ export function AppShell({ children }: { children: ReactNode }) {
     }
   }, [updateFocusTimer, syncFocusTimerFromStorage]);
 
+  const applyFocusDuration = useCallback(
+    (plan: StudyPlanResult | null, session: UpcomingSession | null) => {
+      if (focusRunningRef.current) return;
+
+      const durationSeconds = resolveEffectiveFocusMinutes(plan, session) * 60;
+      const stored = readFocusTimer();
+
+      if (!stored || !hasActiveFocusSession(stored)) {
+        updateFocusTimer({
+          running: false,
+          endsAt: null,
+          secondsLeft: durationSeconds,
+          durationSeconds,
+        });
+        return;
+      }
+
+      updateFocusTimer({
+        ...stored,
+        secondsLeft: stored.running ? stored.secondsLeft : durationSeconds,
+        durationSeconds,
+      });
+    },
+    [updateFocusTimer],
+  );
+
+  useEffect(() => {
+    const unsubscribe = subscribeFocusDurationPreference(() => {
+      applyFocusDuration(studyPlan, nextSession);
+    });
+
+    const handleDurationUpdate = () => {
+      applyFocusDuration(studyPlan, nextSession);
+    };
+
+    window.addEventListener(FOCUS_DURATION_UPDATED_EVENT, handleDurationUpdate);
+    return () => {
+      unsubscribe();
+      window.removeEventListener(FOCUS_DURATION_UPDATED_EVENT, handleDurationUpdate);
+    };
+  }, [studyPlan, nextSession, applyFocusDuration]);
+
   useEffect(() => {
     void loadHeaderData();
   }, [loadHeaderData]);
 
   useEffect(() => {
-    return subscribeProfileUpdates((updated) => {
+    const unsubscribe = subscribeProfileUpdates((updated) => {
       setProfile(updated);
     });
+    return () => {
+      unsubscribe();
+    };
   }, []);
 
   useEffect(() => {
+    void refreshServerNotifications();
+
     setUnreadNotifications(getUnreadNotificationCount());
 
     const unsubscribe = subscribeUnreadNotificationCount(setUnreadNotifications);
@@ -256,7 +300,7 @@ export function AppShell({ children }: { children: ReactNode }) {
     };
   }, []);
 
-  const focusMinutes = resolveFocusMinutes(studyPlan, nextSession);
+  const focusMinutes = resolveEffectiveFocusMinutes(studyPlan, nextSession);
 
   useEffect(() => {
     if (!focusRunning || focusEndsAtRef.current === null) return;

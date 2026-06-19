@@ -28,6 +28,7 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 import { ApiError } from "@/lib/api/auth";
+import { refreshNotificationsAfterActivity } from "@/lib/notifications";
 import {
   fetchStudyMaterial,
   generateStudyMaterial,
@@ -399,10 +400,12 @@ function StudyGuide() {
 
         if (forceRegenerate) {
           toast.success("Study guide regenerated successfully!");
+          refreshNotificationsAfterActivity();
         } else if (result.cached || note.hasStudyMaterial) {
           toast.success("Study guide loaded from history.");
         } else {
           toast.success("Study guide generated successfully!");
+          refreshNotificationsAfterActivity();
         }
       } catch (err) {
         setNoteInUrl(undefined);

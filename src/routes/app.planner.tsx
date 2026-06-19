@@ -25,6 +25,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { ApiError } from "@/lib/api/auth";
+import { refreshNotificationsAfterActivity } from "@/lib/notifications";
 import {
   fetchActiveStudyPlan,
   generateStudyPlan,
@@ -161,6 +162,7 @@ function Planner() {
         toast.success("Study plan loaded from cache.");
       } else {
         toast.success("Study plan generated successfully!");
+        refreshNotificationsAfterActivity();
       }
     } catch (err) {
       if (err instanceof ApiError) {

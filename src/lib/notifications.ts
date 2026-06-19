@@ -1,6 +1,19 @@
-export type AppNotificationType = "info" | "success" | "warning";
+import {
+  deleteServerNotification,
+  fetchNotifications,
+  fetchUnreadNotificationCount,
+  markAllServerNotificationsRead,
+  markServerNotificationRead,
+  type ServerNotification,
+  type ServerNotificationType,
+} from "@/lib/api/notifications";
+import { showBrowserNotification } from "@/lib/browser-notify";
+import { arePushNotificationsEnabled } from "@/lib/push-notifications";
 
-export type AppNotificationCategory = "focus" | "system";
+export type LocalNotificationType = "info" | "success" | "warning";
+export type AppNotificationType = LocalNotificationType | ServerNotificationType;
+export type AppNotificationCategory = "focus" | "system" | "activity";
+export type AppNotificationSource = "local" | "server";
 
 export type AppNotification = {
   id: string;
@@ -10,41 +23,106 @@ export type AppNotification = {
   category: AppNotificationCategory;
   read: boolean;
   createdAt: string;
+  source: AppNotificationSource;
+  serverId?: number;
 };
 
 type NotificationListener = (notifications: AppNotification[]) => void;
 type UnreadCountListener = (count: number) => void;
 
 const STORAGE_KEY = "studymate_notifications";
-const MAX_NOTIFICATIONS = 100;
+const MAX_LOCAL_NOTIFICATIONS = 100;
 const NOTIFICATIONS_UPDATED_EVENT = "studymate-notifications-updated";
 
 const listeners = new Set<NotificationListener>();
 const unreadListeners = new Set<UnreadCountListener>();
 
-export { NOTIFICATIONS_UPDATED_EVENT };
+let serverNotifications: ServerNotification[] = [];
+let serverUnreadCount = 0;
+let serverRefreshPromise: Promise<void> | null = null;
+let knownServerNotificationIds = new Set<number>();
+let serverNotificationsInitialized = false;
 
-function getUnreadCount(notifications: AppNotification[]) {
-  return notifications.filter((item) => !item.read).length;
+function notifyNewServerPushAlerts(notifications: ServerNotification[]) {
+  const currentIds = new Set(notifications.map((item) => item.id));
+
+  if (!serverNotificationsInitialized) {
+    knownServerNotificationIds = currentIds;
+    serverNotificationsInitialized = true;
+    return;
+  }
+
+  if (!arePushNotificationsEnabled()) {
+    knownServerNotificationIds = currentIds;
+    return;
+  }
+
+  const newItems = notifications.filter(
+    (item) => !knownServerNotificationIds.has(item.id) && !item.is_read,
+  );
+  knownServerNotificationIds = currentIds;
+
+  for (const item of newItems.slice(0, 5)) {
+    showBrowserNotification(item.title, item.message, `server-notif-${item.id}`);
+  }
 }
 
-function emitNotificationChange(notifications: AppNotification[]) {
-  const unreadCount = getUnreadCount(notifications);
-  listeners.forEach((listener) => listener(notifications));
+export { NOTIFICATIONS_UPDATED_EVENT };
+
+function createLocalId() {
+  if (typeof crypto !== "undefined" && "randomUUID" in crypto) {
+    return `local:${crypto.randomUUID()}`;
+  }
+  return `local:${Date.now()}-${Math.random().toString(36).slice(2, 9)}`;
+}
+
+function toServerAppNotification(item: ServerNotification): AppNotification {
+  return {
+    id: `server:${item.id}`,
+    serverId: item.id,
+    title: item.title,
+    message: item.message,
+    type: item.type,
+    category: item.type === "STREAK" ? "activity" : "activity",
+    read: item.is_read,
+    createdAt: item.created_at,
+    source: "server",
+  };
+}
+
+function getLocalUnreadCount() {
+  return readLocalNotifications().filter((item) => !item.read).length;
+}
+
+function getCombinedUnreadCount() {
+  return getLocalUnreadCount() + serverUnreadCount;
+}
+
+function mergeNotifications(): AppNotification[] {
+  const local = readLocalNotifications().map((item) => ({
+    ...item,
+    source: "local" as const,
+  }));
+  const server = serverNotifications.map(toServerAppNotification);
+
+  return [...local, ...server].sort(
+    (a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
+  );
+}
+
+function emitNotificationChange() {
+  const merged = mergeNotifications();
+  const unreadCount = getCombinedUnreadCount();
+
+  listeners.forEach((listener) => listener(merged));
   unreadListeners.forEach((listener) => listener(unreadCount));
+
   if (typeof window !== "undefined") {
     window.dispatchEvent(new CustomEvent(NOTIFICATIONS_UPDATED_EVENT, { detail: { unreadCount } }));
   }
 }
 
-function createId() {
-  if (typeof crypto !== "undefined" && "randomUUID" in crypto) {
-    return crypto.randomUUID();
-  }
-  return `${Date.now()}-${Math.random().toString(36).slice(2, 9)}`;
-}
-
-function readNotifications(): AppNotification[] {
+function readLocalNotifications(): AppNotification[] {
   if (typeof window === "undefined") return [];
 
   try {
@@ -52,78 +130,169 @@ function readNotifications(): AppNotification[] {
     if (!raw) return [];
     const parsed = JSON.parse(raw) as AppNotification[];
     if (!Array.isArray(parsed)) return [];
-    return parsed.filter(
-      (item) =>
-        item &&
-        typeof item.id === "string" &&
-        typeof item.title === "string" &&
-        typeof item.message === "string",
-    );
+    return parsed
+      .filter(
+        (item) =>
+          item &&
+          typeof item.id === "string" &&
+          typeof item.title === "string" &&
+          typeof item.message === "string",
+      )
+      .map((item) => ({
+        ...item,
+        source: "local" as const,
+        category: item.category ?? "system",
+      }));
   } catch {
     return [];
   }
 }
 
-function writeNotifications(notifications: AppNotification[]) {
+function writeLocalNotifications(notifications: AppNotification[]) {
   if (typeof window === "undefined") return;
-  const next = notifications.slice(0, MAX_NOTIFICATIONS);
+  const next = notifications.slice(0, MAX_LOCAL_NOTIFICATIONS);
   localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
-  emitNotificationChange(next);
+  emitNotificationChange();
 }
 
 export function getNotifications() {
-  return readNotifications();
+  return mergeNotifications();
 }
 
 export function getUnreadNotificationCount() {
-  return getUnreadCount(readNotifications());
+  return getCombinedUnreadCount();
 }
 
 export function subscribeNotifications(listener: NotificationListener) {
-  listener(readNotifications());
+  listener(mergeNotifications());
   listeners.add(listener);
   return () => listeners.delete(listener);
 }
 
 export function subscribeUnreadNotificationCount(listener: UnreadCountListener) {
-  listener(getUnreadNotificationCount());
+  listener(getCombinedUnreadCount());
   unreadListeners.add(listener);
   return () => unreadListeners.delete(listener);
+}
+
+export async function refreshServerNotifications() {
+  if (serverRefreshPromise) return serverRefreshPromise;
+
+  serverRefreshPromise = (async () => {
+    try {
+      const [notifications, unreadCount] = await Promise.all([
+        fetchNotifications(),
+        fetchUnreadNotificationCount(),
+      ]);
+      notifyNewServerPushAlerts(notifications);
+      serverNotifications = notifications;
+      serverUnreadCount = unreadCount;
+      emitNotificationChange();
+    } catch {
+      // Keep existing server cache on failure.
+    } finally {
+      serverRefreshPromise = null;
+    }
+  })();
+
+  return serverRefreshPromise;
+}
+
+/** Call after server-side activity (upload, generate, etc.) to update the header badge immediately. */
+export function refreshNotificationsAfterActivity() {
+  void refreshServerNotifications();
 }
 
 export function addAppNotification(payload: {
   title: string;
   message: string;
-  type?: AppNotificationType;
+  type?: LocalNotificationType;
   category?: AppNotificationCategory;
 }) {
   const notification: AppNotification = {
-    id: createId(),
+    id: createLocalId(),
     title: payload.title,
     message: payload.message,
     type: payload.type ?? "info",
     category: payload.category ?? "system",
     read: false,
     createdAt: new Date().toISOString(),
+    source: "local",
   };
 
-  const next = [notification, ...readNotifications()].slice(0, MAX_NOTIFICATIONS);
-  writeNotifications(next);
+  const next = [notification, ...readLocalNotifications()].slice(0, MAX_LOCAL_NOTIFICATIONS);
+  writeLocalNotifications(next);
   return notification;
 }
 
-export function markNotificationRead(id: string) {
-  const next = readNotifications().map((item) => (item.id === id ? { ...item, read: true } : item));
-  writeNotifications(next);
+export async function markNotificationRead(id: string) {
+  if (id.startsWith("server:")) {
+    const serverId = Number.parseInt(id.replace("server:", ""), 10);
+    if (!Number.isInteger(serverId)) return;
+
+    serverNotifications = serverNotifications.map((item) =>
+      item.id === serverId ? { ...item, is_read: true } : item,
+    );
+    serverUnreadCount = serverNotifications.filter((item) => !item.is_read).length;
+    emitNotificationChange();
+
+    try {
+      await markServerNotificationRead(serverId);
+      await refreshServerNotifications();
+    } catch {
+      await refreshServerNotifications();
+    }
+    return;
+  }
+
+  const next = readLocalNotifications().map((item) =>
+    item.id === id ? { ...item, read: true } : item,
+  );
+  writeLocalNotifications(next);
 }
 
-export function markAllNotificationsRead() {
-  const next = readNotifications().map((item) => ({ ...item, read: true }));
-  writeNotifications(next);
+export async function markAllNotificationsRead() {
+  const next = readLocalNotifications().map((item) => ({ ...item, read: true }));
+  if (typeof window !== "undefined") {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(next.slice(0, MAX_LOCAL_NOTIFICATIONS)));
+  }
+
+  serverNotifications = serverNotifications.map((item) => ({ ...item, is_read: true }));
+  serverUnreadCount = 0;
+  emitNotificationChange();
+
+  try {
+    await markAllServerNotificationsRead();
+    await refreshServerNotifications();
+  } catch {
+    await refreshServerNotifications();
+  }
 }
 
-export function clearAllNotifications() {
-  writeNotifications([]);
+export function clearAllLocalNotifications() {
+  writeLocalNotifications([]);
+}
+
+export async function deleteNotification(id: string) {
+  if (id.startsWith("server:")) {
+    const serverId = Number.parseInt(id.replace("server:", ""), 10);
+    if (!Number.isInteger(serverId)) return;
+
+    serverNotifications = serverNotifications.filter((item) => item.id !== serverId);
+    serverUnreadCount = serverNotifications.filter((item) => !item.is_read).length;
+    emitNotificationChange();
+
+    try {
+      await deleteServerNotification(serverId);
+      await refreshServerNotifications();
+    } catch {
+      await refreshServerNotifications();
+    }
+    return;
+  }
+
+  const next = readLocalNotifications().filter((item) => item.id !== id);
+  writeLocalNotifications(next);
 }
 
 export function formatNotificationTime(iso: string) {
@@ -146,4 +315,28 @@ export function formatNotificationTime(iso: string) {
     hour: "numeric",
     minute: "2-digit",
   });
+}
+
+export function getNotificationCategoryLabel(item: AppNotification) {
+  if (item.source === "local" && item.category === "focus") return "focus";
+  if (item.source === "server") return item.type.toLowerCase().replace("_", " ");
+  return item.category;
+}
+
+export function isServerNotificationType(
+  type: AppNotificationType,
+): type is ServerNotificationType {
+  return (
+    type === "UPLOAD" ||
+    type === "SUMMARY" ||
+    type === "QUIZ" ||
+    type === "FLASHCARD" ||
+    type === "STUDY_PLAN" ||
+    type === "STUDY_GUIDE" ||
+    type === "STREAK" ||
+    type === "TWO_FACTOR_ENABLED" ||
+    type === "TWO_FACTOR_DISABLED" ||
+    type === "DATA_EXPORT" ||
+    type === "SYSTEM"
+  );
 }

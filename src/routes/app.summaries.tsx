@@ -18,6 +18,7 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { ApiError } from "@/lib/api/auth";
+import { refreshNotificationsAfterActivity } from "@/lib/notifications";
 import { fetchSummary, summarizeNote, type SummaryResult } from "@/lib/api/ai";
 import { fetchNotes, type Note } from "@/lib/api/notes";
 import { toast } from "sonner";
@@ -215,10 +216,12 @@ function Summaries() {
 
         if (forceRegenerate) {
           toast.success("Summary regenerated successfully!");
+          refreshNotificationsAfterActivity();
         } else if (result.cached || note.hasSummary) {
           toast.success("Summary loaded from history.");
         } else {
           toast.success("Summary generated successfully!");
+          refreshNotificationsAfterActivity();
         }
       } catch (err) {
         setNoteInUrl(undefined);

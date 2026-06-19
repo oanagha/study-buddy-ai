@@ -1,17 +1,39 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
-import { Bell, CheckCheck, Info, Trash2, CheckCircle2, AlertTriangle } from "lucide-react";
+import { useCallback, useEffect, useState } from "react";
+import {
+  Bell,
+  CheckCheck,
+  Info,
+  Trash2,
+  CheckCircle2,
+  AlertTriangle,
+  Upload,
+  FileText,
+  ClipboardList,
+  Layers,
+  CalendarDays,
+  Flame,
+  BookOpen,
+  Shield,
+  ShieldOff,
+  Download,
+} from "lucide-react";
 import { PageHeader } from "@/components/widgets";
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
+import { toast } from "sonner";
+import { ApiError } from "@/lib/api/auth";
 import {
-  clearAllNotifications,
+  clearAllLocalNotifications,
   formatNotificationTime,
+  getNotificationCategoryLabel,
   getNotifications,
   markAllNotificationsRead,
   markNotificationRead,
+  refreshServerNotifications,
+  deleteNotification,
   subscribeNotifications,
   type AppNotification,
 } from "@/lib/notifications";
@@ -21,56 +43,137 @@ export const Route = createFileRoute("/app/notifications")({
   component: Notifications,
 });
 
-function NotificationIcon({ type }: { type: AppNotification["type"] }) {
-  if (type === "success") {
-    return <CheckCircle2 className="h-5 w-5 text-accent" />;
+function NotificationIcon({ item }: { item: AppNotification }) {
+  if (item.source === "local") {
+    if (item.type === "success") {
+      return <CheckCircle2 className="h-5 w-5 text-accent" />;
+    }
+    if (item.type === "warning") {
+      return <AlertTriangle className="h-5 w-5 text-warning" />;
+    }
+    return <Info className="h-5 w-5 text-primary" />;
   }
-  if (type === "warning") {
-    return <AlertTriangle className="h-5 w-5 text-warning" />;
+
+  switch (item.type) {
+    case "UPLOAD":
+      return <Upload className="h-5 w-5 text-primary" />;
+    case "SUMMARY":
+      return <FileText className="h-5 w-5 text-primary" />;
+    case "QUIZ":
+      return <ClipboardList className="h-5 w-5 text-primary" />;
+    case "FLASHCARD":
+      return <Layers className="h-5 w-5 text-primary" />;
+    case "STUDY_PLAN":
+      return <CalendarDays className="h-5 w-5 text-primary" />;
+    case "STUDY_GUIDE":
+      return <BookOpen className="h-5 w-5 text-primary" />;
+    case "STREAK":
+      return <Flame className="h-5 w-5 text-orange-500" />;
+    case "TWO_FACTOR_ENABLED":
+      return <Shield className="h-5 w-5 text-accent" />;
+    case "TWO_FACTOR_DISABLED":
+      return <ShieldOff className="h-5 w-5 text-warning" />;
+    case "DATA_EXPORT":
+      return <Download className="h-5 w-5 text-primary" />;
+    default:
+      return <Info className="h-5 w-5 text-primary" />;
   }
-  return <Info className="h-5 w-5 text-primary" />;
 }
 
 function Notifications() {
   const [notifications, setNotifications] = useState<AppNotification[]>(() => getNotifications());
+  const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    return subscribeNotifications(setNotifications);
+  const loadNotifications = useCallback(async () => {
+    setLoading(true);
+    try {
+      await refreshServerNotifications();
+    } catch (err) {
+      if (err instanceof ApiError) {
+        toast.error(err.message);
+      }
+    } finally {
+      setLoading(false);
+    }
   }, []);
 
+  useEffect(() => {
+    void loadNotifications();
+    return subscribeNotifications(setNotifications);
+  }, [loadNotifications]);
+
   const unreadCount = notifications.filter((item) => !item.read).length;
+
+  const handleMarkRead = async (id: string) => {
+    try {
+      await markNotificationRead(id);
+    } catch (err) {
+      if (err instanceof ApiError) {
+        toast.error(err.message);
+      }
+    }
+  };
+
+  const handleMarkAllRead = async () => {
+    try {
+      await markAllNotificationsRead();
+    } catch (err) {
+      if (err instanceof ApiError) {
+        toast.error(err.message);
+      }
+    }
+  };
+
+  const handleDelete = async (id: string) => {
+    try {
+      await deleteNotification(id);
+    } catch (err) {
+      if (err instanceof ApiError) {
+        toast.error(err.message);
+      }
+    }
+  };
+
+  const handleClearLocal = () => {
+    clearAllLocalNotifications();
+    toast.success("Focus notifications cleared");
+  };
 
   return (
     <div className="max-w-3xl mx-auto space-y-6">
       <PageHeader
         title="Notifications"
-        subtitle="Your recent alerts and activity updates."
+        subtitle="Study activity updates and focus timer alerts."
         action={
           notifications.length > 0 ? (
             <div className="flex flex-wrap gap-2">
               {unreadCount > 0 && (
-                <Button variant="outline" size="sm" onClick={markAllNotificationsRead}>
+                <Button variant="outline" size="sm" onClick={() => void handleMarkAllRead()}>
                   <CheckCheck className="h-4 w-4" />
                   Mark all read
                 </Button>
               )}
-              <Button variant="outline" size="sm" onClick={clearAllNotifications}>
+              <Button variant="outline" size="sm" onClick={handleClearLocal}>
                 <Trash2 className="h-4 w-4" />
-                Clear all
+                Clear focus alerts
               </Button>
             </div>
           ) : undefined
         }
       />
 
-      {notifications.length === 0 ? (
+      {loading && notifications.length === 0 ? (
+        <Card className="p-10 text-center shadow-card border-border/50">
+          <p className="text-sm text-muted-foreground">Loading notifications…</p>
+        </Card>
+      ) : notifications.length === 0 ? (
         <Card className="p-10 text-center shadow-card border-border/50">
           <div className="mx-auto mb-4 grid h-14 w-14 place-items-center rounded-2xl bg-muted">
             <Bell className="h-7 w-7 text-muted-foreground" />
           </div>
           <h2 className="font-display text-lg font-semibold">No notifications yet</h2>
           <p className="mt-2 text-sm text-muted-foreground max-w-sm mx-auto">
-            Focus timer alerts and other updates will appear here when they happen.
+            Upload notes, generate quizzes, or start a focus session to see updates here.
           </p>
         </Card>
       ) : (
@@ -81,12 +184,12 @@ function Notifications() {
               role="button"
               tabIndex={0}
               onClick={() => {
-                if (!item.read) markNotificationRead(item.id);
+                if (!item.read) void handleMarkRead(item.id);
               }}
               onKeyDown={(e) => {
                 if (!item.read && (e.key === "Enter" || e.key === " ")) {
                   e.preventDefault();
-                  markNotificationRead(item.id);
+                  void handleMarkRead(item.id);
                 }
               }}
               className={cn(
@@ -96,7 +199,7 @@ function Notifications() {
             >
               <div className="flex gap-3">
                 <div className="mt-0.5 grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-muted/70">
-                  <NotificationIcon type={item.type} />
+                  <NotificationIcon item={item} />
                 </div>
                 <div className="min-w-0 flex-1">
                   <div className="flex items-start justify-between gap-3">
@@ -109,7 +212,7 @@ function Notifications() {
                           </Badge>
                         )}
                         <Badge variant="outline" className="text-[10px] capitalize">
-                          {item.category}
+                          {getNotificationCategoryLabel(item)}
                         </Badge>
                       </div>
                       <p className="mt-1 text-sm text-muted-foreground">{item.message}</p>
@@ -117,19 +220,35 @@ function Notifications() {
                         {formatNotificationTime(item.createdAt)}
                       </p>
                     </div>
-                    {!item.read && (
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        className="shrink-0 h-8"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          markNotificationRead(item.id);
-                        }}
-                      >
-                        Mark read
-                      </Button>
-                    )}
+                    <div className="flex shrink-0 gap-1">
+                      {!item.read && (
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          className="h-8"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            void handleMarkRead(item.id);
+                          }}
+                        >
+                          Mark read
+                        </Button>
+                      )}
+                      {item.source === "server" && (
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-8 w-8 text-muted-foreground hover:text-destructive"
+                          aria-label="Delete notification"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            void handleDelete(item.id);
+                          }}
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      )}
+                    </div>
                   </div>
                 </div>
               </div>

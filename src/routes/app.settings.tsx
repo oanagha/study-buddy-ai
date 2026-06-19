@@ -1,6 +1,6 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useCallback, useEffect, useState } from "react";
-import { Moon, Bell, Globe, Shield, User, Loader2 } from "lucide-react";
+import { Moon, Bell, Globe, Shield, User, Loader2, Timer } from "lucide-react";
 import { PageHeader } from "@/components/widgets";
 import { PinInput } from "@/components/pin-input";
 import { PasswordInput } from "@/components/password-input";
@@ -17,6 +17,13 @@ import {
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { useTheme } from "@/lib/theme";
 import {
   downloadExportedData,
@@ -37,6 +44,18 @@ import {
   subscribeFocusAlertsEnabled,
 } from "@/lib/focus-notify";
 import { toast } from "sonner";
+import { refreshNotificationsAfterActivity } from "@/lib/notifications";
+import { requestBrowserNotificationPermission } from "@/lib/browser-notify";
+import { syncPushNotificationsFromSettings } from "@/lib/push-notifications";
+import {
+  FOCUS_DURATION_AUTO,
+  FOCUS_DURATION_OPTIONS,
+  formatFocusDurationLabel,
+  getFocusDurationPreference,
+  setFocusDurationPreference,
+  subscribeFocusDurationPreference,
+  type FocusDurationPreference,
+} from "@/lib/focus-duration";
 import type { ReactNode } from "react";
 
 export const Route = createFileRoute("/app/settings")({
@@ -62,9 +81,19 @@ function Settings() {
   const [signOutPassword, setSignOutPassword] = useState("");
   const [deleteForm, setDeleteForm] = useState({ password: "", confirmation: "" });
   const [focusAlerts, setFocusAlerts] = useState(areFocusAlertsEnabled);
+  const [focusDuration, setFocusDuration] = useState<FocusDurationPreference>(() =>
+    getFocusDurationPreference(),
+  );
 
   useEffect(() => {
     return subscribeFocusAlertsEnabled(setFocusAlerts);
+  }, []);
+
+  useEffect(() => {
+    const unsubscribe = subscribeFocusDurationPreference(setFocusDuration);
+    return () => {
+      unsubscribe();
+    };
   }, []);
 
   const loadSettings = useCallback(async () => {
@@ -72,6 +101,7 @@ function Settings() {
     try {
       const data = await fetchSettings();
       setSettings(data);
+      syncPushNotificationsFromSettings(data.push_notifications);
       const stored =
         typeof window !== "undefined"
           ? (localStorage.getItem("theme") as "light" | "dark" | null)
@@ -127,6 +157,25 @@ function Settings() {
     void persistSettings(next);
   };
 
+  const handlePushNotificationsChange = async (checked: boolean) => {
+    if (!settings) return;
+
+    if (checked) {
+      const permission = await requestBrowserNotificationPermission();
+      if (permission === "unsupported") {
+        toast.error("Browser notifications are not supported on this device.");
+        return;
+      }
+      if (permission === "denied") {
+        toast.error("Browser notifications blocked. Enable them in your browser site settings.");
+        return;
+      }
+    }
+
+    syncPushNotificationsFromSettings(checked);
+    updateField("push_notifications", checked);
+  };
+
   const handleDarkModeChange = (checked: boolean) => {
     setTheme(checked ? "dark" : "light");
     updateField("dark_mode", checked);
@@ -156,6 +205,7 @@ function Settings() {
       setSetupDialogOpen(false);
       resetPinForm();
       toast.success(result.message);
+      refreshNotificationsAfterActivity();
     } catch (err) {
       if (err instanceof ApiError) {
         if (err.errors?.length) {
@@ -186,6 +236,7 @@ function Settings() {
       setDisableDialogOpen(false);
       resetPinForm();
       toast.success(result.message);
+      refreshNotificationsAfterActivity();
     } catch (err) {
       if (err instanceof ApiError) {
         if (err.errors?.length) {
@@ -256,6 +307,7 @@ function Settings() {
       openExportedDataPreview(downloadUrl);
       await downloadExportedData(downloadUrl);
       toast.success("PDF report opened and download started!");
+      refreshNotificationsAfterActivity();
     } catch (err) {
       if (err instanceof ApiError) {
         toast.error(err.message);
@@ -553,25 +605,45 @@ function Settings() {
       </Section>
 
       <Section
-        icon={<Bell className="h-4 w-4" />}
-        title="Notifications"
-        desc="Control what arrives in your inbox."
+        icon={<Timer className="h-4 w-4" />}
+        title="Focus timer"
+        desc="Customize the study timer shown in the header."
       >
-        <Row label="Email reminders" desc="Daily study session reminders.">
-          <Switch
-            checked={settings.email_reminders}
-            onCheckedChange={(checked) => updateField("email_reminders", checked)}
-            disabled={saving}
-          />
+        <Row
+          label="Session duration"
+          desc="Choose a fixed length or let StudyMate calculate it from your study plan."
+        >
+          <Select
+            value={String(focusDuration)}
+            onValueChange={(value) => {
+              const preference: FocusDurationPreference =
+                value === FOCUS_DURATION_AUTO
+                  ? FOCUS_DURATION_AUTO
+                  : (Number.parseInt(value, 10) as FocusDurationPreference);
+              setFocusDuration(preference);
+              setFocusDurationPreference(preference);
+              toast.success(`Focus timer set to ${formatFocusDurationLabel(preference)}`);
+            }}
+          >
+            <SelectTrigger className="min-w-[180px] rounded-lg bg-card">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value={FOCUS_DURATION_AUTO}>
+                {formatFocusDurationLabel(FOCUS_DURATION_AUTO)}
+              </SelectItem>
+              {FOCUS_DURATION_OPTIONS.map((minutes) => (
+                <SelectItem key={minutes} value={String(minutes)}>
+                  {formatFocusDurationLabel(minutes)}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </Row>
-        <Row label="Push notifications" desc="Mobile and browser alerts.">
-          <Switch
-            checked={settings.push_notifications}
-            onCheckedChange={(checked) => updateField("push_notifications", checked)}
-            disabled={saving}
-          />
-        </Row>
-        <Row label="Focus timer alerts" desc="Notify when a focus session starts or ends.">
+        <Row
+          label="Focus timer alerts"
+          desc="Toasts and alerts when a focus session starts or ends."
+        >
           <Switch
             checked={focusAlerts}
             onCheckedChange={(checked) => {
@@ -581,7 +653,28 @@ function Settings() {
             }}
           />
         </Row>
-        <Row label="Weekly digest" desc="Your progress summary every Sunday.">
+      </Section>
+
+      <Section
+        icon={<Bell className="h-4 w-4" />}
+        title="Notifications"
+        desc="Control email and browser alerts."
+      >
+        <Row label="Email reminders" desc="Daily email if you haven't studied yet today.">
+          <Switch
+            checked={settings.email_reminders}
+            onCheckedChange={(checked) => updateField("email_reminders", checked)}
+            disabled={saving}
+          />
+        </Row>
+        <Row label="Push notifications" desc="Browser alerts for study activity and updates.">
+          <Switch
+            checked={settings.push_notifications}
+            onCheckedChange={(checked) => void handlePushNotificationsChange(checked)}
+            disabled={saving}
+          />
+        </Row>
+        <Row label="Weekly digest" desc="Email summary of your weekly progress every Sunday.">
           <Switch
             checked={settings.weekly_digest}
             onCheckedChange={(checked) => updateField("weekly_digest", checked)}
@@ -592,18 +685,22 @@ function Settings() {
 
       {/* <Section icon={<Globe className="h-4 w-4" />} title="Language & Region" desc="Choose your preferred language.">
         <Row label="Language" desc="Interface language.">
-          <select
-            className="rounded-lg border bg-card px-3 py-1.5 text-sm"
+          <Select
             value={settings.language}
             disabled={saving}
-            onChange={(e) => updateField("language", e.target.value)}
+            onValueChange={(value) => updateField("language", value)}
           >
-            {LANGUAGE_OPTIONS.map((option) => (
-              <option key={option.value} value={option.value}>
-                {option.label}
-              </option>
-            ))}
-          </select>
+            <SelectTrigger className="rounded-lg bg-card">
+              <SelectValue />
+            </SelectTrigger>
+            <SelectContent>
+              {LANGUAGE_OPTIONS.map((option) => (
+                <SelectItem key={option.value} value={option.value}>
+                  {option.label}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </Row>
       </Section> */}
 

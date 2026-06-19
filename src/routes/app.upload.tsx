@@ -38,6 +38,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { ApiError } from "@/lib/api/auth";
+import { refreshNotificationsAfterActivity } from "@/lib/notifications";
 import { fetchNotes, uploadNote, deleteNote, type Note } from "@/lib/api/notes";
 import { toast } from "sonner";
 
@@ -135,6 +136,7 @@ function UploadPage() {
         const note = await uploadNote(file, setProgress);
         setNotes((prev) => [note, ...prev]);
         toast.success(`${file.name} uploaded successfully!`);
+        refreshNotificationsAfterActivity();
       } catch (err) {
         if (err instanceof ApiError) {
           toast.error(err.message);

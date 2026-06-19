@@ -29,6 +29,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { ApiError } from "@/lib/api/auth";
+import { refreshNotificationsAfterActivity } from "@/lib/notifications";
 import { generateQuiz, completeQuiz, type QuizDifficulty, type QuizQuestion } from "@/lib/api/quiz";
 import { fetchNotes, type Note } from "@/lib/api/notes";
 import { toast } from "sonner";
@@ -121,9 +122,11 @@ function Quizzes() {
       score,
       correct_count: correct,
       total_questions: questions.length,
-    }).catch(() => {
-      completionRecorded.current = false;
-    });
+    })
+      .then(() => refreshNotificationsAfterActivity())
+      .catch(() => {
+        completionRecorded.current = false;
+      });
   }, [stage, quizMeta, questions, answers]);
 
   const handleSelectNote = (noteId: string) => {
@@ -153,6 +156,7 @@ function Quizzes() {
         toast.success("Quiz loaded from cache.");
       } else {
         toast.success("Quiz generated successfully!");
+        refreshNotificationsAfterActivity();
       }
     } catch (err) {
       if (err instanceof ApiError) {

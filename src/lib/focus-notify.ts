@@ -1,5 +1,6 @@
 import { toast } from "sonner";
 import { addAppNotification } from "@/lib/notifications";
+import { showBrowserNotification } from "@/lib/browser-notify";
 
 const FOCUS_ALERTS_KEY = "studymate_focus_alerts_enabled";
 const FOCUS_STARTED_TOAST_ID = "focus-session-started";
@@ -35,38 +36,7 @@ export function subscribeFocusAlertsEnabled(listener: FocusAlertListener) {
   return () => alertListeners.delete(listener);
 }
 
-export async function requestFocusNotificationPermission(): Promise<
-  NotificationPermission | "unsupported"
-> {
-  if (typeof window === "undefined" || !("Notification" in window)) return "unsupported";
-  if (Notification.permission === "granted") return "granted";
-  if (Notification.permission === "denied") return "denied";
-
-  try {
-    return await Notification.requestPermission();
-  } catch {
-    return "denied";
-  }
-}
-
-function showBrowserNotification(title: string, body: string, tag: string) {
-  if (!("Notification" in window) || Notification.permission !== "granted") return;
-
-  try {
-    const notification = new Notification(title, {
-      body,
-      icon: "/favicon.svg",
-      tag,
-    });
-
-    notification.onclick = () => {
-      window.focus();
-      notification.close();
-    };
-  } catch {
-    // Notification constructor can fail on some browsers.
-  }
-}
+export { requestBrowserNotificationPermission as requestFocusNotificationPermission } from "@/lib/browser-notify";
 
 export function notifyFocusSessionStarted(secondsLeft: number, topic?: string) {
   if (typeof window === "undefined" || !areFocusAlertsEnabled()) return;
