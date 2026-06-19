@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useCallback, useEffect, useState } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 import {
   Sparkles,
   FileText,
@@ -21,7 +22,9 @@ import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { ApiError } from "@/lib/api/auth";
 import { refreshNotificationsAfterActivity } from "@/lib/notifications";
 import { fetchSummary, summarizeNote, type SummaryResult } from "@/lib/api/ai";
-import { fetchNotes, type Note } from "@/lib/api/notes";
+import { type Note } from "@/lib/api/notes";
+import { useNotesQuery } from "@/lib/queries/hooks";
+import { patchNotesCache } from "@/lib/queries/invalidate";
 import { toast } from "sonner";
 
 type SummariesSearch = {
@@ -149,11 +152,11 @@ function SummaryView({
 }
 
 function Summaries() {
+  const queryClient = useQueryClient();
   const { noteId: urlNoteId } = Route.useSearch();
   const navigate = Route.useNavigate();
 
-  const [notes, setNotes] = useState<Note[]>([]);
-  const [loadingNotes, setLoadingNotes] = useState(true);
+  const { data: notes = [], isPending: loadingNotes, error: notesError } = useNotesQuery();
   const [loadingDetail, setLoadingDetail] = useState(false);
   const [activeNote, setActiveNote] = useState<Note | null>(null);
   const [summary, setSummary] = useState<SummaryResult | null>(null);
@@ -169,34 +172,26 @@ function Summaries() {
     [navigate],
   );
 
-  const markNoteHasSummary = useCallback((noteId: number, generatedAt?: string) => {
-    setNotes((prev) =>
-      prev.map((n) =>
-        n.noteId === noteId
-          ? { ...n, hasSummary: true, summaryGeneratedAt: generatedAt ?? n.summaryGeneratedAt }
-          : n,
-      ),
-    );
-  }, []);
-
-  const loadNotes = useCallback(async () => {
-    try {
-      const data = await fetchNotes();
-      setNotes(data);
-    } catch (err) {
-      if (err instanceof ApiError) {
-        toast.error(err.message);
-      } else {
-        toast.error("Failed to load notes.");
-      }
-    } finally {
-      setLoadingNotes(false);
-    }
-  }, []);
+  const markNoteHasSummary = useCallback(
+    (noteId: number, generatedAt?: string) => {
+      patchNotesCache(queryClient, (prev) =>
+        prev.map((n) =>
+          n.noteId === noteId
+            ? { ...n, hasSummary: true, summaryGeneratedAt: generatedAt ?? n.summaryGeneratedAt }
+            : n,
+        ),
+      );
+    },
+    [queryClient],
+  );
 
   useEffect(() => {
-    loadNotes();
-  }, [loadNotes]);
+    if (notesError instanceof ApiError) {
+      toast.error(notesError.message);
+    } else if (notesError) {
+      toast.error("Failed to load notes.");
+    }
+  }, [notesError]);
 
   const openSummary = useCallback(
     async (note: Note, options?: { forceRegenerate?: boolean }) => {
@@ -239,7 +234,11 @@ function Summaries() {
   );
 
   useEffect(() => {
-    if (!urlNoteId || loadingNotes || notes.length === 0) return;
+    if (!urlNoteId) {
+      setLoadingDetail(false);
+      return;
+    }
+    if (loadingNotes || notes.length === 0) return;
     if (generatingNoteId === urlNoteId) return;
     if (activeNote?.noteId === urlNoteId && summary) return;
 
@@ -276,6 +275,7 @@ function Summaries() {
 
     return () => {
       cancelled = true;
+      setLoadingDetail(false);
     };
   }, [
     urlNoteId,
@@ -291,12 +291,10 @@ function Summaries() {
   const handleBack = () => {
     setActiveNote(null);
     setSummary(null);
+    setLoadingDetail(false);
+    setGeneratingNoteId(null);
     setNoteInUrl(undefined);
   };
-
-  if (loadingDetail) {
-    return <LoadingState label="Loading summary" className="py-16 text-muted-foreground" />;
-  }
 
   if (activeNote && summary) {
     return (
@@ -308,6 +306,10 @@ function Summaries() {
         isGenerating={generatingNoteId === activeNote.noteId}
       />
     );
+  }
+
+  if (loadingDetail) {
+    return <LoadingState label="Loading summary" className="py-16 text-muted-foreground" />;
   }
 
   const historyNotes = notes.filter((n) => n.hasSummary);

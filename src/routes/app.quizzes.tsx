@@ -10,6 +10,7 @@ import {
   CheckCircle2,
   XCircle,
   Loader2,
+  ArrowLeft,
   FileText,
   FileType,
   File as FileIcon,
@@ -32,7 +33,8 @@ import {
 import { ApiError } from "@/lib/api/auth";
 import { refreshNotificationsAfterActivity } from "@/lib/notifications";
 import { generateQuiz, completeQuiz, type QuizDifficulty, type QuizQuestion } from "@/lib/api/quiz";
-import { fetchNotes, type Note } from "@/lib/api/notes";
+import { type Note } from "@/lib/api/notes";
+import { useNotesQuery } from "@/lib/queries/hooks";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 
@@ -61,8 +63,7 @@ function Quizzes() {
   const navigate = Route.useNavigate();
 
   const [stage, setStage] = useState<Stage>("setup");
-  const [notes, setNotes] = useState<Note[]>([]);
-  const [loadingNotes, setLoadingNotes] = useState(true);
+  const { data: notes = [], isPending: loadingNotes, error: notesError } = useNotesQuery();
   const [generating, setGenerating] = useState(false);
   const [selectedNoteId, setSelectedNoteId] = useState<number | null>(urlNoteId ?? null);
   const [difficulty, setDifficulty] = useState<QuizDifficulty>("Medium");
@@ -76,29 +77,22 @@ function Quizzes() {
 
   const selectedNote = notes.find((n) => n.noteId === selectedNoteId) ?? null;
 
-  const loadNotes = useCallback(async () => {
-    try {
-      const data = await fetchNotes();
-      setNotes(data);
-      if (urlNoteId && data.some((n) => n.noteId === urlNoteId)) {
-        setSelectedNoteId(urlNoteId);
-      } else if (!selectedNoteId && data.length > 0) {
-        setSelectedNoteId(data[0].noteId);
-      }
-    } catch (err) {
-      if (err instanceof ApiError) {
-        toast.error(err.message);
-      } else {
-        toast.error("Failed to load notes.");
-      }
-    } finally {
-      setLoadingNotes(false);
+  useEffect(() => {
+    if (notes.length === 0) return;
+    if (urlNoteId && notes.some((n) => n.noteId === urlNoteId)) {
+      setSelectedNoteId(urlNoteId);
+      return;
     }
-  }, [urlNoteId, selectedNoteId]);
+    setSelectedNoteId((current) => current ?? notes[0].noteId);
+  }, [notes, urlNoteId]);
 
   useEffect(() => {
-    loadNotes();
-  }, [loadNotes]);
+    if (notesError instanceof ApiError) {
+      toast.error(notesError.message);
+    } else if (notesError) {
+      toast.error("Failed to load notes.");
+    }
+  }, [notesError]);
 
   useEffect(() => {
     if (stage !== "playing") return;
@@ -177,6 +171,7 @@ function Quizzes() {
     setQuizMeta(null);
     setAnswers([]);
     setCurrent(0);
+    void navigate({ search: {}, replace: true });
   };
 
   if (stage === "setup") {
@@ -309,6 +304,9 @@ function Quizzes() {
 
     return (
       <div className="max-w-3xl mx-auto space-y-6">
+        <Button variant="ghost" onClick={resetToSetup} className="-ml-3">
+          <ArrowLeft className="h-4 w-4" /> Back to setup
+        </Button>
         <div className="flex items-center justify-between gap-3">
           <div>
             <p className="text-sm text-muted-foreground">
@@ -393,6 +391,9 @@ function Quizzes() {
 
   return (
     <div className="max-w-3xl mx-auto space-y-6">
+      <Button variant="ghost" onClick={resetToSetup} className="-ml-3">
+        <ArrowLeft className="h-4 w-4" /> Back to setup
+      </Button>
       <Card className="p-8 text-center shadow-glow border-border/50 bg-gradient-soft">
         <div className="mx-auto grid h-20 w-20 place-items-center rounded-3xl bg-gradient-primary shadow-glow mb-4">
           <Trophy className="h-9 w-9 text-primary-foreground" />

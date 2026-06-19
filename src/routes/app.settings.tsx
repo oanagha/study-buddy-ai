@@ -1,5 +1,6 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useCallback, useEffect, useState } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 import { Moon, Bell, Globe, Shield, User, Loader2, Timer } from "lucide-react";
 import { PageHeader } from "@/components/widgets";
 import { PinInput } from "@/components/pin-input";
@@ -30,13 +31,14 @@ import {
   downloadExportedData,
   openExportedDataPreview,
   disableTwoFactor,
-  fetchSettings,
   LANGUAGE_OPTIONS,
   requestDataExport,
   setupTwoFactor,
   updateSettings,
   type UserSettings,
 } from "@/lib/api/settings";
+import { useSettingsQuery } from "@/lib/queries/hooks";
+import { queryKeys } from "@/lib/queries/keys";
 import { ApiError, deleteAccount, signOutAllDevices } from "@/lib/api/auth";
 import { clearAuthUser } from "@/lib/auth";
 import {
@@ -66,9 +68,10 @@ export const Route = createFileRoute("/app/settings")({
 
 function Settings() {
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
   const { theme, setTheme } = useTheme();
+  const { data: settingsData, isPending: loading, error, refetch } = useSettingsQuery();
   const [settings, setSettings] = useState<UserSettings | null>(null);
-  const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [exporting, setExporting] = useState(false);
   const [updating2fa, setUpdating2fa] = useState(false);
@@ -97,35 +100,28 @@ function Settings() {
     };
   }, []);
 
-  const loadSettings = useCallback(async () => {
-    setLoading(true);
-    try {
-      const data = await fetchSettings();
-      setSettings(data);
-      syncPushNotificationsFromSettings(data.push_notifications);
-      const stored =
-        typeof window !== "undefined"
-          ? (localStorage.getItem("theme") as "light" | "dark" | null)
-          : null;
-      if (stored === "light" || stored === "dark") {
-        setTheme(stored);
-      } else {
-        setTheme(data.dark_mode ? "dark" : "light");
-      }
-    } catch (err) {
-      if (err instanceof ApiError) {
-        toast.error(err.message);
-      } else {
-        toast.error("Failed to load settings.");
-      }
-    } finally {
-      setLoading(false);
+  useEffect(() => {
+    if (!settingsData) return;
+    setSettings(settingsData);
+    syncPushNotificationsFromSettings(settingsData.push_notifications);
+    const stored =
+      typeof window !== "undefined"
+        ? (localStorage.getItem("theme") as "light" | "dark" | null)
+        : null;
+    if (stored === "light" || stored === "dark") {
+      setTheme(stored);
+    } else {
+      setTheme(settingsData.dark_mode ? "dark" : "light");
     }
-  }, [setTheme]);
+  }, [settingsData, setTheme]);
 
   useEffect(() => {
-    void loadSettings();
-  }, [loadSettings]);
+    if (error instanceof ApiError) {
+      toast.error(error.message);
+    } else if (error) {
+      toast.error("Failed to load settings.");
+    }
+  }, [error]);
 
   const persistSettings = async (next: UserSettings) => {
     setSaving(true);
@@ -138,6 +134,7 @@ function Settings() {
         language: next.language,
       });
       setSettings(next);
+      queryClient.setQueryData(queryKeys.settings, next);
       toast.success(result.message);
     } catch (err) {
       if (err instanceof ApiError) {
@@ -145,7 +142,7 @@ function Settings() {
       } else {
         toast.error("Failed to update settings.");
       }
-      await loadSettings();
+      await refetch();
     } finally {
       setSaving(false);
     }

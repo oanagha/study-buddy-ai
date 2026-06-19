@@ -5,7 +5,7 @@ import {
   FileText,
   ClipboardList,
   Layers,
-  MessageSquare,
+  // MessageSquare,
   CalendarDays,
   User,
   Settings,
@@ -30,16 +30,20 @@ import {
 } from "@/lib/auth";
 import { toast } from "sonner";
 import {
-  fetchDashboardOverview,
-  fetchUpcomingSessions,
   type UpcomingSession,
 } from "@/lib/api/dashboard";
-import { fetchProfile, getProfileInitials, type UserProfile } from "@/lib/api/profile";
+import { getProfileInitials, type UserProfile } from "@/lib/api/profile";
 import { subscribeProfileUpdates } from "@/lib/profile-sync";
-import { fetchActiveStudyPlan, type StudyPlanResult } from "@/lib/api/studyPlan";
-import { fetchSettings } from "@/lib/api/settings";
-import { ApiError } from "@/lib/api/auth";
+import { type StudyPlanResult } from "@/lib/api/studyPlan";
 import { syncPushNotificationsFromSettings } from "@/lib/push-notifications";
+import { ApiError } from "@/lib/api/auth";
+import {
+  useDashboardOverviewQuery,
+  useProfileQuery,
+  useSettingsQuery,
+  useStudyPlanQuery,
+  useUpcomingSessionsQuery,
+} from "@/lib/queries/hooks";
 import {
   clearFocusTimer,
   hasActiveFocusSession,
@@ -73,7 +77,8 @@ import {
 const quickActions = [
   { to: "/app/upload", label: "Upload", icon: Upload },
   { to: "/app/quizzes", label: "Quiz", icon: ClipboardList },
-  { to: "/app/chat", label: "Chat", icon: MessageSquare },
+  // { to: "/app/chat", label: "Chat", icon: MessageSquare },
+  { to: "/app/planner", label: "Planner", icon: CalendarDays },
 ] as const;
 
 function formatTimer(seconds: number) {
@@ -93,7 +98,7 @@ const nav = [
   { to: "/app/study-guide", label: "Study Guide", icon: BookOpen },
   { to: "/app/quizzes", label: "Quizzes", icon: ClipboardList },
   { to: "/app/flashcards", label: "Flashcards", icon: Layers },
-  { to: "/app/chat", label: "AI Chat", icon: MessageSquare },
+  // { to: "/app/chat", label: "AI Chat", icon: MessageSquare },
   { to: "/app/planner", label: "Study Planner", icon: CalendarDays },
   { to: "/app/profile", label: "Profile", icon: User },
   { to: "/app/settings", label: "Settings", icon: Settings },
@@ -105,16 +110,30 @@ export function AppShell({ children }: { children: ReactNode }) {
   const [mobileOpen, setMobileOpen] = useState(false);
   const authUser = getAuthUser();
 
-  const [studyStreak, setStudyStreak] = useState(0);
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [studyPlan, setStudyPlan] = useState<StudyPlanResult | null>(null);
   const [nextSession, setNextSession] = useState<UpcomingSession | null>(null);
-  const [headerLoading, setHeaderLoading] = useState(true);
   const [unreadNotifications, setUnreadNotifications] = useState(0);
+
+  const overviewQuery = useDashboardOverviewQuery();
+  const profileQuery = useProfileQuery();
+  const studyPlanQuery = useStudyPlanQuery();
+  const sessionsQuery = useUpcomingSessionsQuery();
+  const settingsQuery = useSettingsQuery();
+
+  const headerLoading =
+    overviewQuery.isPending ||
+    profileQuery.isPending ||
+    studyPlanQuery.isPending ||
+    sessionsQuery.isPending ||
+    settingsQuery.isPending;
+
+  const studyStreak = overviewQuery.data?.study_streak ?? 0;
 
   const [focusTimer, setFocusTimer] = useState<FocusTimerSnapshot | null>(null);
   const focusEndsAtRef = useRef<number | null>(null);
   const focusRunningRef = useRef(false);
+  const headerFocusInitRef = useRef(false);
 
   const focusRunning = focusTimer?.running ?? false;
   const focusSecondsLeft = focusTimer?.secondsLeft ?? 0;
@@ -166,61 +185,93 @@ export function AppShell({ children }: { children: ReactNode }) {
     [updateFocusTimer],
   );
 
-  const loadHeaderData = useCallback(async () => {
-    setHeaderLoading(true);
-    try {
-      const [overview, profileData, planData, sessions, settingsData] = await Promise.all([
-        fetchDashboardOverview(),
-        fetchProfile(),
-        fetchActiveStudyPlan(),
-        fetchUpcomingSessions(),
-        fetchSettings(),
-      ]);
+  useEffect(() => {
+    if (profileQuery.data) {
+      setProfile(profileQuery.data);
+    }
+  }, [profileQuery.data]);
 
-      syncPushNotificationsFromSettings(settingsData.push_notifications);
+  useEffect(() => {
+    const planData = studyPlanQuery.data;
+    setStudyPlan(planData && planData.study_plan.length > 0 ? planData : null);
+  }, [studyPlanQuery.data]);
 
-      setStudyStreak(overview.study_streak);
-      setProfile(profileData);
-      setStudyPlan(planData.study_plan.length > 0 ? planData : null);
-      setNextSession(sessions[0] ?? null);
+  useEffect(() => {
+    setNextSession(sessionsQuery.data?.[0] ?? null);
+  }, [sessionsQuery.data]);
 
-      void refreshServerNotifications();
+  useEffect(() => {
+    if (settingsQuery.data) {
+      syncPushNotificationsFromSettings(settingsQuery.data.push_notifications);
+    }
+  }, [settingsQuery.data]);
 
-      const durationSeconds =
-        resolveEffectiveFocusMinutes(
-          planData.study_plan.length > 0 ? planData : null,
-          sessions[0] ?? null,
-        ) * 60;
+  useEffect(() => {
+    if (headerFocusInitRef.current) return;
+    if (studyPlanQuery.isPending || sessionsQuery.isPending) return;
 
-      const stored = readFocusTimer();
-      if (focusRunningRef.current || stored?.running) {
-        if (stored) {
-          syncFocusTimerFromStorage();
-        }
-        return;
+    headerFocusInitRef.current = true;
+
+    const planData = studyPlanQuery.data ?? { study_plan: [] };
+    const sessions = sessionsQuery.data ?? [];
+    const durationSeconds =
+      resolveEffectiveFocusMinutes(
+        planData.study_plan.length > 0 ? planData : null,
+        sessions[0] ?? null,
+      ) * 60;
+
+    const stored = readFocusTimer();
+    if (focusRunningRef.current || stored?.running) {
+      if (stored) {
+        syncFocusTimerFromStorage();
       }
+      return;
+    }
 
-      if (!stored || !hasActiveFocusSession(stored)) {
-        updateFocusTimer({
-          running: false,
-          endsAt: null,
-          secondsLeft: durationSeconds,
-          durationSeconds,
-        });
-      } else {
-        updateFocusTimer({
-          ...stored,
-          durationSeconds,
-        });
-      }
-    } catch (err) {
+    if (!stored || !hasActiveFocusSession(stored)) {
+      updateFocusTimer({
+        running: false,
+        endsAt: null,
+        secondsLeft: durationSeconds,
+        durationSeconds,
+      });
+    } else {
+      updateFocusTimer({
+        ...stored,
+        durationSeconds,
+      });
+    }
+  }, [
+    studyPlanQuery.isPending,
+    studyPlanQuery.data,
+    sessionsQuery.isPending,
+    sessionsQuery.data,
+    updateFocusTimer,
+    syncFocusTimerFromStorage,
+  ]);
+
+  useEffect(() => {
+    const errors = [
+      overviewQuery.error,
+      profileQuery.error,
+      studyPlanQuery.error,
+      sessionsQuery.error,
+      settingsQuery.error,
+    ].filter(Boolean);
+
+    for (const err of errors) {
       if (err instanceof ApiError) {
         toast.error(err.message);
+        break;
       }
-    } finally {
-      setHeaderLoading(false);
     }
-  }, [updateFocusTimer, syncFocusTimerFromStorage]);
+  }, [
+    overviewQuery.error,
+    profileQuery.error,
+    studyPlanQuery.error,
+    sessionsQuery.error,
+    settingsQuery.error,
+  ]);
 
   const applyFocusDuration = useCallback(
     (plan: StudyPlanResult | null, session: UpcomingSession | null) => {
@@ -263,10 +314,6 @@ export function AppShell({ children }: { children: ReactNode }) {
       window.removeEventListener(FOCUS_DURATION_UPDATED_EVENT, handleDurationUpdate);
     };
   }, [studyPlan, nextSession, applyFocusDuration]);
-
-  useEffect(() => {
-    void loadHeaderData();
-  }, [loadHeaderData]);
 
   useEffect(() => {
     const unsubscribe = subscribeProfileUpdates((updated) => {

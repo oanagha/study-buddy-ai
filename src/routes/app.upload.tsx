@@ -1,5 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 import {
   Upload,
   Search,
@@ -40,7 +41,9 @@ import {
 } from "@/components/ui/alert-dialog";
 import { ApiError } from "@/lib/api/auth";
 import { refreshNotificationsAfterActivity } from "@/lib/notifications";
-import { fetchNotes, uploadNote, deleteNote, type Note } from "@/lib/api/notes";
+import { uploadNote, deleteNote, type Note } from "@/lib/api/notes";
+import { useNotesQuery } from "@/lib/queries/hooks";
+import { invalidateNotesQueries, patchNotesCache } from "@/lib/queries/invalidate";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/app/upload")({
@@ -90,13 +93,13 @@ function formatUploadedAt(dateString: string) {
 }
 
 function UploadPage() {
+  const queryClient = useQueryClient();
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const { data: notes = [], isPending: loadingNotes, error } = useNotesQuery();
   const [dragging, setDragging] = useState(false);
   const [progress, setProgress] = useState<number | null>(null);
   const [uploadingFileName, setUploadingFileName] = useState<string | null>(null);
   const [query, setQuery] = useState("");
-  const [notes, setNotes] = useState<Note[]>([]);
-  const [loadingNotes, setLoadingNotes] = useState(true);
   const [isUploading, setIsUploading] = useState(false);
   const [deletingNoteId, setDeletingNoteId] = useState<number | null>(null);
   const [noteToDelete, setNoteToDelete] = useState<Note | null>(null);
@@ -105,24 +108,13 @@ function UploadPage() {
 
   const hasActiveFilters = fileTypeFilter !== "all" || sortBy !== "newest";
 
-  const loadNotes = useCallback(async () => {
-    try {
-      const data = await fetchNotes();
-      setNotes(data);
-    } catch (err) {
-      if (err instanceof ApiError) {
-        toast.error(err.message);
-      } else {
-        toast.error("Failed to load notes.");
-      }
-    } finally {
-      setLoadingNotes(false);
-    }
-  }, []);
-
   useEffect(() => {
-    loadNotes();
-  }, [loadNotes]);
+    if (error instanceof ApiError) {
+      toast.error(error.message);
+    } else if (error) {
+      toast.error("Failed to load notes.");
+    }
+  }, [error]);
 
   const handleFiles = async (files: FileList | File[]) => {
     const fileList = Array.from(files);
@@ -135,7 +127,8 @@ function UploadPage() {
 
       try {
         const note = await uploadNote(file, setProgress);
-        setNotes((prev) => [note, ...prev]);
+        patchNotesCache(queryClient, (prev) => [note, ...prev]);
+        invalidateNotesQueries(queryClient);
         toast.success(`${file.name} uploaded successfully!`);
         refreshNotificationsAfterActivity();
       } catch (err) {
@@ -157,7 +150,8 @@ function UploadPage() {
 
     try {
       await deleteNote(note.noteId);
-      setNotes((prev) => prev.filter((n) => n.noteId !== note.noteId));
+      patchNotesCache(queryClient, (prev) => prev.filter((n) => n.noteId !== note.noteId));
+      invalidateNotesQueries(queryClient);
       toast.success(`"${note.fileName}" deleted successfully.`);
     } catch (err) {
       if (err instanceof ApiError) {

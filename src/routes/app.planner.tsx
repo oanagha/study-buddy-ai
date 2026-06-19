@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 import {
   CalendarDays,
   Clock,
@@ -28,7 +29,6 @@ import {
 import { ApiError } from "@/lib/api/auth";
 import { refreshNotificationsAfterActivity } from "@/lib/notifications";
 import {
-  fetchActiveStudyPlan,
   generateStudyPlan,
   getRandomCompletionQuote,
   updateStudyPlanProgress,
@@ -36,6 +36,8 @@ import {
   type StudyPlanDay,
   type StudyPlanResult,
 } from "@/lib/api/studyPlan";
+import { useStudyPlanQuery } from "@/lib/queries/hooks";
+import { setStudyPlanCache } from "@/lib/queries/invalidate";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 
@@ -71,11 +73,12 @@ function applyPlanResult(result: StudyPlanResult) {
 }
 
 function Planner() {
-  const [subject, setSubject] = useState("Data Structures");
+  const queryClient = useQueryClient();
+  const { data: activePlan, isPending: loadingPlan, error } = useStudyPlanQuery();
   const [examDate, setExamDate] = useState(getDefaultExamDate());
   const [studyHours, setStudyHours] = useState("3");
   const [currentLevel, setCurrentLevel] = useState<StudyLevel>("Beginner");
-  const [loadingPlan, setLoadingPlan] = useState(true);
+  const [subject, setSubject] = useState("Data Structures");
   const [generating, setGenerating] = useState(false);
   const [savingProgress, setSavingProgress] = useState(false);
   const [plan, setPlan] = useState<StudyPlanDay[]>([]);
@@ -90,6 +93,7 @@ function Planner() {
   const [doneDays, setDoneDays] = useState<Set<number>>(new Set());
   const [isPlanCompleted, setIsPlanCompleted] = useState(false);
   const [completionQuote, setCompletionQuote] = useState<string | null>(null);
+  const planHydratedRef = useRef(false);
 
   const doneCount = doneDays.size;
   const allDone = plan.length > 0 && doneCount === plan.length;
@@ -116,23 +120,19 @@ function Planner() {
     return true;
   }, []);
 
-  const loadActivePlan = useCallback(async () => {
-    setLoadingPlan(true);
-    try {
-      const result = await fetchActiveStudyPlan();
-      hydrateFromResult(result);
-    } catch (err) {
-      if (err instanceof ApiError) {
-        toast.error(err.message);
-      }
-    } finally {
-      setLoadingPlan(false);
+  useEffect(() => {
+    if (planHydratedRef.current || loadingPlan) return;
+    planHydratedRef.current = true;
+    if (activePlan) {
+      hydrateFromResult(activePlan);
     }
-  }, [hydrateFromResult]);
+  }, [activePlan, loadingPlan, hydrateFromResult]);
 
   useEffect(() => {
-    void loadActivePlan();
-  }, [loadActivePlan]);
+    if (error instanceof ApiError) {
+      toast.error(error.message);
+    }
+  }, [error]);
 
   const handleGenerate = async () => {
     const hours = Number(studyHours);
@@ -156,6 +156,7 @@ function Planner() {
       });
 
       hydrateFromResult(result);
+      setStudyPlanCache(queryClient, result);
       setIsPlanCompleted(false);
       setCompletionQuote(null);
 
@@ -182,6 +183,7 @@ function Planner() {
     setSavingProgress(true);
     try {
       const result = await updateStudyPlanProgress(planMeta.planId, [...nextDoneDays]);
+      setStudyPlanCache(queryClient, result);
       setDoneDays(new Set(result.completed_days ?? []));
       setIsPlanCompleted(Boolean(result.is_completed));
 

@@ -9,6 +9,7 @@ import {
   Layers,
   Loader2,
   Sparkles,
+  ArrowLeft,
   FileText,
   FileType,
   File as FileIcon,
@@ -33,7 +34,10 @@ import {
 import { ApiError } from "@/lib/api/auth";
 import { refreshNotificationsAfterActivity } from "@/lib/notifications";
 import { fetchFlashcards, generateFlashcards, type Flashcard } from "@/lib/api/flashcards";
-import { fetchNotes, type Note } from "@/lib/api/notes";
+import { type Note } from "@/lib/api/notes";
+import { useNotesQuery } from "@/lib/queries/hooks";
+import { patchNotesCache } from "@/lib/queries/invalidate";
+import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 
 type FlashcardSearch = {
@@ -57,11 +61,11 @@ const fileIcons: Record<string, typeof FileText> = { pdf: FileType, docx: FileIc
 const CARD_COUNTS = [5, 10, 15, 20, 25, 30, 40, 50];
 
 function Flashcards() {
+  const queryClient = useQueryClient();
   const { noteId: urlNoteId } = Route.useSearch();
   const navigate = Route.useNavigate();
 
-  const [notes, setNotes] = useState<Note[]>([]);
-  const [loadingNotes, setLoadingNotes] = useState(true);
+  const { data: notes = [], isPending: loadingNotes, error: notesError } = useNotesQuery();
   const [loadingSaved, setLoadingSaved] = useState(false);
   const [generating, setGenerating] = useState(false);
   const [selectedNoteId, setSelectedNoteId] = useState<number | null>(urlNoteId ?? null);
@@ -77,29 +81,22 @@ function Flashcards() {
   const selectedNote = notes.find((n) => n.noteId === selectedNoteId) ?? null;
   const card = deck[index];
 
-  const loadNotes = useCallback(async () => {
-    try {
-      const data = await fetchNotes();
-      setNotes(data);
-      if (urlNoteId && data.some((n) => n.noteId === urlNoteId)) {
-        setSelectedNoteId(urlNoteId);
-      } else if (!selectedNoteId && data.length > 0) {
-        setSelectedNoteId(data[0].noteId);
-      }
-    } catch (err) {
-      if (err instanceof ApiError) {
-        toast.error(err.message);
-      } else {
-        toast.error("Failed to load notes.");
-      }
-    } finally {
-      setLoadingNotes(false);
+  useEffect(() => {
+    if (notes.length === 0) return;
+    if (urlNoteId && notes.some((n) => n.noteId === urlNoteId)) {
+      setSelectedNoteId(urlNoteId);
+      return;
     }
-  }, [urlNoteId, selectedNoteId]);
+    setSelectedNoteId((current) => current ?? notes[0].noteId);
+  }, [notes, urlNoteId]);
 
   useEffect(() => {
-    loadNotes();
-  }, [loadNotes]);
+    if (notesError instanceof ApiError) {
+      toast.error(notesError.message);
+    } else if (notesError) {
+      toast.error("Failed to load notes.");
+    }
+  }, [notesError]);
 
   const handleSelectNote = (noteId: string) => {
     const id = Number(noteId);
@@ -166,7 +163,7 @@ function Flashcards() {
         return;
       }
 
-      setNotes((prev) =>
+      patchNotesCache(queryClient, (prev) =>
         prev.map((n) => (n.noteId === selectedNote.noteId ? { ...n, hasFlashcards: true } : n)),
       );
 
@@ -224,12 +221,14 @@ function Flashcards() {
 
   const resetDeck = () => {
     skipAutoLoadRef.current = true;
+    setLoadingSaved(false);
     setHasDeck(false);
     setDeck([]);
     setActiveNoteName(null);
     setIndex(0);
     setFlipped(false);
     setLearned(new Set());
+    void navigate({ search: {}, replace: true });
   };
 
   if (loadingSaved) {
@@ -344,6 +343,9 @@ function Flashcards() {
 
   return (
     <div className="max-w-4xl mx-auto space-y-6">
+      <Button variant="ghost" onClick={resetDeck} className="-ml-3">
+        <ArrowLeft className="h-4 w-4" /> Back to generator
+      </Button>
       <PageHeader
         title="Flashcards"
         subtitle={activeNoteName ? `From "${activeNoteName}"` : "Tap a card to flip it."}

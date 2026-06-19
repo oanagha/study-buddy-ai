@@ -1,5 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useCallback, useEffect, useRef, useState } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 import { Camera, Mail, GraduationCap, BookOpen, Award, Loader2, Trash2 } from "lucide-react";
 import { PageHeader } from "@/components/widgets";
 import { LoadingState } from "@/components/loading-spinner";
@@ -19,7 +20,6 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import {
-  fetchProfile,
   getProfileInitials,
   preloadProfileImage,
   updateProfile,
@@ -27,6 +27,8 @@ import {
   type UserProfile,
 } from "@/lib/api/profile";
 import { emitProfileUpdate } from "@/lib/profile-sync";
+import { useProfileQuery } from "@/lib/queries/hooks";
+import { queryKeys } from "@/lib/queries/keys";
 import { ApiError, changePassword } from "@/lib/api/auth";
 import { toast } from "sonner";
 
@@ -43,9 +45,11 @@ type ProfileForm = {
 };
 
 function Profile() {
+  const queryClient = useQueryClient();
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const [editing, setEditing] = useState(false);
+  const { data: profileData, isPending: loading, error, refetch } = useProfileQuery();
   const [profile, setProfile] = useState<UserProfile | null>(null);
+  const [editing, setEditing] = useState(false);
   const [form, setForm] = useState<ProfileForm>({
     full_name: "",
     education: "",
@@ -55,7 +59,6 @@ function Profile() {
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [removeImage, setRemoveImage] = useState(false);
-  const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [passwordDialogOpen, setPasswordDialogOpen] = useState(false);
   const [changingPassword, setChangingPassword] = useState(false);
@@ -65,33 +68,33 @@ function Profile() {
     confirm_password: "",
   });
 
-  const loadProfile = useCallback(async (): Promise<UserProfile | null> => {
-    setLoading(true);
-    try {
-      const data = await fetchProfile();
-      setProfile(data);
-      setForm({
-        full_name: data.full_name,
-        education: data.education ?? "",
-        course: data.course ?? "",
-        bio: data.bio ?? "",
-      });
-      return data;
-    } catch (err) {
-      if (err instanceof ApiError) {
-        toast.error(err.message);
-      } else {
-        toast.error("Failed to load profile.");
-      }
-      return null;
-    } finally {
-      setLoading(false);
-    }
-  }, []);
+  useEffect(() => {
+    if (!profileData || editing) return;
+    setProfile(profileData);
+    setForm({
+      full_name: profileData.full_name,
+      education: profileData.education ?? "",
+      course: profileData.course ?? "",
+      bio: profileData.bio ?? "",
+    });
+  }, [profileData, editing]);
 
   useEffect(() => {
-    void loadProfile();
-  }, [loadProfile]);
+    if (error instanceof ApiError) {
+      toast.error(error.message);
+    } else if (error) {
+      toast.error("Failed to load profile.");
+    }
+  }, [error]);
+
+  const syncProfile = useCallback(
+    (nextProfile: UserProfile) => {
+      setProfile(nextProfile);
+      queryClient.setQueryData(queryKeys.profile, nextProfile);
+      emitProfileUpdate(nextProfile);
+    },
+    [queryClient],
+  );
 
   const resetEditState = useCallback(() => {
     if (!profile) return;
@@ -138,13 +141,14 @@ function Profile() {
 
   const refreshProfileSilently = useCallback(async () => {
     try {
-      const data = await fetchProfile();
-      setProfile(data);
-      emitProfileUpdate(data);
+      const result = await refetch();
+      if (result.data) {
+        syncProfile(result.data);
+      }
     } catch {
       // Keep optimistic UI if background refresh fails.
     }
-  }, []);
+  }, [refetch, syncProfile]);
 
   const handleSave = async () => {
     if (!form.full_name.trim()) {
@@ -192,16 +196,14 @@ function Profile() {
       if (hadRemove) {
         setImagePreview(null);
         updatedProfile.profile_image = null;
-        setProfile(updatedProfile);
-        emitProfileUpdate(updatedProfile);
+        syncProfile(updatedProfile);
         void refreshProfileSilently();
       } else if (hadUpload && result.profile.profile_image && uploadedPreview) {
         const instantProfile: UserProfile = {
           ...updatedProfile,
           profile_image: uploadedPreview,
         };
-        setProfile(instantProfile);
-        emitProfileUpdate(instantProfile);
+        syncProfile(instantProfile);
 
         const serverImage = result.profile.profile_image;
         void preloadProfileImage(serverImage)
@@ -211,20 +213,17 @@ function Profile() {
             }
             setImagePreview(null);
             const finalProfile = { ...updatedProfile, profile_image: serverImage };
-            setProfile(finalProfile);
-            emitProfileUpdate(finalProfile);
+            syncProfile(finalProfile);
             void refreshProfileSilently();
           })
           .catch(() => {
             setImagePreview(null);
-            setProfile(updatedProfile);
-            emitProfileUpdate(updatedProfile);
+            syncProfile(updatedProfile);
             void refreshProfileSilently();
           });
       } else {
         setImagePreview(null);
-        setProfile(updatedProfile);
-        emitProfileUpdate(updatedProfile);
+        syncProfile(updatedProfile);
         void refreshProfileSilently();
       }
 
@@ -294,7 +293,7 @@ function Profile() {
     return (
       <div className="text-center py-16 text-muted-foreground">
         <p>Unable to load profile.</p>
-        <Button className="mt-4" variant="outline" onClick={() => void loadProfile()}>
+        <Button className="mt-4" variant="outline" onClick={() => void refetch()}>
           Retry
         </Button>
       </div>

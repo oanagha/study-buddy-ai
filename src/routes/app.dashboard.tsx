@@ -1,5 +1,5 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { useCallback, useEffect, useState } from "react";
+import { useEffect } from "react";
 import {
   FileText,
   Layers,
@@ -29,12 +29,6 @@ import {
   CartesianGrid,
 } from "recharts";
 import {
-  fetchDashboardOverview,
-  fetchWeeklyActivity,
-  fetchUpcomingSessions,
-  fetchRecentUploads,
-  fetchLearningProgress,
-  fetchRecentQuizzes,
   type DashboardOverview,
   type WeeklyActivityDay,
   type UpcomingSession,
@@ -45,6 +39,14 @@ import {
 import { getAuthUser } from "@/lib/auth";
 import { ApiError } from "@/lib/api/auth";
 import { toast } from "sonner";
+import {
+  useDashboardOverviewQuery,
+  useWeeklyActivityQuery,
+  useUpcomingSessionsQuery,
+  useRecentUploadsQuery,
+  useLearningProgressQuery,
+  useRecentQuizzesQuery,
+} from "@/lib/queries/hooks";
 
 export const Route = createFileRoute("/app/dashboard")({
   head: () => ({ meta: [{ title: "Dashboard — StudyMate AI" }] }),
@@ -132,60 +134,49 @@ function formatSessionLabel(date: string, time: string) {
 
 function Dashboard() {
   const user = getAuthUser();
-  const [stats, setStats] = useState<DashboardOverview | null>(null);
-  const [weeklyActivity, setWeeklyActivity] = useState<WeeklyActivityDay[]>([]);
-  const [upcomingSessions, setUpcomingSessions] = useState<UpcomingSession[]>([]);
-  const [recentUploads, setRecentUploads] = useState<RecentUpload[]>([]);
-  const [learningProgress, setLearningProgress] = useState<SubjectProgress[]>([]);
-  const [recentQuizzes, setRecentQuizzes] = useState<RecentQuiz[]>([]);
-  const [loadingStats, setLoadingStats] = useState(true);
-  const [loadingWeekly, setLoadingWeekly] = useState(true);
-  const [loadingSessions, setLoadingSessions] = useState(true);
-  const [loadingUploads, setLoadingUploads] = useState(true);
-  const [loadingProgress, setLoadingProgress] = useState(true);
-  const [loadingQuizzes, setLoadingQuizzes] = useState(true);
+  const overviewQuery = useDashboardOverviewQuery();
+  const weeklyQuery = useWeeklyActivityQuery();
+  const sessionsQuery = useUpcomingSessionsQuery();
+  const uploadsQuery = useRecentUploadsQuery();
+  const progressQuery = useLearningProgressQuery();
+  const quizzesQuery = useRecentQuizzesQuery();
 
-  const loadStats = useCallback(async () => {
-    setLoadingStats(true);
-    setLoadingWeekly(true);
-    setLoadingSessions(true);
-    setLoadingUploads(true);
-    setLoadingProgress(true);
-    setLoadingQuizzes(true);
-    try {
-      const [overview, weekly, sessions, uploads, progress, quizzes] = await Promise.all([
-        fetchDashboardOverview(),
-        fetchWeeklyActivity(),
-        fetchUpcomingSessions(),
-        fetchRecentUploads(),
-        fetchLearningProgress(),
-        fetchRecentQuizzes(),
-      ]);
-      setStats(overview);
-      setWeeklyActivity(weekly);
-      setUpcomingSessions(sessions);
-      setRecentUploads(uploads);
-      setLearningProgress(progress);
-      setRecentQuizzes(quizzes);
-    } catch (err) {
-      if (err instanceof ApiError) {
-        toast.error(err.message);
-      } else {
-        toast.error("Failed to load dashboard stats.");
-      }
-    } finally {
-      setLoadingStats(false);
-      setLoadingWeekly(false);
-      setLoadingSessions(false);
-      setLoadingUploads(false);
-      setLoadingProgress(false);
-      setLoadingQuizzes(false);
-    }
-  }, []);
+  const stats = overviewQuery.data ?? null;
+  const weeklyActivity = weeklyQuery.data ?? [];
+  const upcomingSessions = sessionsQuery.data ?? [];
+  const recentUploads = uploadsQuery.data ?? [];
+  const learningProgress = progressQuery.data ?? [];
+  const recentQuizzes = quizzesQuery.data ?? [];
+
+  const loadingStats = overviewQuery.isPending;
+  const loadingWeekly = weeklyQuery.isPending;
+  const loadingSessions = sessionsQuery.isPending;
+  const loadingUploads = uploadsQuery.isPending;
+  const loadingProgress = progressQuery.isPending;
+  const loadingQuizzes = quizzesQuery.isPending;
 
   useEffect(() => {
-    void loadStats();
-  }, [loadStats]);
+    const error =
+      overviewQuery.error ??
+      weeklyQuery.error ??
+      sessionsQuery.error ??
+      uploadsQuery.error ??
+      progressQuery.error ??
+      quizzesQuery.error;
+
+    if (error instanceof ApiError) {
+      toast.error(error.message);
+    } else if (error) {
+      toast.error("Failed to load dashboard stats.");
+    }
+  }, [
+    overviewQuery.error,
+    weeklyQuery.error,
+    sessionsQuery.error,
+    uploadsQuery.error,
+    progressQuery.error,
+    quizzesQuery.error,
+  ]);
 
   const firstName = user?.firstName ?? "Student";
   const streak = stats?.study_streak ?? 0;
