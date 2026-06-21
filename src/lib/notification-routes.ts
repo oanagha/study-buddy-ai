@@ -9,6 +9,7 @@ const SERVER_NOTIFICATION_ROUTES: Record<ServerNotificationType, string> = {
   QUIZ: "/app/quizzes",
   FLASHCARD: "/app/flashcards",
   STUDY_PLAN: "/app/planner",
+  SESSION_REMINDER: "/app/planner",
   STUDY_GUIDE: "/app/study-guide",
   STREAK: "/app/dashboard",
   TWO_FACTOR_ENABLED: "/app/settings",

@@ -6,6 +6,7 @@ export type ServerNotificationType =
   | "QUIZ"
   | "FLASHCARD"
   | "STUDY_PLAN"
+  | "SESSION_REMINDER"
   | "STUDY_GUIDE"
   | "STREAK"
   | "TWO_FACTOR_ENABLED"

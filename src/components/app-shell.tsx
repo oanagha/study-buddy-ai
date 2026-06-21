@@ -365,9 +365,16 @@ export function AppShell({ children }: { children: ReactNode }) {
     };
 
     window.addEventListener(NOTIFICATIONS_UPDATED_EVENT, handleUpdate);
+
+    const pollIntervalMs = 60_000;
+    const pollId = window.setInterval(() => {
+      void refreshServerNotifications();
+    }, pollIntervalMs);
+
     return () => {
       unsubscribe();
       window.removeEventListener(NOTIFICATIONS_UPDATED_EVENT, handleUpdate);
+      window.clearInterval(pollId);
     };
   }, []);
 

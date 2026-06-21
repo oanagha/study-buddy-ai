@@ -655,14 +655,14 @@ function Settings() {
         title="Notifications"
         desc="Control email and browser alerts."
       >
-        <Row label="Email reminders" desc="Daily email if you haven't studied yet today.">
+        <Row label="Email reminders" desc="Daily nudge and study session reminders when a scheduled time is reached.">
           <Switch
             checked={settings.email_reminders}
             onCheckedChange={(checked) => updateField("email_reminders", checked)}
             disabled={saving}
           />
         </Row>
-        <Row label="Push notifications" desc="Browser alerts for study activity and updates.">
+        <Row label="Push notifications" desc="Browser alerts for study activity and session reminders.">
           <Switch
             checked={settings.push_notifications}
             onCheckedChange={(checked) => void handlePushNotificationsChange(checked)}

@@ -12,6 +12,7 @@ import {
   ClipboardList,
   Layers,
   CalendarDays,
+  Clock,
   Flame,
   BookOpen,
   Shield,
@@ -66,6 +67,8 @@ function NotificationIcon({ item }: { item: AppNotification }) {
       return <Layers className="h-5 w-5 text-primary" />;
     case "STUDY_PLAN":
       return <CalendarDays className="h-5 w-5 text-primary" />;
+    case "SESSION_REMINDER":
+      return <Clock className="h-5 w-5 text-primary" />;
     case "STUDY_GUIDE":
       return <BookOpen className="h-5 w-5 text-primary" />;
     case "STREAK":

@@ -66,9 +66,6 @@ function notifyNewServerPushAlerts(notifications: ServerNotification[]) {
   for (const item of newItems.slice(0, 5)) {
     showBrowserNotification(item.title, item.message, `server-notif-${item.id}`, {
       url: getRouteForServerNotificationType(item.type),
-      onClick: () => {
-        void markNotificationRead(`server:${item.id}`);
-      },
     });
   }
 }
@@ -338,6 +335,7 @@ export function isServerNotificationType(
     type === "QUIZ" ||
     type === "FLASHCARD" ||
     type === "STUDY_PLAN" ||
+    type === "SESSION_REMINDER" ||
     type === "STUDY_GUIDE" ||
     type === "STREAK" ||
     type === "TWO_FACTOR_ENABLED" ||
