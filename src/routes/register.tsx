@@ -76,7 +76,7 @@ function Register() {
       title="Create your account"
       subtitle="Free forever — no credit card required"
     >
-      <form className="space-y-2.5" onSubmit={handleSubmit} autoComplete="off">
+      <form className="space-y-2" onSubmit={handleSubmit} autoComplete="off">
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div className="space-y-1.5">
             <Label htmlFor="firstName" className={labelClass}>
