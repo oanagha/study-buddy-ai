@@ -26,8 +26,8 @@ export function MarketingNav() {
           <a href="#how" className="hover:text-foreground transition">
             How it works
           </a>
-          <a href="#testimonials" className="hover:text-foreground transition">
-            Students
+          <a href="#engine" className="hover:text-foreground transition">
+            Engine
           </a>
         </nav>
 
