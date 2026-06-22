@@ -1,7 +1,7 @@
 import { createFileRoute, Link, redirect, useNavigate } from "@tanstack/react-router";
 import { Mail, Lock, ArrowRight, Loader2 } from "lucide-react";
 import { useState } from "react";
-import { AuthHeader } from "@/components/auth-header";
+import { AuthShell } from "@/components/auth-shell";
 import { PasswordInput } from "@/components/password-input";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -15,13 +15,19 @@ export const Route = createFileRoute("/register")({
   head: () => ({ meta: [{ title: "Sign up — StudyMate AI" }] }),
   beforeLoad: () => {
     if (typeof window === "undefined") return;
-
     if (isAuthenticated()) {
       throw redirect({ to: "/app/dashboard" });
     }
   },
   component: Register,
 });
+
+const inputClass =
+  "h-12 rounded-2xl bg-slate-950/50 border border-white/10 text-white placeholder:text-slate-600 focus-visible:ring-2 focus-visible:ring-indigo-500/40 focus-visible:border-indigo-500/50 transition-all";
+const inputWithIcon = `${inputClass} pl-11`;
+const labelClass = "text-xs font-semibold text-slate-300 uppercase tracking-wider ml-1";
+const primaryBtn =
+  "w-full h-12 rounded-2xl bg-gradient-to-r from-indigo-600 via-violet-600 to-fuchsia-600 hover:brightness-110 text-white font-semibold shadow-xl shadow-indigo-900/40 transition-all group";
 
 function Register() {
   const navigate = useNavigate();
@@ -30,7 +36,6 @@ function Register() {
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     const form = e.currentTarget;
-
     const firstName = (form.elements.namedItem("firstName") as HTMLInputElement).value.trim();
     const lastName = (form.elements.namedItem("lastName") as HTMLInputElement).value.trim();
     const email = (form.elements.namedItem("email") as HTMLInputElement).value.trim();
@@ -43,7 +48,6 @@ function Register() {
     }
 
     setIsSubmitting(true);
-
     try {
       const user = await registerUser({
         firstName,
@@ -52,17 +56,13 @@ function Register() {
         password,
         confirmPassword,
       });
-
       setAuthSession({ user });
       toast.success("Account created successfully!");
       await navigate({ to: "/app/dashboard" });
     } catch (err) {
       if (err instanceof ApiError) {
-        if (err.errors?.length) {
-          toast.error(err.errors.map((e) => e.message).join(" "));
-        } else {
-          toast.error(err.message);
-        }
+        if (err.errors?.length) toast.error(err.errors.map((e) => e.message).join(" "));
+        else toast.error(err.message);
       } else {
         toast.error("Unable to create account. Please try again.");
       }
@@ -72,158 +72,148 @@ function Register() {
   }
 
   return (
-    <div className="min-h-screen lg:h-screen lg:overflow-hidden bg-background flex flex-col">
-      <AuthHeader />
-
-      <div className="flex flex-1 items-center justify-center p-6 sm:p-10">
-        <div className="w-full max-w-md rounded-2xl border border-border/60 bg-card shadow-xl p-6 sm:p-8 animate-fade-in">
-          <div className="mb-8">
-            <h1 className="text-3xl font-semibold font-display tracking-tight">
-              Create your account
-            </h1>
-            <p className="text-muted-foreground mt-2 text-sm">
-              Free forever — no credit card required.
-            </p>
-          </div>
-
-          <form className="space-y-5" onSubmit={handleSubmit} autoComplete="off">
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div className="space-y-1.5">
-                <Label htmlFor="firstName" className="text-xs font-medium text-foreground/80">
-                  First name
-                </Label>
-                <Input
-                  id="firstName"
-                  name="firstName"
-                  placeholder="Jane"
-                  className="h-11 bg-card"
-                  required
-                  disabled={isSubmitting}
-                />
-              </div>
-              <div className="space-y-1.5">
-                <Label htmlFor="lastName" className="text-xs font-medium text-foreground/80">
-                  Last name
-                </Label>
-                <Input
-                  id="lastName"
-                  name="lastName"
-                  placeholder="Doe"
-                  className="h-11 bg-card"
-                  required
-                  disabled={isSubmitting}
-                />
-              </div>
-            </div>
-            <div className="space-y-1.5">
-              <Label htmlFor="email" className="text-xs font-medium text-foreground/80">
-                Email
-              </Label>
-              <div className="relative">
-                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                <Input
-                  id="email"
-                  name="email"
-                  type="email"
-                  placeholder="name@university.edu"
-                  className="pl-10 h-11 bg-card"
-                  autoComplete="off"
-                  data-1p-ignore
-                  data-lpignore="true"
-                  required
-                  disabled={isSubmitting}
-                />
-              </div>
-            </div>
-            <div className="space-y-1.5">
-              <Label htmlFor="password" className="text-xs font-medium text-foreground/80">
-                Password
-              </Label>
-              <div className="relative">
-                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground z-10 pointer-events-none" />
-                <PasswordInput
-                  id="password"
-                  name="password"
-                  className="pl-10 h-11 bg-card"
-                  autoComplete="off"
-                  readOnlyUntilFocus
-                  minLength={8}
-                  required
-                  disabled={isSubmitting}
-                />
-              </div>
-            </div>
-            <div className="space-y-1.5">
-              <Label htmlFor="confirmPassword" className="text-xs font-medium text-foreground/80">
-                Confirm password
-              </Label>
-              <div className="relative">
-                <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground z-10 pointer-events-none" />
-                <PasswordInput
-                  id="confirmPassword"
-                  name="confirmPassword"
-                  className="pl-10 h-11 bg-card"
-                  autoComplete="off"
-                  readOnlyUntilFocus
-                  minLength={8}
-                  required
-                  disabled={isSubmitting}
-                />
-              </div>
-            </div>
-
-            <Button
-              type="submit"
-              className="w-full h-11 bg-gradient-primary hover:opacity-95 shadow-glow group"
+    <AuthShell
+      title="Create your account"
+      subtitle="Free forever — no credit card required"
+    >
+      <form className="space-y-4" onSubmit={handleSubmit} autoComplete="off">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div className="space-y-2">
+            <Label htmlFor="firstName" className={labelClass}>
+              First name
+            </Label>
+            <Input
+              id="firstName"
+              name="firstName"
+              placeholder="Jane"
+              className={`${inputClass} px-4`}
+              required
               disabled={isSubmitting}
-            >
-              {isSubmitting ? (
-                <>
-                  <Loader2 className="h-4 w-4 animate-spin" />
-                  Creating account...
-                </>
-              ) : (
-                <>
-                  Create account
-                  <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
-                </>
-              )}
-            </Button>
-
-            <p className="text-xs text-muted-foreground text-center leading-relaxed">
-              By signing up, you agree to our{" "}
-              <a href="#" className="text-foreground hover:underline">
-                Terms
-              </a>{" "}
-              and{" "}
-              <a href="#" className="text-foreground hover:underline">
-                Privacy Policy
-              </a>
-              .
-            </p>
-          </form>
-
-          <div className="relative my-6">
-            <div className="absolute inset-0 flex items-center">
-              <span className="w-full border-t" />
-            </div>
-            <div className="relative flex justify-center text-xs">
-              <span className="bg-card px-3 text-muted-foreground uppercase tracking-wider">
-                or
-              </span>
-            </div>
+            />
           </div>
+          <div className="space-y-2">
+            <Label htmlFor="lastName" className={labelClass}>
+              Last name
+            </Label>
+            <Input
+              id="lastName"
+              name="lastName"
+              placeholder="Doe"
+              className={`${inputClass} px-4`}
+              required
+              disabled={isSubmitting}
+            />
+          </div>
+        </div>
 
-          <GoogleSignInButton disabled={isSubmitting} />
+        <div className="space-y-2">
+          <Label htmlFor="email" className={labelClass}>
+            Email
+          </Label>
+          <div className="relative">
+            <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-500 z-10 pointer-events-none" />
+            <Input
+              id="email"
+              name="email"
+              type="email"
+              placeholder="name@university.edu"
+              className={inputWithIcon}
+              autoComplete="off"
+              data-1p-ignore
+              data-lpignore="true"
+              required
+              disabled={isSubmitting}
+            />
+          </div>
+        </div>
 
-          <p className="mt-8 text-center text-sm text-muted-foreground">
-            Already have an account?{" "}
-            <Link to="/login" className="text-primary font-medium hover:underline">
-              Sign in
-            </Link>
-          </p>
+        <div className="space-y-2">
+          <Label htmlFor="password" className={labelClass}>
+            Password
+          </Label>
+          <div className="relative">
+            <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-500 z-10 pointer-events-none" />
+            <PasswordInput
+              id="password"
+              name="password"
+              className={inputWithIcon}
+              autoComplete="off"
+              readOnlyUntilFocus
+              minLength={8}
+              required
+              disabled={isSubmitting}
+            />
+          </div>
+        </div>
+
+        <div className="space-y-2">
+          <Label htmlFor="confirmPassword" className={labelClass}>
+            Confirm password
+          </Label>
+          <div className="relative">
+            <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-500 z-10 pointer-events-none" />
+            <PasswordInput
+              id="confirmPassword"
+              name="confirmPassword"
+              className={inputWithIcon}
+              autoComplete="off"
+              readOnlyUntilFocus
+              minLength={8}
+              required
+              disabled={isSubmitting}
+            />
+          </div>
+        </div>
+
+        <Button type="submit" className={`${primaryBtn} mt-2`} disabled={isSubmitting}>
+          {isSubmitting ? (
+            <>
+              <Loader2 className="h-4 w-4 animate-spin" />
+              Creating account...
+            </>
+          ) : (
+            <>
+              Create account
+              <ArrowRight className="h-4 w-4 transition-transform group-hover:translate-x-0.5" />
+            </>
+          )}
+        </Button>
+
+        <p className="text-xs text-slate-500 text-center leading-relaxed">
+          By signing up, you agree to our{" "}
+          <a href="#" className="text-slate-300 hover:text-white hover:underline">
+            Terms
+          </a>{" "}
+          and{" "}
+          <a href="#" className="text-slate-300 hover:text-white hover:underline">
+            Privacy Policy
+          </a>
+          .
+        </p>
+      </form>
+
+      <div className="relative my-7">
+        <div className="absolute inset-0 flex items-center">
+          <span className="w-full border-t border-white/10" />
+        </div>
+        <div className="relative flex justify-center text-xs">
+          <span className="bg-slate-900/80 backdrop-blur-md px-4 text-slate-500 uppercase tracking-widest font-medium rounded-full">
+            or continue with
+          </span>
         </div>
       </div>
-    </div>
+
+      <GoogleSignInButton disabled={isSubmitting} />
+
+      <p className="mt-8 text-center text-sm text-slate-400 font-medium">
+        Already have an account?{" "}
+        <Link
+          to="/login"
+          className="text-indigo-400 hover:text-indigo-300 ml-1 font-semibold transition-colors"
+        >
+          Sign in
+        </Link>
+      </p>
+    </AuthShell>
   );
 }
