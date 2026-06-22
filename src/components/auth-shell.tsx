@@ -3,6 +3,12 @@ import { Link } from "@tanstack/react-router";
 import { GraduationCap } from "lucide-react";
 import { ThemeToggle } from "@/components/theme-toggle";
 
+const hideScrollbar = {
+  scrollbarWidth: "none" as const,
+  msOverflowStyle: "none" as const,
+};
+const webkitHide = "::-webkit-scrollbar{display:none}";
+
 interface AuthShellProps {
   children: ReactNode;
   title: string;
@@ -11,7 +17,8 @@ interface AuthShellProps {
 
 export function AuthShell({ children, title, subtitle }: AuthShellProps) {
   return (
-    <div className="min-h-screen w-full flex items-center justify-center relative overflow-hidden bg-slate-50 dark:bg-[#020617] py-6 sm:py-8">
+    <div className="h-screen w-full flex items-center justify-center relative overflow-hidden bg-slate-50 dark:bg-[#020617] py-4 sm:py-6">
+      <style>{`${webkitHide}`}</style>
       {/* Celestial base */}
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_50%_-20%,#e0e7ff_0%,#f8fafc_80%)] dark:bg-[radial-gradient(ellipse_at_50%_-20%,#1e1b4b_0%,#020617_80%)]" />
 
@@ -50,18 +57,21 @@ export function AuthShell({ children, title, subtitle }: AuthShellProps) {
       </div>
 
       {/* Floating card */}
-      <div className="relative z-10 w-full max-w-[480px] px-4 animate-float">
-        <div className="bg-white/70 dark:bg-slate-900/40 backdrop-blur-3xl border border-slate-200/70 dark:border-white/10 rounded-[2.5rem] shadow-[0_0_100px_-15px_rgba(79,70,229,0.25)] dark:shadow-[0_0_100px_-15px_rgba(79,70,229,0.35)] p-8 sm:p-10 relative overflow-hidden group">
+      <div className="relative z-10 w-full max-w-[460px] px-4 animate-float">
+        <div
+          className="bg-white/70 dark:bg-slate-900/40 backdrop-blur-3xl border border-slate-200/70 dark:border-white/10 rounded-3xl shadow-[0_0_100px_-15px_rgba(79,70,229,0.25)] dark:shadow-[0_0_100px_-15px_rgba(79,70,229,0.35)] p-5 sm:p-6 relative group"
+          style={{ ...hideScrollbar, maxHeight: "90vh", overflowY: "auto" }}
+        >
           {/* Inner shimmer streak */}
           <div className="absolute -top-1/2 -left-1/2 w-full h-[200%] bg-gradient-to-r from-transparent via-white/40 dark:via-white/5 to-transparent rotate-[35deg] pointer-events-none group-hover:translate-x-full transition-transform duration-[3000ms]" />
 
           {/* Header */}
-          <div className="text-center mb-8 relative">
-            <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-gradient-to-br from-indigo-500 via-violet-500 to-fuchsia-500 mb-5 shadow-xl shadow-indigo-500/30 ring-1 ring-white/20">
-              <GraduationCap className="w-7 h-7 text-white drop-shadow-md" />
+          <div className="text-center mb-4 relative">
+            <div className="inline-flex items-center justify-center w-10 h-10 rounded-xl bg-gradient-to-br from-indigo-500 via-violet-500 to-fuchsia-500 mb-2 shadow-lg shadow-indigo-500/30 ring-1 ring-white/20">
+              <GraduationCap className="w-5 h-5 text-white drop-shadow-md" />
             </div>
-            <h1 className="text-3xl font-bold tracking-tight font-display text-slate-900 dark:text-white">{title}</h1>
-            <p className="mt-2 text-sm text-slate-600 dark:text-slate-400">{subtitle}</p>
+            <h1 className="text-xl sm:text-2xl font-bold tracking-tight font-display text-slate-900 dark:text-white">{title}</h1>
+            <p className="mt-1 text-xs text-slate-600 dark:text-slate-400">{subtitle}</p>
           </div>
 
           <div className="relative">{children}</div>
