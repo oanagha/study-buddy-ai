@@ -23,11 +23,11 @@ export const Route = createFileRoute("/register")({
 });
 
 const inputClass =
-  "h-12 rounded-2xl bg-white/80 dark:bg-slate-950/50 border border-slate-200 dark:border-white/10 text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-600 focus-visible:ring-2 focus-visible:ring-indigo-500/40 focus-visible:border-indigo-500/50 transition-all";
-const inputWithIcon = `${inputClass} pl-11`;
+  "h-10 sm:h-11 rounded-xl bg-white/80 dark:bg-slate-950/50 border border-slate-200 dark:border-white/10 text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-600 focus-visible:ring-2 focus-visible:ring-indigo-500/40 focus-visible:border-indigo-500/50 transition-all";
+const inputWithIcon = `${inputClass} pl-10`;
 const labelClass = "text-xs font-semibold text-slate-600 dark:text-slate-300 uppercase tracking-wider ml-1";
 const primaryBtn =
-  "w-full h-12 rounded-2xl bg-gradient-to-r from-indigo-600 via-violet-600 to-fuchsia-600 hover:brightness-110 text-white font-semibold shadow-xl shadow-indigo-500/30 dark:shadow-indigo-900/40 transition-all group";
+  "w-full h-10 sm:h-11 rounded-xl bg-gradient-to-r from-indigo-600 via-violet-600 to-fuchsia-600 hover:brightness-110 text-white font-semibold shadow-lg shadow-indigo-500/30 dark:shadow-indigo-900/40 transition-all group";
 
 function Register() {
   const navigate = useNavigate();
