@@ -13,14 +13,13 @@ import {
   Wand2,
   GraduationCap,
   ArrowRight,
-  Star,
   Check,
+  Zap,
+  BarChart3,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { MarketingNav, MarketingFooter } from "@/components/marketing";
-import { testimonials } from "@/lib/mock-data";
 
 export const Route = createFileRoute("/")({
   head: () => ({
