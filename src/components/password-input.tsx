@@ -14,7 +14,7 @@ export function PasswordInput({
   readOnlyUntilFocus = false,
   id,
   name,
-  placeholder = "",
+  placeholder = "••••••••",
   ...props
 }: PasswordInputProps) {
   const [visible, setVisible] = useState(false);

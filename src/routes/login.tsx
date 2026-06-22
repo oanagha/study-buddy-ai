@@ -214,7 +214,7 @@ function Login() {
 
   return (
     <AuthShell title="Welcome back" subtitle="Sign in to your account to continue learning">
-      <form className="space-y-5" onSubmit={handleCredentialsSubmit} autoComplete="off">
+      <form className="space-y-3" onSubmit={handleCredentialsSubmit} autoComplete="off">
         <div className="space-y-2">
           <Label htmlFor="email" className={labelClass}>
             Email address
@@ -269,7 +269,7 @@ function Login() {
         </Button>
       </form>
 
-      <div className="relative my-7">
+      <div className="relative my-4">
         <div className="absolute inset-0 flex items-center">
           <span className="w-full border-t border-slate-200 dark:border-white/10" />
         </div>
@@ -282,7 +282,7 @@ function Login() {
 
       <GoogleSignInButton disabled={isSubmitting} />
 
-      <p className="mt-8 text-center text-sm text-slate-600 dark:text-slate-400 font-medium">
+      <p className="mt-4 text-center text-sm text-slate-600 dark:text-slate-400 font-medium">
         New to StudyMate AI?{" "}
         <Link
           to="/register"
