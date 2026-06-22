@@ -23,11 +23,11 @@ export const Route = createFileRoute("/register")({
 });
 
 const inputClass =
-  "h-12 rounded-2xl bg-slate-950/50 border border-white/10 text-white placeholder:text-slate-600 focus-visible:ring-2 focus-visible:ring-indigo-500/40 focus-visible:border-indigo-500/50 transition-all";
+  "h-12 rounded-2xl bg-white/80 dark:bg-slate-950/50 border border-slate-200 dark:border-white/10 text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-600 focus-visible:ring-2 focus-visible:ring-indigo-500/40 focus-visible:border-indigo-500/50 transition-all";
 const inputWithIcon = `${inputClass} pl-11`;
-const labelClass = "text-xs font-semibold text-slate-300 uppercase tracking-wider ml-1";
+const labelClass = "text-xs font-semibold text-slate-600 dark:text-slate-300 uppercase tracking-wider ml-1";
 const primaryBtn =
-  "w-full h-12 rounded-2xl bg-gradient-to-r from-indigo-600 via-violet-600 to-fuchsia-600 hover:brightness-110 text-white font-semibold shadow-xl shadow-indigo-900/40 transition-all group";
+  "w-full h-12 rounded-2xl bg-gradient-to-r from-indigo-600 via-violet-600 to-fuchsia-600 hover:brightness-110 text-white font-semibold shadow-xl shadow-indigo-500/30 dark:shadow-indigo-900/40 transition-all group";
 
 function Register() {
   const navigate = useNavigate();
@@ -181,11 +181,11 @@ function Register() {
 
         <p className="text-xs text-slate-500 text-center leading-relaxed">
           By signing up, you agree to our{" "}
-          <a href="#" className="text-slate-300 hover:text-white hover:underline">
+          <a href="#" className="text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:underline">
             Terms
           </a>{" "}
           and{" "}
-          <a href="#" className="text-slate-300 hover:text-white hover:underline">
+          <a href="#" className="text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:underline">
             Privacy Policy
           </a>
           .
@@ -194,10 +194,10 @@ function Register() {
 
       <div className="relative my-7">
         <div className="absolute inset-0 flex items-center">
-          <span className="w-full border-t border-white/10" />
+          <span className="w-full border-t border-slate-200 dark:border-white/10" />
         </div>
         <div className="relative flex justify-center text-xs">
-          <span className="bg-slate-900/80 backdrop-blur-md px-4 text-slate-500 uppercase tracking-widest font-medium rounded-full">
+          <span className="bg-white/80 dark:bg-slate-900/80 backdrop-blur-md px-4 text-slate-500 uppercase tracking-widest font-medium rounded-full">
             or continue with
           </span>
         </div>
@@ -205,11 +205,11 @@ function Register() {
 
       <GoogleSignInButton disabled={isSubmitting} />
 
-      <p className="mt-8 text-center text-sm text-slate-400 font-medium">
+      <p className="mt-8 text-center text-sm text-slate-600 dark:text-slate-400 font-medium">
         Already have an account?{" "}
         <Link
           to="/login"
-          className="text-indigo-400 hover:text-indigo-300 ml-1 font-semibold transition-colors"
+          className="text-indigo-600 dark:text-indigo-400 hover:text-indigo-500 dark:hover:text-indigo-300 ml-1 font-semibold transition-colors"
         >
           Sign in
         </Link>
