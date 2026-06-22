@@ -55,11 +55,11 @@ export function MarketingNav() {
             How it works
           </a>
           <a
-            href="#testimonials"
+            href="#engine"
             className="block text-sm font-medium"
             onClick={() => setOpen(false)}
           >
-            Students
+            Engine
           </a>
           <Link to="/login" className="block text-sm font-medium">
             Log in
