@@ -15,7 +15,6 @@ import {
   GraduationCap,
   HelpCircle,
   Eye,
-  History,
 } from "lucide-react";
 import { PageHeader } from "@/components/widgets";
 import { LoadingState } from "@/components/loading-spinner";
@@ -496,7 +495,12 @@ function StudyGuide() {
     return <LoadingState label="Loading study guide" className="py-16 text-muted-foreground" />;
   }
 
-  const historyNotes = notes.filter((n) => n.hasStudyMaterial);
+  const sortedNotes = [...notes].sort((a, b) => {
+    if (a.hasStudyMaterial !== b.hasStudyMaterial) {
+      return a.hasStudyMaterial ? -1 : 1;
+    }
+    return new Date(b.uploadedAt).getTime() - new Date(a.uploadedAt).getTime();
+  });
 
   return (
     <div className="max-w-7xl mx-auto space-y-6">
@@ -512,100 +516,90 @@ function StudyGuide() {
           No notes uploaded yet. Upload a PDF, DOCX, or TXT file first to generate a study guide.
         </Card>
       ) : (
-        <>
-          {historyNotes.length > 0 && (
-            <section className="space-y-3">
-              <div className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
-                <History className="h-4 w-4" />
-                Saved study guides ({historyNotes.length})
-              </div>
-              <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-                {historyNotes.map((note) => (
-                  <Card
-                    key={`history-${note.noteId}`}
-                    className="p-4 border-primary/20 bg-primary/5 cursor-pointer hover:bg-primary/10 transition-colors"
-                    onClick={() => void openStudyGuide(note)}
-                  >
-                    <p className="font-medium text-sm truncate">{note.fileName}</p>
-                    <p className="text-xs text-muted-foreground mt-1">
-                      {formatHistoryDate(note.studyMaterialGeneratedAt)}
-                    </p>
-                  </Card>
-                ))}
-              </div>
-            </section>
-          )}
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {sortedNotes.map((note) => {
+            const Icon = fileIcons[note.fileType] ?? FileText;
+            const isGenerating = generatingNoteId === note.noteId;
+            const savedDate = formatHistoryDate(note.studyMaterialGeneratedAt);
 
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {notes.map((note) => {
-              const Icon = fileIcons[note.fileType] ?? FileText;
-              const isGenerating = generatingNoteId === note.noteId;
-
-              return (
-                <Card
-                  key={note.noteId}
-                  className="p-5 shadow-card hover:shadow-glow/40 hover:-translate-y-0.5 transition-all border-border/50"
-                >
-                  <div className="grid h-12 w-12 place-items-center rounded-xl bg-gradient-primary text-primary-foreground shadow-glow mb-4">
+            return (
+              <Card
+                key={note.noteId}
+                className={cn(
+                  "p-5 shadow-card hover:shadow-glow/40 hover:-translate-y-0.5 transition-all border-border/50",
+                  note.hasStudyMaterial && "border-primary/20 bg-primary/5",
+                )}
+              >
+                <div className="flex items-start gap-3 mb-4">
+                  <div className="grid h-12 w-12 shrink-0 place-items-center rounded-xl bg-gradient-primary text-primary-foreground shadow-glow">
                     <Icon className="h-5 w-5" />
                   </div>
-                  <h3 className="font-semibold text-sm truncate">{note.fileName}</h3>
-                  <div className="flex items-center gap-2 mt-1 flex-wrap">
-                    <p className="text-xs text-muted-foreground uppercase">{note.fileType}</p>
+                  <div className="min-w-0 flex-1">
+                    <p className="font-semibold text-sm truncate">{note.fileName}</p>
+                    <p className="text-xs text-muted-foreground mt-0.5 uppercase">{note.fileType}</p>
                     {note.hasStudyMaterial && (
-                      <Badge variant="secondary" className="text-xs">
-                        Guide saved
-                      </Badge>
+                      <div className="flex items-center gap-2 mt-1.5 flex-wrap">
+                        <Badge variant="secondary" className="text-xs">
+                          Guide saved
+                        </Badge>
+                        {savedDate && (
+                          <span className="text-xs text-muted-foreground">{savedDate}</span>
+                        )}
+                      </div>
                     )}
                   </div>
-                  {note.hasStudyMaterial ? (
-                    <div className="flex gap-2 mt-4">
-                      <Button
-                        className="flex-1 bg-gradient-primary hover:opacity-90"
-                        disabled={isGenerating || generatingNoteId !== null}
-                        onClick={() => void openStudyGuide(note)}
-                      >
-                        {isGenerating ? (
-                          <Loader2 className="h-4 w-4 animate-spin" />
-                        ) : (
-                          <>
-                            <Eye className="h-4 w-4" /> View
-                          </>
-                        )}
-                      </Button>
-                      <Button
-                        variant="outline"
-                        size="icon"
-                        disabled={isGenerating || generatingNoteId !== null}
-                        title="Regenerate study guide"
-                        onClick={() => void openStudyGuide(note, { forceRegenerate: true })}
-                      >
-                        <Sparkles className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  ) : (
+                </div>
+                {note.hasStudyMaterial ? (
+                  <div className="flex gap-2">
                     <Button
-                      className="w-full mt-4 bg-gradient-primary hover:opacity-90"
+                      size="sm"
+                      variant="outline"
+                      className="flex-1"
                       disabled={isGenerating || generatingNoteId !== null}
                       onClick={() => void openStudyGuide(note)}
                     >
                       {isGenerating ? (
-                        <>
-                          <Loader2 className="h-4 w-4 animate-spin" />
-                          Generating...
-                        </>
+                        <Loader2 className="h-3.5 w-3.5 animate-spin" />
                       ) : (
                         <>
-                          <BookOpen className="h-4 w-4" /> Generate Study Guide
+                          <Eye className="h-3.5 w-3.5" /> View
                         </>
                       )}
                     </Button>
-                  )}
-                </Card>
-              );
-            })}
-          </div>
-        </>
+                    <Button
+                      size="sm"
+                      className="flex-1 bg-gradient-primary hover:opacity-90"
+                      disabled={isGenerating || generatingNoteId !== null}
+                      title="Regenerate study guide"
+                      onClick={() => void openStudyGuide(note, { forceRegenerate: true })}
+                    >
+                      <Sparkles className="h-3.5 w-3.5" />
+                      Regenerate
+                    </Button>
+                  </div>
+                ) : (
+                  <Button
+                    size="sm"
+                    className="w-full bg-gradient-primary hover:opacity-90"
+                    disabled={isGenerating || generatingNoteId !== null}
+                    onClick={() => void openStudyGuide(note)}
+                  >
+                    {isGenerating ? (
+                      <>
+                        <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                        Generating...
+                      </>
+                    ) : (
+                      <>
+                        <BookOpen className="h-3.5 w-3.5" /> Generate Study Guide
+                      </>
+                    )}
+                  </Button>
+                )}
+              </Card>
+            );
+          })}
+        </div>
       )}
     </div>
   );

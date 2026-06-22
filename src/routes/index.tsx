@@ -156,7 +156,7 @@ function Landing() {
               viewport={{ once: true }}
               transition={{ delay: i * 0.05 }}
             >
-              <Card className="p-6 h-full shadow-card hover:shadow-glow/40 hover:-translate-y-1 transition-all border-border/50 group">
+              <Card className="p-6 h-full shadow-card hover:shadow-glow hover:-translate-y-1 transition-all duration-300 border-border/50 group">
                 <div className="grid h-12 w-12 place-items-center rounded-xl bg-gradient-primary shadow-glow mb-4 group-hover:scale-110 transition">
                   <f.icon className="h-5 w-5 text-primary-foreground" />
                 </div>
@@ -178,7 +178,7 @@ function Landing() {
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
             {steps.map((s, i) => (
               <div key={s.title} className="relative">
-                <Card className="p-6 h-full border-border/50 shadow-card">
+                <Card className="p-6 h-full border-border/50 shadow-card hover:shadow-glow hover:-translate-y-1 transition-all duration-300">
                   <div className="flex items-center gap-3 mb-4">
                     <span className="grid h-8 w-8 place-items-center rounded-lg bg-gradient-primary text-primary-foreground text-sm font-bold">
                       {i + 1}
@@ -195,7 +195,10 @@ function Landing() {
       </section>
 
       {/* Neural Interface Showcase */}
-      <section id="engine" className="relative overflow-hidden bg-background py-24 px-4 lg:px-8 border-y border-border/50">
+      <section
+        id="engine"
+        className="relative overflow-hidden bg-background py-24 px-4 lg:px-8 border-y border-border/50"
+      >
         <div className="pointer-events-none absolute -top-32 left-1/4 h-96 w-96 rounded-full bg-indigo-500/15 dark:bg-indigo-600/20 blur-[120px]" />
         <div className="pointer-events-none absolute -bottom-32 right-1/4 h-96 w-96 rounded-full bg-fuchsia-500/10 dark:bg-purple-600/15 blur-[120px]" />
 
@@ -210,20 +213,21 @@ function Landing() {
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-500/10 border border-indigo-500/20">
               <div className="w-2 h-2 rounded-full bg-indigo-500 animate-pulse" />
               <span className="text-xs font-bold tracking-widest uppercase text-indigo-600 dark:text-indigo-400">
-                System Architecture v4.0
+                AI LEARNING PLATFORM
               </span>
             </div>
 
             <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold font-display text-foreground leading-[1.05] tracking-tight">
-              The Brain{" "}
+              Transform{" "}
               <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-500 via-violet-500 to-fuchsia-500 dark:from-indigo-400 dark:via-violet-400 dark:to-fuchsia-400">
-                Behind the Grade.
+                Notes Into Knowledge.
               </span>
             </h2>
 
             <p className="text-lg text-muted-foreground leading-relaxed max-w-lg">
-              StudyMate AI isn't just a helper — it's a cognitive engine. It deconstructs complex
-              curricula into actionable intelligence, predictive analytics, and semantic summaries.
+              StudyMate AI helps students learn faster by transforming study materials into
+              AI-generated summaries, quizzes, flashcards, and personalized study plans—all in one
+              place.{" "}
             </p>
 
             <div className="grid grid-cols-1 gap-4 pt-2">
@@ -234,10 +238,11 @@ function Landing() {
                   </div>
                   <div>
                     <h3 className="text-foreground font-semibold font-display">
-                      Neural Summarization
+                      AI Smart Summaries
                     </h3>
                     <p className="text-muted-foreground text-sm">
-                      Instant synthesis of 1,000+ page documents into core concepts.
+                      Convert lengthy notes, PDFs, and study materials into concise,
+                      easy-to-understand summaries.
                     </p>
                   </div>
                 </div>
@@ -250,10 +255,11 @@ function Landing() {
                   </div>
                   <div>
                     <h3 className="text-foreground font-semibold font-display">
-                      Predictive Exam Projection
+                      AI Quiz Generator
                     </h3>
                     <p className="text-muted-foreground text-sm">
-                      Identify likely test questions based on historical syllabus patterns.
+                      Generate practice quizzes instantly from your uploaded notes and test your
+                      understanding.
                     </p>
                   </div>
                 </div>
@@ -288,15 +294,19 @@ function Landing() {
                   </div>
                   <div className="grid grid-cols-2 gap-4">
                     <div className="h-28 bg-indigo-500/5 border border-indigo-500/15 rounded-2xl flex flex-col items-center justify-center gap-2">
-                      <div className="text-2xl font-bold font-display text-indigo-600 dark:text-indigo-400">98%</div>
+                      <div className="text-2xl font-bold font-display text-indigo-600 dark:text-indigo-400">
+                        95%
+                      </div>
                       <div className="text-[10px] uppercase tracking-widest text-muted-foreground">
-                        Accuracy
+                        LEARNING EFFICIENCY
                       </div>
                     </div>
                     <div className="h-28 bg-fuchsia-500/5 border border-fuchsia-500/15 rounded-2xl flex flex-col items-center justify-center gap-2">
-                      <div className="text-2xl font-bold font-display text-fuchsia-600 dark:text-fuchsia-400">1.2s</div>
+                      <div className="text-2xl font-bold font-display text-fuchsia-600 dark:text-fuchsia-400">
+                        500+
+                      </div>
                       <div className="text-[10px] uppercase tracking-widest text-muted-foreground">
-                        Latency
+                        FLASHCARDS CREATED
                       </div>
                     </div>
                   </div>
@@ -339,9 +349,9 @@ function Landing() {
               className="absolute -bottom-6 -right-2 sm:-right-6 bg-gradient-to-br from-indigo-600 to-violet-600 text-white p-5 rounded-2xl shadow-2xl shadow-indigo-500/30 ring-1 ring-white/10"
             >
               <div className="text-[10px] uppercase tracking-widest opacity-80 mb-1">
-                Processing Power
+                STUDY MATERIALS
               </div>
-              <div className="text-2xl font-bold font-display tracking-tight">4.2 TFLOPS</div>
+              <div className="text-2xl font-bold font-display tracking-tight">1000+ UPLOADED</div>
             </motion.div>
           </motion.div>
         </div>
@@ -351,19 +361,35 @@ function Landing() {
       <section className="py-20 px-4">
         <div className="max-w-5xl mx-auto rounded-3xl bg-gradient-primary p-12 lg:p-16 text-center shadow-glow relative overflow-hidden">
           <div className="absolute inset-0 bg-[radial-gradient(circle_at_30%_20%,rgba(255,255,255,0.2),transparent)]" />
+          <div className="absolute -bottom-24 -right-24 h-64 w-64 rounded-full bg-white/10 blur-3xl" />
+          <div className="absolute -top-16 -left-16 h-48 w-48 rounded-full bg-white/10 blur-3xl" />
           <div className="relative">
-            <h2 className="text-3xl lg:text-5xl font-bold font-display text-primary-foreground">
-              Ready to transform your study sessions?
+            <div className="inline-flex items-center gap-2 rounded-full border border-primary-foreground/25 bg-primary-foreground/10 backdrop-blur-sm px-4 py-1.5 text-xs font-semibold uppercase tracking-widest text-primary-foreground/90 mb-6">
+              <Sparkles className="h-3.5 w-3.5" />
+              Free forever
+            </div>
+            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-bold font-display text-primary-foreground leading-[1.15] tracking-tight">
+              Your next A+ starts with{" "}
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-white via-violet-200 to-fuchsia-200">
+                one upload
+              </span>
             </h2>
-            <p className="mt-4 text-primary-foreground/80 text-lg">
-              Join thousands of students learning smarter with AI.
+            <p className="mt-5 text-primary-foreground/85 text-base sm:text-lg max-w-2xl mx-auto leading-relaxed">
+              Turn PDFs and notes into{" "}
+              <span className="font-semibold text-transparent bg-clip-text bg-gradient-to-r from-white via-violet-200 to-fuchsia-200">
+                summaries, quizzes & flashcards
+              </span>
+              , plus a day-by-day study plan tailored to your exam date.
+            </p>
+            <p className="mt-3 text-sm font-medium text-primary-foreground/60 tracking-wide">
+              No credit card required
             </p>
             <Link to="/register" className="inline-block mt-8">
               <Button
                 size="lg"
-                className="bg-background text-foreground hover:bg-background/90 h-12 px-8 text-base"
+                className="bg-background text-foreground hover:bg-background/90 hover:scale-[1.02] shadow-glow h-12 px-8 text-base font-semibold transition-all"
               >
-                Start Learning Free <ArrowRight className="ml-1" />
+                Create your free account <ArrowRight className="ml-1" />
               </Button>
             </Link>
           </div>

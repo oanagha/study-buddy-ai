@@ -5,13 +5,11 @@ import {
   Sparkles,
   FileText,
   ArrowLeft,
-  Copy,
   FileType,
   File as FileIcon,
   FileCode,
   Loader2,
   Eye,
-  History,
 } from "lucide-react";
 import { PageHeader } from "@/components/widgets";
 import { LoadingState } from "@/components/loading-spinner";
@@ -26,6 +24,7 @@ import { type Note } from "@/lib/api/notes";
 import { useNotesQuery } from "@/lib/queries/hooks";
 import { patchNotesCache } from "@/lib/queries/invalidate";
 import { toast } from "sonner";
+import { cn } from "@/lib/utils";
 
 type SummariesSearch = {
   noteId?: number;
@@ -76,11 +75,6 @@ function SummaryView({
   onRegenerate: () => void;
   isGenerating: boolean;
 }) {
-  const copySummary = async (text: string) => {
-    await navigator.clipboard.writeText(text);
-    toast.success("Copied to clipboard!");
-  };
-
   return (
     <div className="max-w-4xl mx-auto space-y-6">
       <Button variant="ghost" onClick={onBack} className="-ml-3">
@@ -94,29 +88,19 @@ function SummaryView({
             {summary.cached ? " • cached" : ""}
           </p>
         </div>
-        <div className="flex gap-2">
-          <Button
-            variant="outline"
-            size="sm"
-            disabled={isGenerating}
-            onClick={() => void copySummary(summary.short_summary)}
-          >
-            <Copy className="h-3.5 w-3.5" /> Copy
-          </Button>
-          <Button
-            size="sm"
-            className="bg-gradient-primary hover:opacity-90"
-            disabled={isGenerating}
-            onClick={onRegenerate}
-          >
-            {isGenerating ? (
-              <Loader2 className="h-3.5 w-3.5 animate-spin" />
-            ) : (
-              <Sparkles className="h-3.5 w-3.5" />
-            )}
-            Regenerate
-          </Button>
-        </div>
+        <Button
+          size="sm"
+          className="bg-gradient-primary hover:opacity-90"
+          disabled={isGenerating}
+          onClick={onRegenerate}
+        >
+          {isGenerating ? (
+            <Loader2 className="h-3.5 w-3.5 animate-spin" />
+          ) : (
+            <Sparkles className="h-3.5 w-3.5" />
+          )}
+          Regenerate
+        </Button>
       </div>
       <Card className="p-6 sm:p-8 shadow-card border-border/50">
         <Tabs defaultValue="short">
@@ -312,7 +296,12 @@ function Summaries() {
     return <LoadingState label="Loading summary" className="py-16 text-muted-foreground" />;
   }
 
-  const historyNotes = notes.filter((n) => n.hasSummary);
+  const sortedNotes = [...notes].sort((a, b) => {
+    if (a.hasSummary !== b.hasSummary) {
+      return a.hasSummary ? -1 : 1;
+    }
+    return new Date(b.uploadedAt).getTime() - new Date(a.uploadedAt).getTime();
+  });
 
   return (
     <div className="max-w-7xl mx-auto space-y-6">
@@ -328,100 +317,90 @@ function Summaries() {
           No notes uploaded yet. Upload a PDF, DOCX, or TXT file first to generate summaries.
         </Card>
       ) : (
-        <>
-          {historyNotes.length > 0 && (
-            <section className="space-y-3">
-              <div className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
-                <History className="h-4 w-4" />
-                Saved summaries ({historyNotes.length})
-              </div>
-              <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-                {historyNotes.map((note) => (
-                  <Card
-                    key={`history-${note.noteId}`}
-                    className="p-4 border-primary/20 bg-primary/5 cursor-pointer hover:bg-primary/10 transition-colors"
-                    onClick={() => void openSummary(note)}
-                  >
-                    <p className="font-medium text-sm truncate">{note.fileName}</p>
-                    <p className="text-xs text-muted-foreground mt-1">
-                      {formatHistoryDate(note.summaryGeneratedAt)}
-                    </p>
-                  </Card>
-                ))}
-              </div>
-            </section>
-          )}
+        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+          {sortedNotes.map((note) => {
+            const Icon = fileIcons[note.fileType] ?? FileText;
+            const isGenerating = generatingNoteId === note.noteId;
+            const savedDate = formatHistoryDate(note.summaryGeneratedAt);
 
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {notes.map((note) => {
-              const Icon = fileIcons[note.fileType] ?? FileText;
-              const isGenerating = generatingNoteId === note.noteId;
-
-              return (
-                <Card
-                  key={note.noteId}
-                  className="p-5 shadow-card hover:shadow-glow/40 hover:-translate-y-0.5 transition-all border-border/50"
-                >
-                  <div className="grid h-12 w-12 place-items-center rounded-xl bg-gradient-primary text-primary-foreground shadow-glow mb-4">
+            return (
+              <Card
+                key={note.noteId}
+                className={cn(
+                  "p-5 shadow-card hover:shadow-glow/40 hover:-translate-y-0.5 transition-all border-border/50",
+                  note.hasSummary && "border-primary/20 bg-primary/5",
+                )}
+              >
+                <div className="flex items-start gap-3 mb-4">
+                  <div className="grid h-12 w-12 shrink-0 place-items-center rounded-xl bg-gradient-primary text-primary-foreground shadow-glow">
                     <Icon className="h-5 w-5" />
                   </div>
-                  <h3 className="font-semibold text-sm truncate">{note.fileName}</h3>
-                  <div className="flex items-center gap-2 mt-1 flex-wrap">
-                    <p className="text-xs text-muted-foreground uppercase">{note.fileType}</p>
+                  <div className="min-w-0 flex-1">
+                    <p className="font-semibold text-sm truncate">{note.fileName}</p>
+                    <p className="text-xs text-muted-foreground mt-0.5 uppercase">{note.fileType}</p>
                     {note.hasSummary && (
-                      <Badge variant="secondary" className="text-xs">
-                        Summary saved
-                      </Badge>
+                      <div className="flex items-center gap-2 mt-1.5 flex-wrap">
+                        <Badge variant="secondary" className="text-xs">
+                          Summary saved
+                        </Badge>
+                        {savedDate && (
+                          <span className="text-xs text-muted-foreground">{savedDate}</span>
+                        )}
+                      </div>
                     )}
                   </div>
-                  {note.hasSummary ? (
-                    <div className="flex gap-2 mt-4">
-                      <Button
-                        className="flex-1 bg-gradient-primary hover:opacity-90"
-                        disabled={isGenerating || generatingNoteId !== null}
-                        onClick={() => void openSummary(note)}
-                      >
-                        {isGenerating ? (
-                          <Loader2 className="h-4 w-4 animate-spin" />
-                        ) : (
-                          <>
-                            <Eye className="h-4 w-4" /> View
-                          </>
-                        )}
-                      </Button>
-                      <Button
-                        variant="outline"
-                        size="icon"
-                        disabled={isGenerating || generatingNoteId !== null}
-                        title="Regenerate summary"
-                        onClick={() => void openSummary(note, { forceRegenerate: true })}
-                      >
-                        <Sparkles className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  ) : (
+                </div>
+                {note.hasSummary ? (
+                  <div className="flex gap-2">
                     <Button
-                      className="w-full mt-4 bg-gradient-primary hover:opacity-90"
+                      size="sm"
+                      variant="outline"
+                      className="flex-1"
                       disabled={isGenerating || generatingNoteId !== null}
                       onClick={() => void openSummary(note)}
                     >
                       {isGenerating ? (
-                        <>
-                          <Loader2 className="h-4 w-4 animate-spin" />
-                          Generating...
-                        </>
+                        <Loader2 className="h-3.5 w-3.5 animate-spin" />
                       ) : (
                         <>
-                          <Sparkles className="h-4 w-4" /> Generate Summary
+                          <Eye className="h-3.5 w-3.5" /> View
                         </>
                       )}
                     </Button>
-                  )}
-                </Card>
-              );
-            })}
-          </div>
-        </>
+                    <Button
+                      size="sm"
+                      className="flex-1 bg-gradient-primary hover:opacity-90"
+                      disabled={isGenerating || generatingNoteId !== null}
+                      title="Regenerate summary"
+                      onClick={() => void openSummary(note, { forceRegenerate: true })}
+                    >
+                      <Sparkles className="h-3.5 w-3.5" />
+                      Regenerate
+                    </Button>
+                  </div>
+                ) : (
+                  <Button
+                    size="sm"
+                    className="w-full bg-gradient-primary hover:opacity-90"
+                    disabled={isGenerating || generatingNoteId !== null}
+                    onClick={() => void openSummary(note)}
+                  >
+                    {isGenerating ? (
+                      <>
+                        <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                        Generating...
+                      </>
+                    ) : (
+                      <>
+                        <Sparkles className="h-3.5 w-3.5" /> Generate Summary
+                      </>
+                    )}
+                  </Button>
+                )}
+              </Card>
+            );
+          })}
+        </div>
       )}
     </div>
   );
