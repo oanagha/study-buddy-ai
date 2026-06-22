@@ -78,7 +78,7 @@ function Register() {
     >
       <form className="space-y-2.5" onSubmit={handleSubmit} autoComplete="off">
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          <div className="space-y-2">
+          <div className="space-y-1.5">
             <Label htmlFor="firstName" className={labelClass}>
               First name
             </Label>
@@ -91,7 +91,7 @@ function Register() {
               disabled={isSubmitting}
             />
           </div>
-          <div className="space-y-2">
+          <div className="space-y-1.5">
             <Label htmlFor="lastName" className={labelClass}>
               Last name
             </Label>
