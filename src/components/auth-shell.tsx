@@ -3,6 +3,12 @@ import { Link } from "@tanstack/react-router";
 import { GraduationCap } from "lucide-react";
 import { ThemeToggle } from "@/components/theme-toggle";
 
+const hideScrollbar = {
+  scrollbarWidth: "none" as const,
+  msOverflowStyle: "none" as const,
+};
+const webkitHide = "::-webkit-scrollbar{display:none}";
+
 interface AuthShellProps {
   children: ReactNode;
   title: string;
