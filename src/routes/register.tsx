@@ -205,7 +205,7 @@ function Register() {
 
       <GoogleSignInButton disabled={isSubmitting} />
 
-      <p className="mt-6 text-center text-sm text-slate-600 dark:text-slate-400 font-medium">
+      <p className="mt-4 text-center text-sm text-slate-600 dark:text-slate-400 font-medium">
         Already have an account?{" "}
         <Link
           to="/login"
