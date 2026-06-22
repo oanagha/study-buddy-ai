@@ -51,17 +51,17 @@ export function AuthShell({ children, title, subtitle }: AuthShellProps) {
 
       {/* Floating card */}
       <div className="relative z-10 w-full max-w-[480px] px-4 animate-float">
-        <div className="bg-white/70 dark:bg-slate-900/40 backdrop-blur-3xl border border-slate-200/70 dark:border-white/10 rounded-[2.5rem] shadow-[0_0_100px_-15px_rgba(79,70,229,0.25)] dark:shadow-[0_0_100px_-15px_rgba(79,70,229,0.35)] p-8 sm:p-10 relative overflow-hidden group">
+        <div className="bg-white/70 dark:bg-slate-900/40 backdrop-blur-3xl border border-slate-200/70 dark:border-white/10 rounded-[2rem] shadow-[0_0_100px_-15px_rgba(79,70,229,0.25)] dark:shadow-[0_0_100px_-15px_rgba(79,70,229,0.35)] p-6 sm:p-8 relative overflow-hidden group">
           {/* Inner shimmer streak */}
           <div className="absolute -top-1/2 -left-1/2 w-full h-[200%] bg-gradient-to-r from-transparent via-white/40 dark:via-white/5 to-transparent rotate-[35deg] pointer-events-none group-hover:translate-x-full transition-transform duration-[3000ms]" />
 
           {/* Header */}
-          <div className="text-center mb-8 relative">
-            <div className="inline-flex items-center justify-center w-14 h-14 rounded-2xl bg-gradient-to-br from-indigo-500 via-violet-500 to-fuchsia-500 mb-5 shadow-xl shadow-indigo-500/30 ring-1 ring-white/20">
-              <GraduationCap className="w-7 h-7 text-white drop-shadow-md" />
+          <div className="text-center mb-5 relative">
+            <div className="inline-flex items-center justify-center w-12 h-12 rounded-2xl bg-gradient-to-br from-indigo-500 via-violet-500 to-fuchsia-500 mb-3 shadow-xl shadow-indigo-500/30 ring-1 ring-white/20">
+              <GraduationCap className="w-6 h-6 text-white drop-shadow-md" />
             </div>
-            <h1 className="text-3xl font-bold tracking-tight font-display text-slate-900 dark:text-white">{title}</h1>
-            <p className="mt-2 text-sm text-slate-600 dark:text-slate-400">{subtitle}</p>
+            <h1 className="text-2xl sm:text-3xl font-bold tracking-tight font-display text-slate-900 dark:text-white">{title}</h1>
+            <p className="mt-1.5 text-sm text-slate-600 dark:text-slate-400">{subtitle}</p>
           </div>
 
           <div className="relative">{children}</div>
