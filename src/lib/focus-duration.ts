@@ -39,7 +39,9 @@ export function setFocusDurationPreference(preference: FocusDurationPreference) 
 export function subscribeFocusDurationPreference(listener: FocusDurationListener) {
   listener(getFocusDurationPreference());
   listeners.add(listener);
-  return () => { listeners.delete(listener); };
+  return () => {
+    listeners.delete(listener);
+  };
 }
 
 function resolveAutoFocusMinutes(

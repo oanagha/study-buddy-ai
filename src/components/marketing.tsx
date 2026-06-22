@@ -54,11 +54,7 @@ export function MarketingNav() {
           <a href="#how" className="block text-sm font-medium" onClick={() => setOpen(false)}>
             How it works
           </a>
-          <a
-            href="#engine"
-            className="block text-sm font-medium"
-            onClick={() => setOpen(false)}
-          >
+          <a href="#engine" className="block text-sm font-medium" onClick={() => setOpen(false)}>
             Engine
           </a>
           <Link to="/login" className="block text-sm font-medium">

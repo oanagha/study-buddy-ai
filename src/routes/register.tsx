@@ -25,7 +25,8 @@ export const Route = createFileRoute("/register")({
 const inputClass =
   "h-10 sm:h-11 rounded-xl bg-white/80 dark:bg-slate-950/50 border border-slate-200 dark:border-white/10 text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-600 focus-visible:ring-2 focus-visible:ring-indigo-500/40 focus-visible:border-indigo-500/50 transition-all";
 const inputWithIcon = `${inputClass} pl-10`;
-const labelClass = "text-xs font-semibold text-slate-600 dark:text-slate-300 uppercase tracking-wider ml-1";
+const labelClass =
+  "text-xs font-semibold text-slate-600 dark:text-slate-300 uppercase tracking-wider ml-1";
 const primaryBtn =
   "w-full h-10 sm:h-11 rounded-xl bg-gradient-to-r from-indigo-600 via-violet-600 to-fuchsia-600 hover:brightness-110 text-white font-semibold shadow-lg shadow-indigo-500/30 dark:shadow-indigo-900/40 transition-all group";
 
@@ -72,10 +73,7 @@ function Register() {
   }
 
   return (
-    <AuthShell
-      title="Create your account"
-      subtitle="Free forever — no credit card required"
-    >
+    <AuthShell title="Create your account" subtitle="Free forever — no credit card required">
       <form className="space-y-2" onSubmit={handleSubmit} autoComplete="off">
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div className="space-y-1.5">
@@ -181,11 +179,17 @@ function Register() {
 
         <p className="text-xs text-slate-500 text-center leading-relaxed">
           By signing up, you agree to our{" "}
-          <a href="#" className="text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:underline">
+          <a
+            href="#"
+            className="text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:underline"
+          >
             Terms
           </a>{" "}
           and{" "}
-          <a href="#" className="text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:underline">
+          <a
+            href="#"
+            className="text-slate-700 dark:text-slate-300 hover:text-slate-900 dark:hover:text-white hover:underline"
+          >
             Privacy Policy
           </a>
           .

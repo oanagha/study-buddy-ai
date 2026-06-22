@@ -177,10 +177,7 @@ function Quizzes() {
   if (stage === "setup") {
     return (
       <div className="w-full max-w-6xl mx-auto px-10 flex flex-col gap-8">
-        <PageHeader
-          title="Quizzes"
-          subtitle="Test your knowledge across your uploaded notes."
-        />
+        <PageHeader title="Quizzes" subtitle="Test your knowledge across your uploaded notes." />
 
         {loadingNotes ? (
           <LoadingState label="Loading notes" className="py-16 text-muted-foreground" />
@@ -340,9 +337,7 @@ function Quizzes() {
                   <div className="p-5 rounded-2xl bg-background/40 border border-border/40">
                     <div className="flex justify-between items-center mb-2">
                       <span className="text-sm text-muted-foreground">Points Available</span>
-                      <span className="text-sm font-bold text-amber-400">
-                        {questionCount * 10}
-                      </span>
+                      <span className="text-sm font-bold text-amber-400">{questionCount * 10}</span>
                     </div>
                     <div className="h-2 bg-muted/40 rounded-full overflow-hidden">
                       <div

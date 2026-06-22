@@ -34,7 +34,9 @@ export function setFocusAlertsEnabled(enabled: boolean) {
 
 export function subscribeFocusAlertsEnabled(listener: FocusAlertListener) {
   alertListeners.add(listener);
-  return () => { alertListeners.delete(listener); };
+  return () => {
+    alertListeners.delete(listener);
+  };
 }
 
 export { requestBrowserNotificationPermission as requestFocusNotificationPermission } from "@/lib/browser-notify";

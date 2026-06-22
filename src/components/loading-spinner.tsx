@@ -34,7 +34,11 @@ export function LoadingState({
   size?: SpinnerSize;
 }) {
   return (
-    <div role="status" aria-label={label} className={cn("flex items-center justify-center", className)}>
+    <div
+      role="status"
+      aria-label={label}
+      className={cn("flex items-center justify-center", className)}
+    >
       <LoadingSpinner size={size} />
     </div>
   );

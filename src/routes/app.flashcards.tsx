@@ -178,18 +178,14 @@ function Flashcards() {
     toast.success("Batch learned! Time to test your recall — no peeking.");
   }, []);
 
-  const finishRecall = useCallback(
-    (firstPass: Set<string>, batch: DeckCard[]) => {
-      const score =
-        batch.length > 0 ? Math.round((firstPass.size / batch.length) * 100) : 100;
-      setBatchScore(score);
-      setStage("complete");
-      setShowCompleteDialog(true);
-      setRecallQueue([]);
-      setRecallRevealed(false);
-    },
-    [],
-  );
+  const finishRecall = useCallback((firstPass: Set<string>, batch: DeckCard[]) => {
+    const score = batch.length > 0 ? Math.round((firstPass.size / batch.length) * 100) : 100;
+    setBatchScore(score);
+    setStage("complete");
+    setShowCompleteDialog(true);
+    setRecallQueue([]);
+    setRecallRevealed(false);
+  }, []);
 
   useEffect(() => {
     if (stage !== "learn" || currentBatch.length === 0) return;
@@ -203,42 +199,48 @@ function Flashcards() {
     void navigate({ search: { noteId: id }, replace: true });
   };
 
-  const applyDeck = (note: Note, result: { flashcards: Flashcard[]; flashcard_set_id?: number }) => {
-    const setId = result.flashcard_set_id ?? Date.now();
-    const newDeck = result.flashcards.map((fc, i) => ({
-      ...fc,
-      id: `${setId}-${i}`,
-    }));
+  const applyDeck = useCallback(
+    (note: Note, result: { flashcards: Flashcard[]; flashcard_set_id?: number }) => {
+      const setId = result.flashcard_set_id ?? Date.now();
+      const newDeck = result.flashcards.map((fc, i) => ({
+        ...fc,
+        id: `${setId}-${i}`,
+      }));
 
-    setDeck(newDeck);
-    setActiveNoteName(note.fileName);
-    setHasDeck(newDeck.length > 0);
-    resetSessionState();
-    return newDeck.length;
-  };
+      setDeck(newDeck);
+      setActiveNoteName(note.fileName);
+      setHasDeck(newDeck.length > 0);
+      resetSessionState();
+      return newDeck.length;
+    },
+    [resetSessionState],
+  );
 
-  const handleLoadSaved = useCallback(async (note: Note) => {
-    setLoadingSaved(true);
+  const handleLoadSaved = useCallback(
+    async (note: Note) => {
+      setLoadingSaved(true);
 
-    try {
-      const result = await fetchFlashcards(note.noteId);
-      const count = applyDeck(note, result);
+      try {
+        const result = await fetchFlashcards(note.noteId);
+        const count = applyDeck(note, result);
 
-      if (count === 0) {
-        toast.info("No saved flashcards for this note yet. Generate a new deck.");
-      } else {
-        toast.success(`Loaded ${count} saved flashcards.`);
+        if (count === 0) {
+          toast.info("No saved flashcards for this note yet. Generate a new deck.");
+        } else {
+          toast.success(`Loaded ${count} saved flashcards.`);
+        }
+      } catch (err) {
+        if (err instanceof ApiError) {
+          toast.error(err.message);
+        } else {
+          toast.error("Failed to load saved flashcards.");
+        }
+      } finally {
+        setLoadingSaved(false);
       }
-    } catch (err) {
-      if (err instanceof ApiError) {
-        toast.error(err.message);
-      } else {
-        toast.error("Failed to load saved flashcards.");
-      }
-    } finally {
-      setLoadingSaved(false);
-    }
-  }, []);
+    },
+    [applyDeck],
+  );
 
   const handleGenerate = async () => {
     if (!selectedNote) {
@@ -598,7 +600,10 @@ function Flashcards() {
                       "bg-violet-500/20 text-violet-400",
                       "bg-emerald-500/20 text-emerald-400",
                     ];
-                    const initials = note.fileName.replace(/\.[^.]+$/, "").slice(0, 2).toUpperCase();
+                    const initials = note.fileName
+                      .replace(/\.[^.]+$/, "")
+                      .slice(0, 2)
+                      .toUpperCase();
                     return (
                       <button
                         key={note.noteId}
@@ -637,9 +642,7 @@ function Flashcards() {
 
   if (stage === "recall" && recallCard) {
     const recallProgress =
-      currentBatch.length > 0
-        ? Math.round((recallMastered.size / currentBatch.length) * 100)
-        : 0;
+      currentBatch.length > 0 ? Math.round((recallMastered.size / currentBatch.length) * 100) : 0;
 
     return (
       <div className="max-w-6xl mx-auto space-y-6 px-10">
@@ -681,11 +684,7 @@ function Flashcards() {
         </Card>
 
         <div className="flex flex-col sm:flex-row gap-3">
-          <Button
-            variant="outline"
-            className="flex-1"
-            onClick={() => setRecallRevealed((v) => !v)}
-          >
+          <Button variant="outline" className="flex-1" onClick={() => setRecallRevealed((v) => !v)}>
             {recallRevealed ? (
               <>
                 <EyeOff className="h-4 w-4" /> Hide answer

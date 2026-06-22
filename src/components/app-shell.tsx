@@ -29,9 +29,7 @@ import {
   isTokenExpired,
 } from "@/lib/auth";
 import { toast } from "sonner";
-import {
-  type UpcomingSession,
-} from "@/lib/api/dashboard";
+import { type UpcomingSession } from "@/lib/api/dashboard";
 import { getProfileInitials, type UserProfile } from "@/lib/api/profile";
 import { subscribeProfileUpdates } from "@/lib/profile-sync";
 import { type StudyPlanResult } from "@/lib/api/studyPlan";

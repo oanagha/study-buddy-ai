@@ -3,10 +3,7 @@ import type { Note } from "@/lib/api/notes";
 import type { StudyPlanResult } from "@/lib/api/studyPlan";
 import { queryKeys } from "./keys";
 
-export function patchNotesCache(
-  queryClient: QueryClient,
-  updater: (notes: Note[]) => Note[],
-) {
+export function patchNotesCache(queryClient: QueryClient, updater: (notes: Note[]) => Note[]) {
   queryClient.setQueryData<Note[]>(queryKeys.notes, (current) =>
     current ? updater(current) : current,
   );

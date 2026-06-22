@@ -536,7 +536,9 @@ function StudyGuide() {
                   </div>
                   <div className="min-w-0 flex-1">
                     <p className="font-semibold text-sm truncate">{note.fileName}</p>
-                    <p className="text-xs text-muted-foreground mt-0.5 uppercase">{note.fileType}</p>
+                    <p className="text-xs text-muted-foreground mt-0.5 uppercase">
+                      {note.fileType}
+                    </p>
                     {note.hasStudyMaterial && (
                       <div className="flex items-center gap-2 mt-1.5 flex-wrap">
                         <Badge variant="secondary" className="text-xs">

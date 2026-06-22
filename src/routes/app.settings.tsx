@@ -584,101 +584,108 @@ function Settings() {
       </Dialog>
 
       <div className="grid gap-6 lg:grid-cols-2">
-      <Section
-
-        icon={<Moon className="h-4 w-4" />}
-        title="Appearance"
-        desc="Switch between light and dark themes."
-      >
-        <Row label="Dark Mode" desc="Easier on the eyes in low light.">
-          <Switch
-            checked={theme === "dark"}
-            onCheckedChange={handleDarkModeChange}
-            disabled={saving}
-          />
-        </Row>
-      </Section>
-
-      <Section
-        icon={<Timer className="h-4 w-4" />}
-        title="Focus timer"
-        desc="Customize the study timer shown in the header."
-      >
-        <Row
-          label="Session duration"
-          desc="Choose a fixed length or let StudyMate calculate it from your study plan."
+        <Section
+          icon={<Moon className="h-4 w-4" />}
+          title="Appearance"
+          desc="Switch between light and dark themes."
         >
-          <Select
-            value={String(focusDuration)}
-            onValueChange={(value) => {
-              const preference: FocusDurationPreference =
-                value === FOCUS_DURATION_AUTO
-                  ? FOCUS_DURATION_AUTO
-                  : (Number.parseInt(value, 10) as FocusDurationPreference);
-              setFocusDuration(preference);
-              setFocusDurationPreference(preference);
-              toast.success(`Focus timer set to ${formatFocusDurationLabel(preference)}`);
-            }}
+          <Row label="Dark Mode" desc="Easier on the eyes in low light.">
+            <Switch
+              checked={theme === "dark"}
+              onCheckedChange={handleDarkModeChange}
+              disabled={saving}
+            />
+          </Row>
+        </Section>
+
+        <Section
+          icon={<Timer className="h-4 w-4" />}
+          title="Focus timer"
+          desc="Customize the study timer shown in the header."
+        >
+          <Row
+            label="Session duration"
+            desc="Choose a fixed length or let StudyMate calculate it from your study plan."
           >
-            <SelectTrigger className="min-w-[180px] rounded-lg bg-card">
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value={FOCUS_DURATION_AUTO}>
-                {formatFocusDurationLabel(FOCUS_DURATION_AUTO)}
-              </SelectItem>
-              {FOCUS_DURATION_OPTIONS.map((minutes) => (
-                <SelectItem key={minutes} value={String(minutes)}>
-                  {formatFocusDurationLabel(minutes)}
+            <Select
+              value={String(focusDuration)}
+              onValueChange={(value) => {
+                const preference: FocusDurationPreference =
+                  value === FOCUS_DURATION_AUTO
+                    ? FOCUS_DURATION_AUTO
+                    : (Number.parseInt(value, 10) as FocusDurationPreference);
+                setFocusDuration(preference);
+                setFocusDurationPreference(preference);
+                toast.success(`Focus timer set to ${formatFocusDurationLabel(preference)}`);
+              }}
+            >
+              <SelectTrigger className="min-w-[180px] rounded-lg bg-card">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value={FOCUS_DURATION_AUTO}>
+                  {formatFocusDurationLabel(FOCUS_DURATION_AUTO)}
                 </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </Row>
-        <Row
-          label="Focus timer alerts"
-          desc="Toasts and alerts when a focus session starts or ends."
+                {FOCUS_DURATION_OPTIONS.map((minutes) => (
+                  <SelectItem key={minutes} value={String(minutes)}>
+                    {formatFocusDurationLabel(minutes)}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </Row>
+          <Row
+            label="Focus timer alerts"
+            desc="Toasts and alerts when a focus session starts or ends."
+          >
+            <Switch
+              checked={focusAlerts}
+              onCheckedChange={(checked) => {
+                setFocusAlerts(checked);
+                setFocusAlertsEnabled(checked);
+                toast.success(
+                  checked ? "Focus timer alerts enabled" : "Focus timer alerts disabled",
+                );
+              }}
+            />
+          </Row>
+        </Section>
+
+        <Section
+          icon={<Bell className="h-4 w-4" />}
+          title="Notifications"
+          desc="Control email and browser alerts."
         >
-          <Switch
-            checked={focusAlerts}
-            onCheckedChange={(checked) => {
-              setFocusAlerts(checked);
-              setFocusAlertsEnabled(checked);
-              toast.success(checked ? "Focus timer alerts enabled" : "Focus timer alerts disabled");
-            }}
-          />
-        </Row>
-      </Section>
+          <Row
+            label="Email reminders"
+            desc="Daily nudge and study session reminders when a scheduled time is reached."
+          >
+            <Switch
+              checked={settings.email_reminders}
+              onCheckedChange={(checked) => updateField("email_reminders", checked)}
+              disabled={saving}
+            />
+          </Row>
+          <Row
+            label="Push notifications"
+            desc="Browser alerts for study activity and session reminders."
+          >
+            <Switch
+              checked={settings.push_notifications}
+              onCheckedChange={(checked) => void handlePushNotificationsChange(checked)}
+              disabled={saving}
+            />
+          </Row>
+          <Row label="Weekly digest" desc="Email summary of your weekly progress every Sunday.">
+            <Switch
+              checked={settings.weekly_digest}
+              onCheckedChange={(checked) => updateField("weekly_digest", checked)}
+              disabled={saving}
+            />
+          </Row>
+        </Section>
 
-      <Section
-        icon={<Bell className="h-4 w-4" />}
-        title="Notifications"
-        desc="Control email and browser alerts."
-      >
-        <Row label="Email reminders" desc="Daily nudge and study session reminders when a scheduled time is reached.">
-          <Switch
-            checked={settings.email_reminders}
-            onCheckedChange={(checked) => updateField("email_reminders", checked)}
-            disabled={saving}
-          />
-        </Row>
-        <Row label="Push notifications" desc="Browser alerts for study activity and session reminders.">
-          <Switch
-            checked={settings.push_notifications}
-            onCheckedChange={(checked) => void handlePushNotificationsChange(checked)}
-            disabled={saving}
-          />
-        </Row>
-        <Row label="Weekly digest" desc="Email summary of your weekly progress every Sunday.">
-          <Switch
-            checked={settings.weekly_digest}
-            onCheckedChange={(checked) => updateField("weekly_digest", checked)}
-            disabled={saving}
-          />
-        </Row>
-      </Section>
-
-      {/* <Section icon={<Globe className="h-4 w-4" />} title="Language & Region" desc="Choose your preferred language.">
+        {/* <Section icon={<Globe className="h-4 w-4" />} title="Language & Region" desc="Choose your preferred language.">
         <Row label="Language" desc="Interface language.">
           <Select
             value={settings.language}
@@ -699,84 +706,86 @@ function Settings() {
         </Row>
       </Section> */}
 
-      <Section
-        icon={<User className="h-4 w-4" />}
-        title="Account"
-        desc="Manage your account preferences."
-      >
-        <Row label="Two-factor authentication" desc="Extra layer of security with a custom PIN.">
-          <Button
-            variant="outline"
-            size="sm"
-            disabled={updating2fa}
-            onClick={() => {
-              resetPinForm();
-              if (settings.two_factor_enabled) {
-                setDisableDialogOpen(true);
-              } else {
-                setSetupDialogOpen(true);
-              }
-            }}
+        <Section
+          icon={<User className="h-4 w-4" />}
+          title="Account"
+          desc="Manage your account preferences."
+        >
+          <Row label="Two-factor authentication" desc="Extra layer of security with a custom PIN.">
+            <Button
+              variant="outline"
+              size="sm"
+              disabled={updating2fa}
+              onClick={() => {
+                resetPinForm();
+                if (settings.two_factor_enabled) {
+                  setDisableDialogOpen(true);
+                } else {
+                  setSetupDialogOpen(true);
+                }
+              }}
+            >
+              {settings.two_factor_enabled ? "Disable" : "Enable"}
+            </Button>
+          </Row>
+          <Row
+            label="Download my data"
+            desc="Get a personalized PDF report of your StudyMate data."
           >
-            {settings.two_factor_enabled ? "Disable" : "Enable"}
-          </Button>
-        </Row>
-        <Row label="Download my data" desc="Get a personalized PDF report of your StudyMate data.">
-          <Button
-            variant="outline"
-            size="sm"
-            disabled={exporting}
-            onClick={() => void handleExportData()}
-          >
-            {exporting ? (
-              <>
-                <Loader2 className="h-4 w-4 animate-spin" />
-                Preparing...
-              </>
-            ) : (
-              "Download"
-            )}
-          </Button>
-        </Row>
-      </Section>
+            <Button
+              variant="outline"
+              size="sm"
+              disabled={exporting}
+              onClick={() => void handleExportData()}
+            >
+              {exporting ? (
+                <>
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  Preparing...
+                </>
+              ) : (
+                "Download"
+              )}
+            </Button>
+          </Row>
+        </Section>
 
-      <Section
-        icon={<Shield className="h-4 w-4" />}
-        title="Security"
-        desc="Sign out or delete your account."
-      >
-        <Row label="Sign out on all devices" desc="Ends every active session.">
-          <Button
-            variant="outline"
-            size="sm"
-            disabled={!settings.has_password}
-            onClick={() => {
-              setSignOutPassword("");
-              setSignOutDialogOpen(true);
-            }}
-          >
-            Sign out all
-          </Button>
-        </Row>
-        <Row label="Delete account" desc="This action is permanent.">
-          <Button
-            variant="destructive"
-            size="sm"
-            disabled={!settings.has_password}
-            onClick={() => {
-              setDeleteForm({ password: "", confirmation: "" });
-              setDeleteDialogOpen(true);
-            }}
-          >
-            Delete
-          </Button>
-        </Row>
-      </Section>
+        <Section
+          icon={<Shield className="h-4 w-4" />}
+          title="Security"
+          desc="Sign out or delete your account."
+        >
+          <Row label="Sign out on all devices" desc="Ends every active session.">
+            <Button
+              variant="outline"
+              size="sm"
+              disabled={!settings.has_password}
+              onClick={() => {
+                setSignOutPassword("");
+                setSignOutDialogOpen(true);
+              }}
+            >
+              Sign out all
+            </Button>
+          </Row>
+          <Row label="Delete account" desc="This action is permanent.">
+            <Button
+              variant="destructive"
+              size="sm"
+              disabled={!settings.has_password}
+              onClick={() => {
+                setDeleteForm({ password: "", confirmation: "" });
+                setDeleteDialogOpen(true);
+              }}
+            >
+              Delete
+            </Button>
+          </Row>
+        </Section>
       </div>
     </div>
   );
 }
-
 
 function Section({
   icon,
