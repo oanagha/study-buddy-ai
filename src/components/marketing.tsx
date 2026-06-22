@@ -26,8 +26,8 @@ export function MarketingNav() {
           <a href="#how" className="hover:text-foreground transition">
             How it works
           </a>
-          <a href="#testimonials" className="hover:text-foreground transition">
-            Students
+          <a href="#engine" className="hover:text-foreground transition">
+            Engine
           </a>
         </nav>
 
@@ -55,11 +55,11 @@ export function MarketingNav() {
             How it works
           </a>
           <a
-            href="#testimonials"
+            href="#engine"
             className="block text-sm font-medium"
             onClick={() => setOpen(false)}
           >
-            Students
+            Engine
           </a>
           <Link to="/login" className="block text-sm font-medium">
             Log in
