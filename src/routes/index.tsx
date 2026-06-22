@@ -195,9 +195,9 @@ function Landing() {
       </section>
 
       {/* Neural Interface Showcase */}
-      <section id="engine" className="relative overflow-hidden bg-slate-950 py-24 px-4 lg:px-8">
-        <div className="pointer-events-none absolute -top-32 left-1/4 h-96 w-96 rounded-full bg-indigo-600/20 blur-[120px]" />
-        <div className="pointer-events-none absolute -bottom-32 right-1/4 h-96 w-96 rounded-full bg-purple-600/15 blur-[120px]" />
+      <section id="engine" className="relative overflow-hidden bg-background py-24 px-4 lg:px-8 border-y border-border/50">
+        <div className="pointer-events-none absolute -top-32 left-1/4 h-96 w-96 rounded-full bg-indigo-500/15 dark:bg-indigo-600/20 blur-[120px]" />
+        <div className="pointer-events-none absolute -bottom-32 right-1/4 h-96 w-96 rounded-full bg-fuchsia-500/10 dark:bg-purple-600/15 blur-[120px]" />
 
         <div className="relative max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-20 items-center">
           <motion.div
@@ -209,50 +209,50 @@ function Landing() {
           >
             <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-500/10 border border-indigo-500/20">
               <div className="w-2 h-2 rounded-full bg-indigo-500 animate-pulse" />
-              <span className="text-xs font-bold tracking-widest uppercase text-indigo-400">
+              <span className="text-xs font-bold tracking-widest uppercase text-indigo-600 dark:text-indigo-400">
                 System Architecture v4.0
               </span>
             </div>
 
-            <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold font-display text-white leading-[1.05] tracking-tight">
+            <h2 className="text-4xl md:text-5xl lg:text-6xl font-bold font-display text-foreground leading-[1.05] tracking-tight">
               The Brain{" "}
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-400 via-violet-400 to-fuchsia-400">
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-indigo-500 via-violet-500 to-fuchsia-500 dark:from-indigo-400 dark:via-violet-400 dark:to-fuchsia-400">
                 Behind the Grade.
               </span>
             </h2>
 
-            <p className="text-lg text-slate-400 leading-relaxed max-w-lg">
+            <p className="text-lg text-muted-foreground leading-relaxed max-w-lg">
               StudyMate AI isn't just a helper — it's a cognitive engine. It deconstructs complex
               curricula into actionable intelligence, predictive analytics, and semantic summaries.
             </p>
 
             <div className="grid grid-cols-1 gap-4 pt-2">
-              <div className="group p-5 rounded-2xl bg-white/5 border border-white/10 hover:border-indigo-500/50 transition-all duration-300">
+              <div className="group p-5 rounded-2xl bg-card border border-border hover:border-indigo-500/50 transition-all duration-300">
                 <div className="flex items-center gap-4">
-                  <div className="shrink-0 grid h-12 w-12 place-items-center rounded-xl bg-indigo-500/20 text-indigo-400 group-hover:scale-110 transition-transform">
+                  <div className="shrink-0 grid h-12 w-12 place-items-center rounded-xl bg-indigo-500/15 text-indigo-600 dark:text-indigo-400 group-hover:scale-110 transition-transform">
                     <Zap className="h-6 w-6" />
                   </div>
                   <div>
-                    <h3 className="text-white font-semibold font-display">
+                    <h3 className="text-foreground font-semibold font-display">
                       Neural Summarization
                     </h3>
-                    <p className="text-slate-400 text-sm">
+                    <p className="text-muted-foreground text-sm">
                       Instant synthesis of 1,000+ page documents into core concepts.
                     </p>
                   </div>
                 </div>
               </div>
 
-              <div className="group p-5 rounded-2xl bg-white/5 border border-white/10 hover:border-fuchsia-500/50 transition-all duration-300">
+              <div className="group p-5 rounded-2xl bg-card border border-border hover:border-fuchsia-500/50 transition-all duration-300">
                 <div className="flex items-center gap-4">
-                  <div className="shrink-0 grid h-12 w-12 place-items-center rounded-xl bg-fuchsia-500/20 text-fuchsia-400 group-hover:scale-110 transition-transform">
+                  <div className="shrink-0 grid h-12 w-12 place-items-center rounded-xl bg-fuchsia-500/15 text-fuchsia-600 dark:text-fuchsia-400 group-hover:scale-110 transition-transform">
                     <BarChart3 className="h-6 w-6" />
                   </div>
                   <div>
-                    <h3 className="text-white font-semibold font-display">
+                    <h3 className="text-foreground font-semibold font-display">
                       Predictive Exam Projection
                     </h3>
-                    <p className="text-slate-400 text-sm">
+                    <p className="text-muted-foreground text-sm">
                       Identify likely test questions based on historical syllabus patterns.
                     </p>
                   </div>
@@ -268,14 +268,14 @@ function Landing() {
             transition={{ duration: 0.7, delay: 0.1 }}
             className="lg:col-span-7 relative"
           >
-            <div className="relative bg-slate-900 rounded-3xl border border-white/10 shadow-[0_0_60px_-12px_rgba(79,70,229,0.4)] overflow-hidden">
-              <div className="flex items-center justify-between px-6 py-4 border-b border-white/5 bg-slate-900/50 backdrop-blur-md">
+            <div className="relative bg-card rounded-3xl border border-border shadow-[0_0_60px_-12px_rgba(79,70,229,0.25)] dark:shadow-[0_0_60px_-12px_rgba(79,70,229,0.4)] overflow-hidden">
+              <div className="flex items-center justify-between px-6 py-4 border-b border-border bg-muted/30 backdrop-blur-md">
                 <div className="flex gap-1.5">
-                  <div className="w-3 h-3 rounded-full bg-rose-500/50" />
-                  <div className="w-3 h-3 rounded-full bg-amber-500/50" />
-                  <div className="w-3 h-3 rounded-full bg-emerald-500/50" />
+                  <div className="w-3 h-3 rounded-full bg-rose-500/60" />
+                  <div className="w-3 h-3 rounded-full bg-amber-500/60" />
+                  <div className="w-3 h-3 rounded-full bg-emerald-500/60" />
                 </div>
-                <div className="px-4 py-1 rounded-md bg-white/5 text-[10px] text-slate-500 font-mono tracking-tighter">
+                <div className="px-4 py-1 rounded-md bg-muted text-[10px] text-muted-foreground font-mono tracking-tighter">
                   ANALYTICS_MODULE_ACTIVE
                 </div>
               </div>
@@ -283,48 +283,48 @@ function Landing() {
               <div className="p-6 sm:p-8 grid grid-cols-12 gap-6">
                 <div className="col-span-12 sm:col-span-8 space-y-6">
                   <div className="space-y-3">
-                    <div className="h-2 w-24 bg-indigo-400/30 rounded-full" />
-                    <div className="h-8 w-full bg-white/5 rounded-lg" />
+                    <div className="h-2 w-24 bg-indigo-400/40 rounded-full" />
+                    <div className="h-8 w-full bg-muted rounded-lg" />
                   </div>
                   <div className="grid grid-cols-2 gap-4">
-                    <div className="h-28 bg-indigo-500/5 border border-indigo-500/10 rounded-2xl flex flex-col items-center justify-center gap-2">
-                      <div className="text-2xl font-bold font-display text-indigo-400">98%</div>
-                      <div className="text-[10px] uppercase tracking-widest text-slate-500">
+                    <div className="h-28 bg-indigo-500/5 border border-indigo-500/15 rounded-2xl flex flex-col items-center justify-center gap-2">
+                      <div className="text-2xl font-bold font-display text-indigo-600 dark:text-indigo-400">98%</div>
+                      <div className="text-[10px] uppercase tracking-widest text-muted-foreground">
                         Accuracy
                       </div>
                     </div>
-                    <div className="h-28 bg-fuchsia-500/5 border border-fuchsia-500/10 rounded-2xl flex flex-col items-center justify-center gap-2">
-                      <div className="text-2xl font-bold font-display text-fuchsia-400">1.2s</div>
-                      <div className="text-[10px] uppercase tracking-widest text-slate-500">
+                    <div className="h-28 bg-fuchsia-500/5 border border-fuchsia-500/15 rounded-2xl flex flex-col items-center justify-center gap-2">
+                      <div className="text-2xl font-bold font-display text-fuchsia-600 dark:text-fuchsia-400">1.2s</div>
+                      <div className="text-[10px] uppercase tracking-widest text-muted-foreground">
                         Latency
                       </div>
                     </div>
                   </div>
-                  <div className="space-y-4 p-5 bg-white/[0.02] border border-white/5 rounded-2xl">
+                  <div className="space-y-4 p-5 bg-muted/40 border border-border rounded-2xl">
                     <div className="flex justify-between items-center">
-                      <div className="h-4 w-32 bg-white/10 rounded" />
-                      <div className="h-4 w-12 bg-emerald-500/20 rounded" />
+                      <div className="h-4 w-32 bg-muted-foreground/20 rounded" />
+                      <div className="h-4 w-12 bg-emerald-500/30 rounded" />
                     </div>
                     <div className="space-y-2">
-                      <div className="h-2 w-full bg-white/5 rounded" />
-                      <div className="h-2 w-5/6 bg-white/5 rounded" />
-                      <div className="h-2 w-4/6 bg-white/5 rounded" />
+                      <div className="h-2 w-full bg-muted-foreground/15 rounded" />
+                      <div className="h-2 w-5/6 bg-muted-foreground/15 rounded" />
+                      <div className="h-2 w-4/6 bg-muted-foreground/15 rounded" />
                     </div>
                   </div>
                 </div>
 
                 <div className="col-span-12 sm:col-span-4">
-                  <div className="h-full w-full bg-gradient-to-b from-indigo-500/10 to-transparent border-l border-white/5 p-4 space-y-4">
-                    <div className="h-12 w-12 rounded-full bg-indigo-500/20 border border-indigo-500/30 mx-auto grid place-items-center">
-                      <Brain className="h-6 w-6 text-indigo-400" />
+                  <div className="h-full w-full bg-gradient-to-b from-indigo-500/10 to-transparent border-l border-border p-4 space-y-4">
+                    <div className="h-12 w-12 rounded-full bg-indigo-500/15 border border-indigo-500/30 mx-auto grid place-items-center">
+                      <Brain className="h-6 w-6 text-indigo-600 dark:text-indigo-400" />
                     </div>
                     <div className="space-y-2">
-                      <div className="h-1.5 w-full bg-white/10 rounded" />
-                      <div className="h-1.5 w-full bg-white/10 rounded" />
-                      <div className="h-1.5 w-3/4 bg-white/10 rounded" />
+                      <div className="h-1.5 w-full bg-muted-foreground/15 rounded" />
+                      <div className="h-1.5 w-full bg-muted-foreground/15 rounded" />
+                      <div className="h-1.5 w-3/4 bg-muted-foreground/15 rounded" />
                     </div>
                     <div className="pt-2">
-                      <div className="aspect-square rounded-xl bg-slate-800 border border-white/5 grid place-items-center">
+                      <div className="aspect-square rounded-xl bg-muted border border-border grid place-items-center">
                         <div className="w-10 h-10 rounded-full border-4 border-indigo-500/20 border-t-indigo-500 animate-spin [animation-duration:2s]" />
                       </div>
                     </div>
