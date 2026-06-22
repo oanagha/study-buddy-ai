@@ -17,7 +17,8 @@ interface AuthShellProps {
 
 export function AuthShell({ children, title, subtitle }: AuthShellProps) {
   return (
-    <div className="min-h-screen w-full flex items-center justify-center relative overflow-hidden bg-slate-50 dark:bg-[#020617] py-4 sm:py-6">
+    <div className="h-screen w-full flex items-center justify-center relative overflow-hidden bg-slate-50 dark:bg-[#020617] py-4 sm:py-6">
+      <style>{`${webkitHide}`}</style>
       {/* Celestial base */}
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_50%_-20%,#e0e7ff_0%,#f8fafc_80%)] dark:bg-[radial-gradient(ellipse_at_50%_-20%,#1e1b4b_0%,#020617_80%)]" />
 
@@ -57,7 +58,10 @@ export function AuthShell({ children, title, subtitle }: AuthShellProps) {
 
       {/* Floating card */}
       <div className="relative z-10 w-full max-w-[460px] px-4 animate-float">
-        <div className="bg-white/70 dark:bg-slate-900/40 backdrop-blur-3xl border border-slate-200/70 dark:border-white/10 rounded-3xl shadow-[0_0_100px_-15px_rgba(79,70,229,0.25)] dark:shadow-[0_0_100px_-15px_rgba(79,70,229,0.35)] p-5 sm:p-6 relative overflow-hidden group">
+        <div
+          className="bg-white/70 dark:bg-slate-900/40 backdrop-blur-3xl border border-slate-200/70 dark:border-white/10 rounded-3xl shadow-[0_0_100px_-15px_rgba(79,70,229,0.25)] dark:shadow-[0_0_100px_-15px_rgba(79,70,229,0.35)] p-5 sm:p-6 relative group"
+          style={{ ...hideScrollbar, maxHeight: "90vh", overflowY: "auto" }}
+        >
           {/* Inner shimmer streak */}
           <div className="absolute -top-1/2 -left-1/2 w-full h-[200%] bg-gradient-to-r from-transparent via-white/40 dark:via-white/5 to-transparent rotate-[35deg] pointer-events-none group-hover:translate-x-full transition-transform duration-[3000ms]" />
 
