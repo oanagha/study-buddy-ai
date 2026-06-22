@@ -127,7 +127,7 @@ function Register() {
           </div>
         </div>
 
-        <div className="space-y-2">
+        <div className="space-y-1.5">
           <Label htmlFor="password" className={labelClass}>
             Password
           </Label>
