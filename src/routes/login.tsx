@@ -26,10 +26,10 @@ export const Route = createFileRoute("/login")({
 type LoginStep = "credentials" | "pin";
 
 const inputClass =
-  "h-12 rounded-2xl bg-slate-950/50 border border-white/10 text-white placeholder:text-slate-600 pl-11 focus-visible:ring-2 focus-visible:ring-indigo-500/40 focus-visible:border-indigo-500/50 transition-all";
-const labelClass = "text-xs font-semibold text-slate-300 uppercase tracking-wider ml-1";
+  "h-12 rounded-2xl bg-white/80 dark:bg-slate-950/50 border border-slate-200 dark:border-white/10 text-slate-900 dark:text-white placeholder:text-slate-400 dark:placeholder:text-slate-600 pl-11 focus-visible:ring-2 focus-visible:ring-indigo-500/40 focus-visible:border-indigo-500/50 transition-all";
+const labelClass = "text-xs font-semibold text-slate-600 dark:text-slate-300 uppercase tracking-wider ml-1";
 const primaryBtn =
-  "w-full h-12 rounded-2xl bg-gradient-to-r from-indigo-600 via-violet-600 to-fuchsia-600 hover:brightness-110 text-white font-semibold shadow-xl shadow-indigo-900/40 transition-all group";
+  "w-full h-12 rounded-2xl bg-gradient-to-r from-indigo-600 via-violet-600 to-fuchsia-600 hover:brightness-110 text-white font-semibold shadow-xl shadow-indigo-500/30 dark:shadow-indigo-900/40 transition-all group";
 
 function hasGoogleSignInError(): boolean {
   if (typeof window === "undefined") return false;
@@ -176,7 +176,7 @@ function Login() {
             </Label>
             <PinInput
               id="pin"
-              className="h-12 rounded-2xl bg-slate-950/50 border border-white/10 text-white"
+              className="h-12 rounded-2xl bg-white/80 dark:bg-slate-950/50 border border-slate-200 dark:border-white/10 text-slate-900 dark:text-white"
               centered
               value={pin}
               onChange={setPin}
@@ -202,7 +202,7 @@ function Login() {
         <Button
           type="button"
           variant="ghost"
-          className="w-full mt-4 text-slate-400 hover:text-white hover:bg-white/5"
+          className="w-full mt-4 text-slate-600 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white hover:bg-slate-100 dark:hover:bg-white/5"
           disabled={isSubmitting}
           onClick={handleBackToLogin}
         >
@@ -271,10 +271,10 @@ function Login() {
 
       <div className="relative my-7">
         <div className="absolute inset-0 flex items-center">
-          <span className="w-full border-t border-white/10" />
+          <span className="w-full border-t border-slate-200 dark:border-white/10" />
         </div>
         <div className="relative flex justify-center text-xs">
-          <span className="bg-slate-900/80 backdrop-blur-md px-4 text-slate-500 uppercase tracking-widest font-medium rounded-full">
+          <span className="bg-white/80 dark:bg-slate-900/80 backdrop-blur-md px-4 text-slate-500 uppercase tracking-widest font-medium rounded-full">
             or continue with
           </span>
         </div>
@@ -282,11 +282,11 @@ function Login() {
 
       <GoogleSignInButton disabled={isSubmitting} />
 
-      <p className="mt-8 text-center text-sm text-slate-400 font-medium">
+      <p className="mt-8 text-center text-sm text-slate-600 dark:text-slate-400 font-medium">
         New to StudyMate AI?{" "}
         <Link
           to="/register"
-          className="text-indigo-400 hover:text-indigo-300 ml-1 font-semibold transition-colors"
+          className="text-indigo-600 dark:text-indigo-400 hover:text-indigo-500 dark:hover:text-indigo-300 ml-1 font-semibold transition-colors"
         >
           Create an account
         </Link>
