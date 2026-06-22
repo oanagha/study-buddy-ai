@@ -76,7 +76,7 @@ function Register() {
       title="Create your account"
       subtitle="Free forever — no credit card required"
     >
-      <form className="space-y-4" onSubmit={handleSubmit} autoComplete="off">
+      <form className="space-y-3" onSubmit={handleSubmit} autoComplete="off">
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div className="space-y-2">
             <Label htmlFor="firstName" className={labelClass}>
@@ -192,7 +192,7 @@ function Register() {
         </p>
       </form>
 
-      <div className="relative my-7">
+      <div className="relative my-5">
         <div className="absolute inset-0 flex items-center">
           <span className="w-full border-t border-slate-200 dark:border-white/10" />
         </div>
@@ -205,7 +205,7 @@ function Register() {
 
       <GoogleSignInButton disabled={isSubmitting} />
 
-      <p className="mt-8 text-center text-sm text-slate-600 dark:text-slate-400 font-medium">
+      <p className="mt-6 text-center text-sm text-slate-600 dark:text-slate-400 font-medium">
         Already have an account?{" "}
         <Link
           to="/login"

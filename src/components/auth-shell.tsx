@@ -11,7 +11,7 @@ interface AuthShellProps {
 
 export function AuthShell({ children, title, subtitle }: AuthShellProps) {
   return (
-    <div className="min-h-screen w-full flex items-center justify-center relative overflow-hidden bg-slate-50 dark:bg-[#020617]">
+    <div className="min-h-screen w-full flex items-center justify-center relative overflow-hidden bg-slate-50 dark:bg-[#020617] py-6 sm:py-8">
       {/* Celestial base */}
       <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_50%_-20%,#e0e7ff_0%,#f8fafc_80%)] dark:bg-[radial-gradient(ellipse_at_50%_-20%,#1e1b4b_0%,#020617_80%)]" />
 
