@@ -192,7 +192,7 @@ function Register() {
         </p>
       </form>
 
-      <div className="relative my-5">
+      <div className="relative my-4">
         <div className="absolute inset-0 flex items-center">
           <span className="w-full border-t border-slate-200 dark:border-white/10" />
         </div>
